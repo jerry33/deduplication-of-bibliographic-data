@@ -63,7 +63,7 @@ public class MainController {
 
     @SuppressWarnings("Duplicates")
     private void saveBlockingMarcCompVectorsToCsv() {
-        final List<MarcRecord> marcRecords = xmlDataManager.getAllMarcRecords();
+        final List<MarcRecord> marcRecords = xmlDataManager.getAllMarcRecords(null);
         Collections.sort(marcRecords);
         System.out.println("marcRecords.size(): " + marcRecords.size());
         for (int i = 0; i < marcRecords.size(); i++) {
@@ -152,7 +152,7 @@ public class MainController {
 
     @SuppressWarnings("Duplicates")
     private void saveAllMarcCompVectorsToCsv() {
-        final List<MarcRecord> marcRecords = xmlDataManager.getAllMarcRecords();
+        final List<MarcRecord> marcRecords = xmlDataManager.getAllMarcRecords(null);
         final List<MarcCompVector> marcCompVectors = new ArrayList<>();
         final List<MarcCompVector> vectorsDuplicated = new ArrayList<>();
         final List<MarcCompVector> vectorsNonDuplicated = new ArrayList<>();

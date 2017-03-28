@@ -9,6 +9,8 @@ import utils.FileUtils;
 import utils.MarcFieldsFinder;
 import utils.MarcUtils;
 
+import javax.servlet.ServletContext;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -33,8 +35,13 @@ public class XmlDataManager {
         this.filePath = filePath;
     }
 
-    public List<MarcRecord> getAllMarcRecords() {
-        final List<Record> records = getAllRecords();
+    public List<MarcRecord> getAllMarcRecords(final ServletContext servletContext) {
+        List<Record> records;
+        if (servletContext == null) {
+            records = getAllRecords();
+        } else {
+            records = getAllRecords(servletContext);
+        }
         final List<MarcRecord> marcRecords = new ArrayList<>();
 
         for (final Record r : records) {
@@ -62,6 +69,16 @@ public class XmlDataManager {
 
     private List<Record> getAllRecords() {
         final MarcReader reader = new MarcXmlReader(FileUtils.getNewFileInputStream(filePath));
+        final List<Record> records = new ArrayList<>();
+        while (reader.hasNext()) {
+            records.add(reader.next());
+        }
+        return records;
+    }
+
+    private List<Record> getAllRecords(final ServletContext servletContext) {
+        final InputStream is = servletContext.getResourceAsStream(filePath);
+        final MarcReader reader = new MarcXmlReader(servletContext.getResourceAsStream(filePath));
         final List<Record> records = new ArrayList<>();
         while (reader.hasNext()) {
             records.add(reader.next());

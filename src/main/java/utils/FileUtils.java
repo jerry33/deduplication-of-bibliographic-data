@@ -14,8 +14,10 @@ import java.util.List;
  */
 public class FileUtils {
 
-    public static final String FILE_PATH_WITH_C99_DEDUP = "assets/Vy11to16BezC99a.xml";
-    public static final String FILE_NAME_ALL_MARC_COMP_VECTORS = "assets/marc_comp_vectors85_new.csv";
+//    public static final String FILE_PATH_WITH_C99_DEDUP = "assets/Vy14to16sC99a_with_dedup.xml";
+    public static final String FILE_PATH_WITH_C99_DEDUP = "/WEB-INF/assets/Vy14to16sC99a_with_dedup.xml";
+//    public static final String FILE_NAME_ALL_MARC_COMP_VECTORS = "assets/marc_comp_vectors85_new.csv";
+    public static final String FILE_NAME_ALL_MARC_COMP_VECTORS = "/WEB-INF/assets/marc_comp_vectors85_new.csv";
     public static final String FILE_PATH_DUPLICATED_ENTRIES = "assets/duplicated66.xml";
     public static final String CONTROL_FIELD_SEPARATOR = "-";
 

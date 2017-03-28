@@ -8,9 +8,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
   <head>
-    <title>$Title$</title>
+    <title>Deduplication of bibliographic data</title>
   </head>
   <body>
-  $END$
+  <p style="color:blueviolet">Hello World!</p>
   </body>
 </html>
