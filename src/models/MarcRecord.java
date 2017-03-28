@@ -111,7 +111,7 @@ public class MarcRecord implements Comparable<MarcRecord> {
     }
 
     public String getBlockingKey() {
-        return blockingKey;
+        return blockingKey == null ? "" : blockingKey;
     }
 
     public void setBlockingKey(String blockingKey) {
