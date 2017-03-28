@@ -27,36 +27,15 @@ public class MainController {
 
     void start() {
         final long start = System.nanoTime();
-        String args[] = new String[]{"--no-save"};
-        Rengine rengine = new Rengine(args, false, new TextConsole());
-        System.out.println("Rengine created, waiting for R");
-        if (!rengine.waitForR()) {
-            System.out.println("Cannot load R");
-            return;
-        }
-
-        REXP x;
-        rengine.eval("data(iris)",false);
-        System.out.println(x = rengine.eval("head(iris)"));
-        RVector v = x.asVector();
-        if (v.getNames()!=null) {
-            System.out.println("has names:");
-            for (Enumeration e = v.getNames().elements() ; e.hasMoreElements() ;) {
-                System.out.println(e.nextElement());
-            }
-        }
-
-        RList vl = x.asList();
-        String[] k = vl.keys();
-        if (k!=null) {
-            System.out.println("and once again from the list:");
-            int i=0; while (i<k.length) System.out.println(k[i++]);
-        }
-
 //        saveAllMarcCompVectorsToCsv();
-//        saveBlockingMarcCompVectorsToCsv();
+        saveBlockingMarcCompVectorsToCsv();
 //        writeDuplicateRecordsToFile();
 //        createCompVectorsFromControlFields();
+        List<MarcCompVector> compVectors = FileUtils.readCsv(
+                FileUtils.FILE_NAME_CSV_TO_READ,
+                MarcCompVector.class,
+                "compC99ids", "compControlFields", "compPersonalName", "compPublisherName", "compTitle",
+                "compNameOfPart", "compYearOfAuthor", "compYearOfPublication", "compInternationalStandardNumber", "compOverall");
         final long end = System.nanoTime();
         Printer.printTimeElapsed(start, end);
     }
@@ -137,15 +116,15 @@ public class MainController {
         String newFileName = "";
         if(FileUtils.FILE_PATH_WITH_C99_DEDUP.contains(".")) {
             newFileName = FileUtils.FILE_PATH_WITH_C99_DEDUP.substring(0, FileUtils.FILE_PATH_WITH_C99_DEDUP.lastIndexOf('.'));
-            newFileName = newFileName + "_blocking_comp_vectors.xml";
+            newFileName = newFileName + "_blocking_comp_vectors.csv";
         }
 
         if (StringUtils.isValid(newFileName)) {
             FileUtils.writeBeansToCsvFile(marcCompVectors,
                     newFileName,
                     MarcCompVector.class,
-                    "compControlFields", "compPersonalName", "compPublisherName", "compTitle",
-                    "compNameOfPart", "compYearOfAuthor", "compYearOfPublication", "compInternationalStandardNumber");
+                    "compC99ids", "compControlFields", "compPersonalName", "compPublisherName", "compTitle",
+                    "compNameOfPart", "compYearOfAuthor", "compYearOfPublication", "compInternationalStandardNumber", "compOverall");
         }
 
     }
@@ -180,6 +159,7 @@ public class MainController {
                 "compNameOfPart", "compYearOfAuthor", "compYearOfPublication", "compInternationalStandardNumber", "compOverall");
     }
 
+    @SuppressWarnings("Duplicates")
     private void writeDuplicateRecordsToFile() {
         final MarcReader reader = new MarcXmlReader(FileUtils.getNewFileInputStream(FileUtils.FILE_PATH_WITH_C99_DEDUP));
         final File file = new File(FileUtils.FILE_PATH_DUPLICATED_ENTRIES);
@@ -212,6 +192,34 @@ public class MainController {
             outputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void testR() {
+        String args[] = new String[]{"--no-save"};
+        Rengine rengine = new Rengine(args, false, new TextConsole());
+        System.out.println("Rengine created, waiting for R");
+        if (!rengine.waitForR()) {
+            System.out.println("Cannot load R");
+            return;
+        }
+
+        REXP x;
+        rengine.eval("data(iris)",false);
+        System.out.println(x = rengine.eval("head(iris)"));
+        RVector v = x.asVector();
+        if (v.getNames()!=null) {
+            System.out.println("has names:");
+            for (Enumeration e = v.getNames().elements() ; e.hasMoreElements() ;) {
+                System.out.println(e.nextElement());
+            }
+        }
+
+        RList vl = x.asList();
+        String[] k = vl.keys();
+        if (k!=null) {
+            System.out.println("and once again from the list:");
+            int i=0; while (i<k.length) System.out.println(k[i++]);
         }
     }
 

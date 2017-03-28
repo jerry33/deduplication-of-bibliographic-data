@@ -95,4 +95,18 @@ public class MarcCompVector {
     public void setCompC99ids(String compC99ids) {
         this.compC99ids = compC99ids;
     }
+
+    @Override
+    public String toString() {
+        return "compControlFields: " + compControlFields + "\n"
+                + "compC99Ids: " + compC99ids + "\n"
+                + "compTitle: " + compTitle + "\n"
+                + "compPersonalName: " + compPersonalName + "\n"
+                + "compPublisherName: " + compPublisherName + "\n"
+                + "compYearOfAuthor: " + compYearOfAuthor + "\n"
+                + "compYearOfPublication: " + compYearOfPublication + "\n"
+                + "compNameOfPart: " + compNameOfPart + "\n"
+                + "compInternationalStandardNumber: " + compInternationalStandardNumber + "\n"
+                + "compOverall: " + compOverall + "\n";
+    }
 }

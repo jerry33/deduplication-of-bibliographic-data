@@ -1,9 +1,12 @@
 package utils;
 
+import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 
+import java.io.InputStream;
 import java.text.Normalizer;
 import java.util.Arrays;
+import java.util.Scanner;
 
 /**
  * Created by jerry on 12/5/16.
@@ -78,6 +81,11 @@ public class StringUtils {
             sb.append(s.charAt(0));
         }
         return sb.toString();
+    }
+
+    public static String convertStreamToString(@NotNull final InputStream is) {
+        final Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+        return s.hasNext() ? s.next() : "";
     }
 
 }
