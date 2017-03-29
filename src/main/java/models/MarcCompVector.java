@@ -5,8 +5,10 @@ package models;
  */
 public class MarcCompVector {
 
-    private String compControlFields;
-    private String compC99ids;
+    private String compControlField1;
+    private String compControlField2;
+    private String compC99id1;
+    private String compC99id2;
     private double compTitle;
     private double compPersonalName;
     private double compPublisherName;
@@ -16,12 +18,36 @@ public class MarcCompVector {
     private double compInternationalStandardNumber;
     private boolean compOverall;
 
-    public String getCompControlFields() {
-        return compControlFields;
+    public String getCompControlField1() {
+        return compControlField1;
     }
 
-    public void setCompControlFields(String compControlFields) {
-        this.compControlFields = compControlFields;
+    public void setCompControlField1(String compControlField1) {
+        this.compControlField1 = compControlField1;
+    }
+
+    public String getCompControlField2() {
+        return compControlField2;
+    }
+
+    public void setCompControlField2(String compControlField2) {
+        this.compControlField2 = compControlField2;
+    }
+
+    public String getCompC99id1() {
+        return compC99id1;
+    }
+
+    public void setCompC99id1(String compC99id1) {
+        this.compC99id1 = compC99id1;
+    }
+
+    public String getCompC99id2() {
+        return compC99id2;
+    }
+
+    public void setCompC99id2(String compC99id2) {
+        this.compC99id2 = compC99id2;
     }
 
     public double getCompTitle() {
@@ -88,18 +114,12 @@ public class MarcCompVector {
         this.compOverall = compOverall;
     }
 
-    public String getCompC99ids() {
-        return compC99ids;
-    }
-
-    public void setCompC99ids(String compC99ids) {
-        this.compC99ids = compC99ids;
-    }
-
     @Override
     public String toString() {
-        return "compControlFields: " + compControlFields + "\n"
-                + "compC99Ids: " + compC99ids + "\n"
+        return "compControlField1: " + compControlField1 + "\n"
+                + "compControlField2: " + compControlField2 + "\n"
+                + "compC99id1: " + compC99id1 + "\n"
+                + "compC99id2: " + compC99id2 + "\n"
                 + "compTitle: " + compTitle + "\n"
                 + "compPersonalName: " + compPersonalName + "\n"
                 + "compPublisherName: " + compPublisherName + "\n"

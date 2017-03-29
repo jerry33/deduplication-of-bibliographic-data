@@ -20,8 +20,10 @@ public final class MarcUtils {
 
     public static MarcCompVector createCompVector(@NotNull final MarcRecord record1, @NotNull final MarcRecord record2) {
         final MarcCompVector marcCompVector = new MarcCompVector();
-        marcCompVector.setCompC99ids(record1.getC99FieldId() + ";" + record2.getC99FieldId());
-        marcCompVector.setCompControlFields(record1.getControlFieldId() + ";" + record2.getControlFieldId());
+        marcCompVector.setCompC99id1(record1.getC99FieldId());
+        marcCompVector.setCompC99id2(record2.getC99FieldId());
+        marcCompVector.setCompControlField1(record1.getControlFieldId());
+        marcCompVector.setCompControlField2(record2.getControlFieldId());
         marcCompVector.setCompPersonalName(StringComparator.comparePersonalName(record1.getPersonalName(), record2.getPersonalName()));
         marcCompVector.setCompPublisherName(StringComparator.comparePublisher(record1.getPublisherName(), record2.getPublisherName()));
         marcCompVector.setCompTitle(StringComparator.compareTitle(record1.getTitle(), record2.getTitle()));

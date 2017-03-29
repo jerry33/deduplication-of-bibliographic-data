@@ -19,7 +19,11 @@ import java.util.*;
  */
 public class MainController {
 
+    static String[] sColumnNames;
+
     static {
+        sColumnNames = new String[]{"compC99id1", "compC99id2", "compControlField1", "compControlField2", "compPersonalName", "compPublisherName", "compTitle",
+                "compNameOfPart", "compYearOfAuthor", "compYearOfPublication", "compInternationalStandardNumber", "compOverall"};
         System.loadLibrary("jri");
     }
 
@@ -34,8 +38,10 @@ public class MainController {
         List<MarcCompVector> compVectors = FileUtils.readCsv(
                 FileUtils.FILE_NAME_CSV_TO_READ,
                 MarcCompVector.class,
-                "compC99ids", "compControlFields", "compPersonalName", "compPublisherName", "compTitle",
-                "compNameOfPart", "compYearOfAuthor", "compYearOfPublication", "compInternationalStandardNumber", "compOverall");
+                sColumnNames);
+        for (MarcCompVector marcCompVector : compVectors) {
+            System.out.println(marcCompVector.toString());
+        }
         final long end = System.nanoTime();
         Printer.printTimeElapsed(start, end);
     }
@@ -123,8 +129,7 @@ public class MainController {
             FileUtils.writeBeansToCsvFile(marcCompVectors,
                     newFileName,
                     MarcCompVector.class,
-                    "compC99ids", "compControlFields", "compPersonalName", "compPublisherName", "compTitle",
-                    "compNameOfPart", "compYearOfAuthor", "compYearOfPublication", "compInternationalStandardNumber", "compOverall");
+                    sColumnNames);
         }
 
     }
@@ -155,8 +160,7 @@ public class MainController {
         FileUtils.writeBeansToCsvFile(marcCompVectors,
                 FileUtils.FILE_NAME_ALL_MARC_COMP_VECTORS,
                 MarcCompVector.class,
-                "compC99ids", "compPersonalName", "compPublisherName", "compTitle",
-                "compNameOfPart", "compYearOfAuthor", "compYearOfPublication", "compInternationalStandardNumber", "compOverall");
+                sColumnNames);
     }
 
     @SuppressWarnings("Duplicates")
