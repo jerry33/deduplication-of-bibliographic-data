@@ -22,6 +22,7 @@ public class MainController {
     static String[] sColumnNames;
 
     static {
+        System.loadLibrary("jri");
         sColumnNames = new String[]{"compC99id1", "compC99id2", "compControlField1", "compControlField2", "compPersonalName", "compPublisherName", "compTitle",
                 "compNameOfPart", "compYearOfAuthor", "compYearOfPublication", "compInternationalStandardNumber", "compOverall"};
         System.loadLibrary("jri");
@@ -39,9 +40,10 @@ public class MainController {
                 FileUtils.FILE_NAME_CSV_TO_READ,
                 MarcCompVector.class,
                 sColumnNames);
-        for (MarcCompVector marcCompVector : compVectors) {
-            System.out.println(marcCompVector.toString());
-        }
+//        for (MarcCompVector marcCompVector : compVectors) {
+//            System.out.println(marcCompVector.toString());
+//        }
+        testR();
         final long end = System.nanoTime();
         Printer.printTimeElapsed(start, end);
     }
@@ -104,7 +106,7 @@ public class MainController {
                     final boolean typesOfMaterialMatch = record1.getTypeOfMaterial().equals(record2.getTypeOfMaterial());
                     if (typesOfMaterialMatch) {
                         numberOfComparisons++;
-                        System.out.println("numberOfComparisons: " + numberOfComparisons);
+//                        System.out.println("numberOfComparisons: " + numberOfComparisons);
                         final MarcCompVector marcCompVector = MarcUtils.createCompVector(record1, record2);
                         if (record1.getC99FieldId().equals(record2.getC99FieldId())) {
                             vectorsDuplicated.add(marcCompVector);
@@ -209,22 +211,65 @@ public class MainController {
         }
 
         REXP x;
-        rengine.eval("data(iris)",false);
-        System.out.println(x = rengine.eval("head(iris)"));
-        RVector v = x.asVector();
-        if (v.getNames()!=null) {
-            System.out.println("has names:");
-            for (Enumeration e = v.getNames().elements() ; e.hasMoreElements() ;) {
-                System.out.println(e.nextElement());
-            }
-        }
+        x = trainAndClasifyData(rengine);
+        System.out.println(x);
+        System.out.println(x.asList().at(0).asDoubleArray()[2]);
+        System.out.println(x.asList().at(0).asDoubleArray()[3]);
+//        System.out.println(x.asDoubleArray()[25]);
+//        System.out.println(x.asVector().getNames().elementAt(1));
+//        System.out.println(x.asVector().elementAt(1));
+//        System.out.println(x.asVector().size());
+//        Vector vector = x.asVector();
+//        for (int i = 0; i < vector.size(); i++) {
+//            if (i == 1) {
+//                System.out.println("first element: " + vector.);
+//            }
+//            System.out.println("value: " + vector.get(i));
+//        }
 
-        RList vl = x.asList();
-        String[] k = vl.keys();
-        if (k!=null) {
-            System.out.println("and once again from the list:");
-            int i=0; while (i<k.length) System.out.println(k[i++]);
-        }
+
+//        rengine.eval("data(iris)",false);
+//        System.out.println(x = rengine.eval("head(iris)"));
+//        RVector v = x.asVector();
+//        if (v.getNames()!=null) {
+//            System.out.println("has names:");
+//            for (Enumeration e = v.getNames().elements() ; e.hasMoreElements() ;) {
+//                System.out.println(e.nextElement());
+//            }
+//        }
+
+
+//        RList vl = x.asList();
+//        String[] k = vl.keys();
+//        System.out.println(vl.getBody());
+//        if (k!=null) {
+//            System.out.println("and once again from the list:");
+//            int i=0; while (i<k.length) System.out.println(k[i++]);
+//        } else {
+//            System.out.println("k == null");
+//        }
+    }
+
+    private REXP trainAndClasifyData(final Rengine rengine) {
+        REXP x;
+        x = rengine.eval("marc1_c99 <- read.csv(\"/Users/jerry/Desktop/idea/marc_comp_vectors3_with_c99.csv\")");
+//        x = rengine.eval("myData$compPersonalName");
+//        x = rengine.eval("myData");
+        x = rengine.eval("marc1_c99 <- marc1_c99[sample(nrow(marc1_c99)),]");
+        x = rengine.eval("marc1_c99_train <- marc1_c99[1:2000,]");
+        x = rengine.eval("marc1_c99_test <- marc1_c99[2001:5000,]");
+        x = rengine.eval("column_ids_c99 <- marc1_c99_test[,1]");
+        x = rengine.eval("marc1_c99_train <- cbind(marc1_c99_train[,2:9])");
+        x = rengine.eval("marc1_c99_test <- cbind(marc1_c99_test[,2:9])");
+//        x = rengine.eval("install.packages(\"C50\")");
+        x = rengine.eval("library(C50)");
+        x = rengine.eval("c5_c99 <- C5.0(marc1_c99_train[,-8], marc1_c99_train[,8])");
+        x = rengine.eval("p1_c99 <- predict(c5_c99, marc1_c99_test)");
+        x = rengine.eval("marc1_c99_test <- cbind(marc1_c99_test[,1:8], p1_c99)");
+        x = rengine.eval("marc1_c99_test <- cbind(marc1_c99_test[,1:9], column_ids_c99)");
+        x = rengine.eval("write.csv(marc1_c99_test, \"/Users/jerry/Desktop/idea/jri_test.csv\", row.names = FALSE)");
+        x = rengine.eval("marc1_c99_test");
+        return x;
     }
 
 }
