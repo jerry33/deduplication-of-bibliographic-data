@@ -17,10 +17,13 @@ import java.util.List;
  */
 public class FileUtils {
 
-    public static final String FILE_PATH_WITH_C99_DEDUP = "assets/Vy14to16sC99a_with_dedup.xml";
+    public static final String FILE_PATH_WITH_C99_DEDUP = "assets/prod/Vy14to16sC99a_with_dedup.xml";
+    public static final String FILE_PATH_WITHOUT_C99 = "assets/prod/Vy11to16BezC99a.xml";
+    public static final String FILE_PATH_WITH_C99_DEDUP_ABSOLUTE_PATH = "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/comp_vectors_all.csv";
 //    public static final String FILE_PATH_WITH_C99_DEDUP = "/WEB-INF/assets/Vy14to16sC99a_with_dedup.xml";
-    public static final String FILE_NAME_ALL_MARC_COMP_VECTORS = "assets/marc_comp_vectors85_new.csv";
-//    public static final String FILE_NAME_ALL_MARC_COMP_VECTORS = "/WEB-INF/assets/marc_comp_vectors85_new.csv";
+    public static final String FILE_NAME_ALL_TRAIN_COMP_VECTORS = "assets/prod/comp_vectors_all_train.csv";
+    public static final String FILE_NAME_ALL_TEST_COMP_VECTORS = "assets/prod/comp_vectors_all_test.csv";
+//    public static final String FILE_NAME_ALL_TRAIN_COMP_VECTORS = "/WEB-INF/assets/marc_comp_vectors85_new.csv";
     public static final String FILE_NAME_CSV_TO_READ = "assets/Vy14to16sC99a_with_dedup_blocking_comp_vectors.csv";
     public static final String FILE_PATH_DUPLICATED_ENTRIES = "assets/duplicated66.xml";
     public static final String CONTROL_FIELD_SEPARATOR = "-";

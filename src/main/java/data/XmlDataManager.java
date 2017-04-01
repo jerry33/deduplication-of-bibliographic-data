@@ -21,26 +21,12 @@ import java.util.stream.Collectors;
  */
 public class XmlDataManager {
 
-    private String filePath;
-
-    public XmlDataManager(@NotNull final String filePath) {
-        this.filePath = filePath;
-    }
-
-    public String getFilePath() {
-        return filePath;
-    }
-
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
-    }
-
-    public List<MarcRecord> getAllMarcRecords(final ServletContext servletContext) {
+    public List<MarcRecord> getAllMarcRecords(final ServletContext servletContext, final String filePath) {
         List<Record> records;
         if (servletContext == null) {
-            records = getAllRecords();
+            records = getAllRecords(filePath);
         } else {
-            records = getAllRecords(servletContext);
+            records = getAllRecords(servletContext, filePath);
         }
         final List<MarcRecord> marcRecords = new ArrayList<>();
 
@@ -67,7 +53,7 @@ public class XmlDataManager {
         return marcRecords;
     }
 
-    private List<Record> getAllRecords() {
+    private List<Record> getAllRecords(final String filePath) {
         final MarcReader reader = new MarcXmlReader(FileUtils.getNewFileInputStream(filePath));
         final List<Record> records = new ArrayList<>();
         while (reader.hasNext()) {
@@ -76,7 +62,7 @@ public class XmlDataManager {
         return records;
     }
 
-    private List<Record> getAllRecords(final ServletContext servletContext) {
+    private List<Record> getAllRecords(final ServletContext servletContext, final String filePath) {
         final InputStream is = servletContext.getResourceAsStream(filePath);
         final MarcReader reader = new MarcXmlReader(servletContext.getResourceAsStream(filePath));
         final List<Record> records = new ArrayList<>();
@@ -86,8 +72,8 @@ public class XmlDataManager {
         return records;
     }
 
-    public List<String> getDuplicateIdentifiers() {
-        final List<String> identifiers = MarcUtils.getAllIdentifiers(FileUtils.FILE_PATH_WITH_C99_DEDUP);
+    public List<String> getDuplicateIdentifiers(final String filePath) {
+        final List<String> identifiers = MarcUtils.getAllIdentifiers(filePath);
         Collections.sort(identifiers);
         final List<String> deduplicationList = new ArrayList<>();
         for (int i = 0; i < identifiers.size(); i++) {

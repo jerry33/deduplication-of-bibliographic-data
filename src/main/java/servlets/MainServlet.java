@@ -38,15 +38,15 @@ public class MainServlet extends HttpServlet {
         System.out.println("doGet starting something");
 //        getServletContext().getRequestDispatcher("/index.jsp").forward
 //                (req, resp);
-        xmlDataManager = new XmlDataManager(FileUtils.FILE_PATH_WITH_C99_DEDUP);
+        xmlDataManager = new XmlDataManager();
         System.out.println("doGet after xmlDataManager init");
-        saveAllMarcCompVectorsToCsv();
+        saveAllMarcCompVectorsToCsv(FileUtils.FILE_PATH_WITH_C99_DEDUP, FileUtils.FILE_NAME_ALL_TRAIN_COMP_VECTORS);
     }
 
     @SuppressWarnings("Duplicates")
-    private void saveAllMarcCompVectorsToCsv() {
+    private void saveAllMarcCompVectorsToCsv(final String sourceFilePath, final String outputFileName) {
         System.out.println("saveAllMarcCompVectorsToCsv");
-        final List<MarcRecord> marcRecords = xmlDataManager.getAllMarcRecords(getServletContext());
+        final List<MarcRecord> marcRecords = xmlDataManager.getAllMarcRecords(getServletContext(), outputFileName);
         final List<MarcCompVector> marcCompVectors = new ArrayList<>();
         final List<MarcCompVector> vectorsDuplicated = new ArrayList<>();
         final List<MarcCompVector> vectorsNonDuplicated = new ArrayList<>();
@@ -69,15 +69,15 @@ public class MainServlet extends HttpServlet {
         marcCompVectors.addAll(vectorsDuplicated);
         marcCompVectors.addAll(vectorsNonDuplicated);
         FileUtils.writeBeansToCsvFile(marcCompVectors,
-                getServletContext().getRealPath(FileUtils.FILE_NAME_ALL_MARC_COMP_VECTORS),
+                getServletContext().getRealPath(FileUtils.FILE_NAME_ALL_TRAIN_COMP_VECTORS),
                 MarcCompVector.class,
                 "compC99ids", "compPersonalName", "compPublisherName", "compTitle",
                 "compNameOfPart", "compYearOfAuthor", "compYearOfPublication", "compInternationalStandardNumber", "compOverall");
     }
 
     @SuppressWarnings("Duplicates")
-    private void saveBlockingMarcCompVectorsToCsv() {
-        final List<MarcRecord> marcRecords = xmlDataManager.getAllMarcRecords(null);
+    private void saveBlockingMarcCompVectorsToCsv(final String sourceFilePath) {
+        final List<MarcRecord> marcRecords = xmlDataManager.getAllMarcRecords(null, sourceFilePath);
         Collections.sort(marcRecords);
         System.out.println("marcRecords.size(): " + marcRecords.size());
         for (int i = 0; i < marcRecords.size(); i++) {
@@ -165,7 +165,7 @@ public class MainServlet extends HttpServlet {
     }
 
     @SuppressWarnings("Duplicates")
-    private void writeDuplicateRecordsToFile() {
+    private void writeDuplicateRecordsToFile(final String sourceFilePath) {
         final MarcReader reader = new MarcXmlReader(FileUtils.getNewFileInputStream(FileUtils.FILE_PATH_WITH_C99_DEDUP));
         final File file = new File(FileUtils.FILE_PATH_DUPLICATED_ENTRIES);
         final List<Record> records = new ArrayList<>();
@@ -178,7 +178,7 @@ public class MainServlet extends HttpServlet {
             }
             final OutputStream outputStream = new FileOutputStream(FileUtils.FILE_PATH_DUPLICATED_ENTRIES);
             final MarcXmlWriter writer = new MarcXmlWriter(outputStream, true);
-            final Set<String> c99IdentifiersHashSet = new HashSet<>(xmlDataManager.getDuplicateIdentifiers());
+            final Set<String> c99IdentifiersHashSet = new HashSet<>(xmlDataManager.getDuplicateIdentifiers(sourceFilePath));
             int numberOfDuplicateRecords = 0;
             for (final Record record : records) {
                 if (((DataField) record.getVariableField("C99")).getSubfield('a') != null) {
