@@ -14,6 +14,7 @@ public class MarcRecord implements Comparable<MarcRecord> {
     private String typeOfMaterial;
     private String c99FieldId;
     private String controlFieldId;
+    private String libraryId;
     private String personalName;
     private String publisherName;
     private String title;
@@ -22,8 +23,13 @@ public class MarcRecord implements Comparable<MarcRecord> {
     private String yearOfPublication;
     private List<String> internationalStandardNumbers;
     private String blockingKey;
+    private boolean isMasterDatabaseRecord;
 
     public MarcRecord() {}
+
+    public MarcRecord(String controlFieldId) {
+        this.controlFieldId = controlFieldId;
+    }
 
     public MarcRecord(String controlFieldId, String c99FieldId) {
         this.controlFieldId = controlFieldId;
@@ -44,6 +50,14 @@ public class MarcRecord implements Comparable<MarcRecord> {
 
     public void setControlFieldId(String controlFieldId) {
         this.controlFieldId = controlFieldId;
+    }
+
+    public String getLibraryId() {
+        return libraryId;
+    }
+
+    public void setLibraryId(String libraryId) {
+        this.libraryId = libraryId;
     }
 
     public String getC99FieldId() {
@@ -118,6 +132,14 @@ public class MarcRecord implements Comparable<MarcRecord> {
         this.blockingKey = blockingKey;
     }
 
+    public boolean isMasterDatabaseRecord() {
+        return isMasterDatabaseRecord;
+    }
+
+    public void setIsMasterDatabaseRecord(boolean isMasterDatabaseRecord) {
+        this.isMasterDatabaseRecord = isMasterDatabaseRecord;
+    }
+
     public void generateBlockingKey() {
         String authorAbbreviation;
         String titleAbbreviation;
@@ -153,7 +175,31 @@ public class MarcRecord implements Comparable<MarcRecord> {
     }
 
     @Override
-    public String toString() {
-        return getC99FieldId() + "::" + getBlockingKey();
+    public int hashCode() {
+        int result = 17;
+        result = 31 * result + controlFieldId.hashCode();
+        return result;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof MarcRecord && controlFieldId.equals(((MarcRecord) obj).getControlFieldId());
+    }
+
+    @Override
+    public String toString() {
+        return "typeOfMaterial: " + typeOfMaterial + "\n" +
+                "c99FieldId: " + c99FieldId + "\n" +
+                "controlFieldId: " + controlFieldId + "\n" +
+                "libraryId: " + libraryId + "\n" +
+                "personalName: " + personalName + "\n" +
+                "publisherName: " + publisherName + "\n" +
+                "title: " + title + "\n" +
+                "nameOfPart: " + nameOfPart + "\n" +
+                "yearOfAuthor: " + yearOfAuthor + "\n" +
+                "yearOfPublication: " + yearOfPublication + "\n" +
+                "internationalStandardNumbers: " + internationalStandardNumbers + "\n" +
+                "blockingKey: " + blockingKey;
+    }
+
 }

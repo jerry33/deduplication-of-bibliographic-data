@@ -4,6 +4,7 @@ import com.sun.istack.internal.NotNull;
 import models.MarcRecord;
 import org.marc4j.MarcReader;
 import org.marc4j.MarcXmlReader;
+import org.marc4j.marc.ControlField;
 import org.marc4j.marc.Record;
 import utils.FileUtils;
 import utils.MarcFieldsFinder;
@@ -35,7 +36,11 @@ public class XmlDataManager {
             final String charAt6 = String.valueOf(r.getLeader().marshal().charAt(6));
             final String charAt7 = String.valueOf(r.getLeader().marshal().charAt(7));
             final String typeOfMaterial = String.valueOf(charAt6.concat(charAt7));
-
+            for (ControlField c : r.getControlFields()) {
+                if (c.getTag().equals("003")) {
+                    marcRecord.setLibraryId(c.getData()); // set library id
+                }
+            }
             marcRecord.setTypeOfMaterial(typeOfMaterial);
             marcRecord.setControlFieldId(r.getControlNumber());
             marcRecord.setC99FieldId(MarcFieldsFinder.findC99FieldId(r));

@@ -1,14 +1,18 @@
 package models;
 
+import utils.StringUtils;
+
 /**
  * Created by jerry on 12/5/16.
  */
 public class MarcCompVector {
 
-    private String compControlField1;
+    private String compControlField1; // TODO: maybe change name to controlField1, as it is not being compared
     private String compControlField2;
     private String compC99id1;
     private String compC99id2;
+    private String compLibraryId1;
+    private String compLibraryId2;
     private double compTitle;
     private double compPersonalName;
     private double compPublisherName;
@@ -48,6 +52,22 @@ public class MarcCompVector {
 
     public void setCompC99id2(String compC99id2) {
         this.compC99id2 = compC99id2;
+    }
+
+    public String getCompLibraryId1() {
+        return compLibraryId1;
+    }
+
+    public void setCompLibraryId1(String compLibraryId1) {
+        this.compLibraryId1 = compLibraryId1;
+    }
+
+    public String getCompLibraryId2() {
+        return compLibraryId2;
+    }
+
+    public void setCompLibraryId2(String compLibraryId2) {
+        this.compLibraryId2 = compLibraryId2;
     }
 
     public double getCompTitle() {
@@ -114,12 +134,18 @@ public class MarcCompVector {
         this.compOverall = compOverall;
     }
 
+    public boolean isDuplicate() {
+        return compOverall;
+    }
+
     @Override
     public String toString() {
         return "compControlField1: " + compControlField1 + "\n"
                 + "compControlField2: " + compControlField2 + "\n"
                 + "compC99id1: " + compC99id1 + "\n"
                 + "compC99id2: " + compC99id2 + "\n"
+                + "compLibraryId1: " + compLibraryId1 + "\n"
+                + "compLibraryId2: " + compLibraryId2 + "\n"
                 + "compTitle: " + compTitle + "\n"
                 + "compPersonalName: " + compPersonalName + "\n"
                 + "compPublisherName: " + compPublisherName + "\n"

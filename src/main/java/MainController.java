@@ -12,6 +12,8 @@ import utils.*;
 
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by jerry on 11/28/16.
@@ -20,11 +22,13 @@ public class MainController {
 
     static String[] sColumnNames;
 
+    private String masterLibraryId;
     private RManager rManager = RManager.getInstance();
+    private Map<MarcRecord, List<MarcRecord>> uniqueMarcRecordsHashMap = new HashMap<>();
 
     static {
         System.loadLibrary("jri");
-        sColumnNames = new String[]{"compC99id1", "compC99id2", "compControlField1", "compControlField2", "compPersonalName", "compPublisherName", "compTitle",
+        sColumnNames = new String[]{"compC99id1", "compC99id2", "compControlField1", "compControlField2", "compLibraryId1", "compLibraryId2", "compPersonalName", "compPublisherName", "compTitle",
                 "compNameOfPart", "compYearOfAuthor", "compYearOfPublication", "compInternationalStandardNumber", "compOverall"};
     }
 
@@ -32,8 +36,39 @@ public class MainController {
 
     void start() {
         final long start = System.nanoTime();
-        saveAllMarcCompVectorsToCsv(FileUtils.FILE_PATH_WITH_C99_DEDUP);
-        saveBlockingMarcCompVectorsToCsv(FileUtils.FILE_PATH_WITHOUT_C99);
+        System.out.println("start()");
+//        final List<MarcRecord> marcRecords1 = xmlDataManager.getAllMarcRecords(null, "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/Vy11to16BezC99a_crop.xml");
+//        masterLibraryId = marcRecords1.get(0).getLibraryId();
+//        for (MarcRecord marcRecord : marcRecords1) {
+//            marcRecord.setIsMasterDatabaseRecord(true);
+//            uniqueMarcRecordsHashMap.put(marcRecord, new ArrayList<>());
+//        }
+//        final List<MarcRecord> marcRecords2 = xmlDataManager.getAllMarcRecords(null, "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/Ujep11to16BezC99a_crop.xml");
+//        final List<MarcRecord> mergedMarcRecords = Stream.concat(marcRecords1.stream(), marcRecords2.stream()).collect(Collectors.toList());
+//        final List<MarcCompVector> mergedCompVectors = createBlockingCompVectorsFromRecords(mergedMarcRecords);
+//        FileUtils.writeBeansToCsvFile(mergedCompVectors, "merged_comp_vectors.csv", MarcCompVector.class, sColumnNames);
+//        final List<MarcCompVector> mergedCompVectorsFromFile = FileUtils.readCsv("merged_comp_vectors.csv", MarcCompVector.class, sColumnNames);
+
+        final List<MarcRecord> marcRecords1 = xmlDataManager.getAllMarcRecords(null, "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/Vy11to16BezC99a_crop_unique_test.xml");
+//        final List<MarcCompVector> marcCompVectors = createBlockingCompVectorsFromRecords(marcRecords1);
+//        FileUtils.writeBeansToCsvFile(marcCompVectors, "merged_comp_vectors_unique_test.csv", MarcCompVector.class, sColumnNames);
+        final List<MarcCompVector> marcCompVectorsFromFile = FileUtils.readCsv("merged_comp_vectors_unique_test.csv", MarcCompVector.class, sColumnNames);
+        final List<List<MarcRecord>> uniqueList = createUniqueMarcRecordsList(marcCompVectorsFromFile, marcRecords1);
+        System.out.println("uniqueList.size(): " + uniqueList.size());
+        for (List<MarcRecord> marcRecordList : uniqueList) {
+            if (marcRecordList.size() == 0) {
+                System.out.println(marcRecordList.get(0).getControlFieldId());
+            } else if (marcRecordList.size() > 1) {
+                for (MarcRecord marcRecord : marcRecordList) {
+                    System.out.print(marcRecord.getControlFieldId() + " --> ");
+                }
+            }
+            System.out.println();
+        }
+
+//        Printer.printDuplicates(mergedCompVectorsFromFile, mergedMarcRecords);
+//        saveAllMarcCompVectorsToCsv(FileUtils.FILE_PATH_WITH_C99_DEDUP);
+//        saveBlockingMarcCompVectorsToCsv(FileUtils.FILE_PATH_WITHOUT_C99);
 //        saveBlockingMarcCompVectorsToCsv();
 //        rManager.trainDataFromFile(FileUtils.FILE_PATH_WITH_C99_DEDUP_ABSOLUTE_PATH);
 //        rManager.trainAndClassifyData();
@@ -51,18 +86,94 @@ public class MainController {
         Printer.printTimeElapsed(start, end);
     }
 
-    @SuppressWarnings("Duplicates")
-    private void saveBlockingMarcCompVectorsToCsv(final String sourceFilePath) {
-        final List<MarcRecord> marcRecords = xmlDataManager.getAllMarcRecords(null, sourceFilePath);
-        Collections.sort(marcRecords);
-        System.out.println("marcRecords.size(): " + marcRecords.size());
-        for (int i = 0; i < marcRecords.size(); i++) {
-            if (marcRecords.get(i).getBlockingKey().equals("")) {
-                System.out.println("EMPTY " + (i + 1));
-            } else {
-                System.out.println(marcRecords.get(i).getBlockingKey() + " " + (i + 1));
+    private List<List<MarcRecord>> createUniqueMarcRecordsList(final List<MarcCompVector> marcCompVectors, final List<MarcRecord> marcRecords) {
+        final List<List<MarcRecord>> uniqueList = new ArrayList<>();
+        for (MarcCompVector marcCompVector : marcCompVectors) {
+            System.out.println(marcCompVector.toString());
+            if (!marcCompVector.isDuplicate()) {
+                if (!isControlFieldInUniqueList(marcCompVector.getCompControlField1(), uniqueList)) {
+                    uniqueList.add(new ArrayList<>(Collections.singleton(findMarcRecordByControlField(marcCompVector.getCompControlField1(), marcRecords))));
+                }
+                if (!isControlFieldInUniqueList(marcCompVector.getCompControlField2(), uniqueList)) {
+                    uniqueList.add(new ArrayList<>(Collections.singleton(findMarcRecordByControlField(marcCompVector.getCompControlField2(), marcRecords))));
+                }
+            } else { // is duplicate
+                int controlField1PositionInList = getPositionOfDuplicateList(marcCompVector.getCompControlField1(), uniqueList);
+                int controlField2PositionInList = getPositionOfDuplicateList(marcCompVector.getCompControlField2(), uniqueList);
+                if (controlField1PositionInList != -1 && controlField2PositionInList != -1) { // they are both already added
+                    continue;
+                }
+                if (controlField1PositionInList != -1) {
+                    uniqueList.get(controlField1PositionInList).add(findMarcRecordByControlField(marcCompVector.getCompControlField2(), marcRecords));
+                } else if (controlField2PositionInList != -1) {
+                    uniqueList.get(controlField2PositionInList).add(findMarcRecordByControlField(marcCompVector.getCompControlField1(), marcRecords));
+                } else {
+                    final List<MarcRecord> newList = new ArrayList<>();
+                    newList.add(findMarcRecordByControlField(marcCompVector.getCompControlField1(), marcRecords));
+                    newList.add(findMarcRecordByControlField(marcCompVector.getCompControlField2(), marcRecords));
+                    uniqueList.add(newList);
+                }
             }
         }
+        return uniqueList;
+    }
+
+    private boolean isControlFieldInUniqueList(final String controlField, final List<List<MarcRecord>> uniqueList) {
+        for (List<MarcRecord> list : uniqueList) {
+            for (MarcRecord marcRecord : list) {
+                if (controlField.equals(marcRecord.getControlFieldId())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private int getPositionOfDuplicateList(final String controlField, final List<List<MarcRecord>> uniqueList) {
+        for (int i = 0; i < uniqueList.size(); i++) {
+            final List<MarcRecord> duplicateList = uniqueList.get(i);
+            for (int j = 0; j < duplicateList.size(); j++) {
+                if (controlField.equals(duplicateList.get(j).getControlFieldId())) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+    private MarcRecord findMarcRecordByControlField(final String controlField, final List<MarcRecord> marcRecords) {
+        for (MarcRecord marcRecord : marcRecords) {
+            if (controlField.equals(marcRecord.getControlFieldId())) {
+                return marcRecord;
+            }
+        }
+        return null;
+    }
+
+    @SuppressWarnings("Duplicates")
+    private void saveBlockingMarcCompVectorsToCsv(final String sourceFilePath) {
+        String newFileName = "";
+        if(sourceFilePath.contains(".")) {
+            newFileName = sourceFilePath.substring(0, sourceFilePath.lastIndexOf('.'));
+            newFileName = newFileName + "_blocking_comp_vectors.csv";
+        }
+        if (StringUtils.isValid(newFileName)) {
+            FileUtils.writeBeansToCsvFile(createBlockingCompVectorsFromFile(sourceFilePath),
+                    newFileName,
+                    MarcCompVector.class,
+                    sColumnNames);
+        }
+    }
+
+    @SuppressWarnings("Duplicates")
+    private List<MarcCompVector> createBlockingCompVectorsFromFile(final String filePath) {
+        return createBlockingCompVectorsFromRecords(xmlDataManager.getAllMarcRecords(null, filePath));
+    }
+
+    @SuppressWarnings("Duplicates")
+    private List<MarcCompVector> createBlockingCompVectorsFromRecords(final List<MarcRecord> marcRecords) {
+        Collections.sort(marcRecords);
+        Printer.printBlockingKeys(marcRecords);
 
         final List<List<MarcRecord>> listOfBlockingLists = new ArrayList<>();
         int startOfBlock = 0;
@@ -123,20 +234,7 @@ public class MainController {
         }
         marcCompVectors.addAll(vectorsDuplicated);
         marcCompVectors.addAll(vectorsNonDuplicated);
-
-        String newFileName = "";
-        if(sourceFilePath.contains(".")) {
-            newFileName = sourceFilePath.substring(0, sourceFilePath.lastIndexOf('.'));
-            newFileName = newFileName + "_blocking_comp_vectors.csv";
-        }
-
-        if (StringUtils.isValid(newFileName)) {
-            FileUtils.writeBeansToCsvFile(marcCompVectors,
-                    newFileName,
-                    MarcCompVector.class,
-                    sColumnNames);
-        }
-
+        return marcCompVectors;
     }
 
     @SuppressWarnings("Duplicates")

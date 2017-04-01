@@ -24,6 +24,8 @@ public final class MarcUtils {
         marcCompVector.setCompC99id2(record2.getC99FieldId());
         marcCompVector.setCompControlField1(record1.getControlFieldId());
         marcCompVector.setCompControlField2(record2.getControlFieldId());
+        marcCompVector.setCompLibraryId1(record1.getLibraryId());
+        marcCompVector.setCompLibraryId2(record2.getLibraryId());
         marcCompVector.setCompPersonalName(StringComparator.comparePersonalName(record1.getPersonalName(), record2.getPersonalName()));
         marcCompVector.setCompPublisherName(StringComparator.comparePublisher(record1.getPublisherName(), record2.getPublisherName()));
         marcCompVector.setCompTitle(StringComparator.compareTitle(record1.getTitle(), record2.getTitle()));
