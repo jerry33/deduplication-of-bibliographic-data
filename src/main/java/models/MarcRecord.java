@@ -45,7 +45,7 @@ public class MarcRecord implements Comparable<MarcRecord> {
     }
 
     public String getControlFieldId() {
-        return controlFieldId;
+        return controlFieldId == null ? "" : controlFieldId;
     }
 
     public void setControlFieldId(String controlFieldId) {
@@ -53,7 +53,7 @@ public class MarcRecord implements Comparable<MarcRecord> {
     }
 
     public String getLibraryId() {
-        return libraryId;
+        return libraryId == null ? "" : libraryId;
     }
 
     public void setLibraryId(String libraryId) {
@@ -165,6 +165,14 @@ public class MarcRecord implements Comparable<MarcRecord> {
                     year = getYearOfAuthor();
                 }
                 setBlockingKey(authorAbbreviation.concat("-").concat(titleAbbreviation).concat("-").concat(year));
+            }
+        } else if (StringUtils.isValid(getTitle())) {
+            if (StringUtils.isValid(getYearOfPublication())) {
+                setBlockingKey(StringUtils.sortCharactersInString(StringUtils.getFirstCharactersFromEachWord(getTitle())).concat(getYearOfPublication()));
+            } else if (StringUtils.isValid(getYearOfAuthor())) {
+                setBlockingKey(StringUtils.sortCharactersInString(StringUtils.getFirstCharactersFromEachWord(getTitle())).concat(getYearOfAuthor()));
+            } else {
+                setBlockingKey(StringUtils.sortCharactersInString(StringUtils.getFirstCharactersFromEachWord(getTitle())));
             }
         }
     }

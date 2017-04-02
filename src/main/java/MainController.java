@@ -47,7 +47,7 @@ public class MainController {
                 System.out.println(marcRecordList.get(0).getControlFieldId());
             } else if (marcRecordList.size() > 0) {
                 for (MarcRecord marcRecord : marcRecordList) {
-                    System.out.print(marcRecord.getControlFieldId() + " --> ");
+                    System.out.print(marcRecord.getControlFieldId() + "(" + marcRecord.getLibraryId() + ", " + marcRecord.getBlockingKey() + ") --> ");
                 }
             }
             System.out.println();
@@ -98,34 +98,34 @@ public class MainController {
     private List<List<MarcRecord>> createUniqueListFromTwoFilesSimpler(final List<MarcRecord> marcRecordList1, final List<MarcRecord> marcRecordList2) {
         System.out.println("Merging records...");
         final List<MarcRecord> mergedMarcRecords = Stream.concat(marcRecordList1.stream(), marcRecordList2.stream()).collect(Collectors.toList());
-//        System.out.println("Creating blocking vectors...");
-//        FileUtils.writeBeansToCsvFile(createBlockingCompVectorsFromRecords(mergedMarcRecords), "merged_marc_records_new.csv", MarcCompVector.class, sColumnNames);
+        System.out.println("Creating blocking vectors...");
+        FileUtils.writeBeansToCsvFile(createBlockingCompVectorsFromRecords(mergedMarcRecords), "merged_marc_records_new.csv", MarcCompVector.class, sColumnNames);
         System.out.println("Loading blocking vectors...");
-        final List<MarcCompVector> mergedCompVectors = FileUtils.readCsv("merged_marc_records_new2.csv", MarcCompVector.class, sColumnNames);
+        final List<MarcCompVector> mergedCompVectors = FileUtils.readCsv("merged_marc_records_new.csv", MarcCompVector.class, sColumnNames);
         System.out.println("Creating unique list...");
         return createUniqueMarcRecordsList(mergedCompVectors, mergedMarcRecords, null);
     }
 
-    @SuppressWarnings("Duplicates")
-    private List<List<MarcRecord>> createUniqueListFromTwoFilesHarder(final List<MarcRecord> marcRecordList1, final List<MarcRecord> marcRecordList2) {
-        FileUtils.writeBeansToCsvFile(createBlockingCompVectorsFromRecords(marcRecordList1), "Vy11to16BezC99a_crop_comp_vectors_unique.csv", MarcCompVector.class, sColumnNames);
-        final List<MarcCompVector> marcRecords1UniqueCompVectors = FileUtils.readCsv("Vy11to16BezC99a_crop_comp_vectors_unique.csv", MarcCompVector.class, sColumnNames);
-        final List<List<MarcRecord>> marcRecordsUniqueList1 = createUniqueMarcRecordsList(marcRecords1UniqueCompVectors, marcRecordList1, null);
-
-        FileUtils.writeBeansToCsvFile(createBlockingCompVectorsFromRecords(marcRecordList2), "Ujep11to16BezC99a_crop_comp_vectors_unique.csv", MarcCompVector.class, sColumnNames);
-        final List<MarcCompVector> marcRecords2UniqueCompVectors = FileUtils.readCsv("Ujep11to16BezC99a_crop_comp_vectors_unique.csv", MarcCompVector.class, sColumnNames);
-        final List<List<MarcRecord>> marcRecordsUniqueList2 = createUniqueMarcRecordsList(marcRecords2UniqueCompVectors, marcRecordList2, null);
-
-        final List<List<MarcRecord>> marcRecordsUniqueListMerged = Stream.concat(marcRecordsUniqueList1.stream(), marcRecordsUniqueList2.stream()).collect(Collectors.toList());
-
-        final List<MarcRecord> distinctMarcRecords1 = createUniqueMarcRecords(marcRecordsUniqueList1);
-        final List<MarcRecord> distinctMarcRecords2 = createUniqueMarcRecords(marcRecordsUniqueList2);
-        final List<MarcRecord> mergedMarcRecords = Stream.concat(distinctMarcRecords1.stream(), distinctMarcRecords2.stream()).collect(Collectors.toList());
-        final List<MarcCompVector> mergedCompVectors = createBlockingCompVectorsFromRecords(mergedMarcRecords);
-        FileUtils.writeBeansToCsvFile(mergedCompVectors, "merged_comp_vectors.csv", MarcCompVector.class, sColumnNames);
-        final List<MarcCompVector> mergedCompVectorsFromFile = FileUtils.readCsv("merged_comp_vectors.csv", MarcCompVector.class, sColumnNames);
-        return createUniqueMarcRecordsList(mergedCompVectorsFromFile, mergedMarcRecords, marcRecordsUniqueListMerged);
-    }
+//    @SuppressWarnings("Duplicates")
+//    private List<List<MarcRecord>> createUniqueListFromTwoFilesHarder(final List<MarcRecord> marcRecordList1, final List<MarcRecord> marcRecordList2) {
+//        FileUtils.writeBeansToCsvFile(createBlockingCompVectorsFromRecords(marcRecordList1), "Vy11to16BezC99a_crop_comp_vectors_unique.csv", MarcCompVector.class, sColumnNames);
+//        final List<MarcCompVector> marcRecords1UniqueCompVectors = FileUtils.readCsv("Vy11to16BezC99a_crop_comp_vectors_unique.csv", MarcCompVector.class, sColumnNames);
+//        final List<List<MarcRecord>> marcRecordsUniqueList1 = createUniqueMarcRecordsList(marcRecords1UniqueCompVectors, marcRecordList1, null);
+//
+//        FileUtils.writeBeansToCsvFile(createBlockingCompVectorsFromRecords(marcRecordList2), "Ujep11to16BezC99a_crop_comp_vectors_unique.csv", MarcCompVector.class, sColumnNames);
+//        final List<MarcCompVector> marcRecords2UniqueCompVectors = FileUtils.readCsv("Ujep11to16BezC99a_crop_comp_vectors_unique.csv", MarcCompVector.class, sColumnNames);
+//        final List<List<MarcRecord>> marcRecordsUniqueList2 = createUniqueMarcRecordsList(marcRecords2UniqueCompVectors, marcRecordList2, null);
+//
+//        final List<List<MarcRecord>> marcRecordsUniqueListMerged = Stream.concat(marcRecordsUniqueList1.stream(), marcRecordsUniqueList2.stream()).collect(Collectors.toList());
+//
+//        final List<MarcRecord> distinctMarcRecords1 = createUniqueMarcRecords(marcRecordsUniqueList1);
+//        final List<MarcRecord> distinctMarcRecords2 = createUniqueMarcRecords(marcRecordsUniqueList2);
+//        final List<MarcRecord> mergedMarcRecords = Stream.concat(distinctMarcRecords1.stream(), distinctMarcRecords2.stream()).collect(Collectors.toList());
+//        final List<MarcCompVector> mergedCompVectors = createBlockingCompVectorsFromRecords(mergedMarcRecords);
+//        FileUtils.writeBeansToCsvFile(mergedCompVectors, "merged_comp_vectors.csv", MarcCompVector.class, sColumnNames);
+//        final List<MarcCompVector> mergedCompVectorsFromFile = FileUtils.readCsv("merged_comp_vectors.csv", MarcCompVector.class, sColumnNames);
+//        return createUniqueMarcRecordsList(mergedCompVectorsFromFile, mergedMarcRecords, marcRecordsUniqueListMerged);
+//    }
 
     private List<MarcRecord> createUniqueMarcRecords(final List<List<MarcRecord>> uniqueList) {
         final List<MarcRecord> marcRecordList = new ArrayList<>();
@@ -146,8 +146,8 @@ public class MainController {
                     uniqueList.add(new ArrayList<>(Collections.singleton(findMarcRecordByControlField(marcCompVector.getCompControlField2(), marcRecords))));
                 }
             } else { // is duplicate
-                int controlField1PositionInList = getPositionOfDuplicateList(marcCompVector.getCompControlField1(), uniqueList);
-                int controlField2PositionInList = getPositionOfDuplicateList(marcCompVector.getCompControlField2(), uniqueList);
+                int controlField1PositionInList = getPositionOfDuplicateList(marcCompVector.getCompControlField1(), marcCompVector.getCompLibraryId1(), uniqueList);
+                int controlField2PositionInList = getPositionOfDuplicateList(marcCompVector.getCompControlField2(), marcCompVector.getCompLibraryId2(), uniqueList);
                 if (controlField1PositionInList != -1 && controlField2PositionInList != -1) { // they are both already added
                     continue;
                 }
@@ -177,11 +177,12 @@ public class MainController {
         return false;
     }
 
-    private int getPositionOfDuplicateList(final String controlField, final List<List<MarcRecord>> uniqueList) {
+    private int getPositionOfDuplicateList(final String controlField, final String libraryId, final List<List<MarcRecord>> uniqueList) {
         for (int i = 0; i < uniqueList.size(); i++) {
             final List<MarcRecord> duplicateList = uniqueList.get(i);
             for (int j = 0; j < duplicateList.size(); j++) {
-                if (controlField.equals(duplicateList.get(j).getControlFieldId())) {
+                final MarcRecord marcRecord = duplicateList.get(j);
+                if (marcRecord.getControlFieldId().equals(controlField) && marcRecord.getLibraryId().equals(libraryId)) {
                     return i;
                 }
             }

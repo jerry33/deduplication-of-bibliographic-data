@@ -58,11 +58,15 @@ public final class Printer {
     }
 
     public static void printBlockingKey(final MarcRecord marcRecord) {
-        if (marcRecord.getBlockingKey().equals("")) {
-            System.out.println("Blocking key of " + marcRecord.getControlFieldId() + ":  EMPTY ");
-        } else {
+        if (marcRecord.getControlFieldId().equals("sc000011")) {
             System.out.println("Blocking key of " + marcRecord.getControlFieldId() + ": " + marcRecord.getBlockingKey());
+            System.out.println("Title: " + marcRecord.getTitle());
         }
+//        if (marcRecord.getBlockingKey().equals("")) {
+//            System.out.println("Blocking key of " + marcRecord.getControlFieldId() + ":  EMPTY ");
+//        } else {
+//            System.out.println("Blocking key of " + marcRecord.getControlFieldId() + ": " + marcRecord.getBlockingKey());
+//        }
     }
 
     public static void printBlockingKeys(final List<MarcRecord> marcRecords) {
@@ -70,6 +74,11 @@ public final class Printer {
         for (MarcRecord marcRecord : marcRecords) {
             printBlockingKey(marcRecord);
         }
+//        for (int i = 0; i < marcRecords.size(); i++) {
+//            if (i <= 5000) {
+//                printBlockingKey(marcRecords.get(i));
+//            }
+//        }
     }
 
 }

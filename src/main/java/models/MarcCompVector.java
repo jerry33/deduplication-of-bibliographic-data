@@ -23,7 +23,7 @@ public class MarcCompVector {
     private boolean compOverall;
 
     public String getCompControlField1() {
-        return compControlField1;
+        return compControlField1 == null ? "" : compControlField1;
     }
 
     public void setCompControlField1(String compControlField1) {
@@ -31,7 +31,7 @@ public class MarcCompVector {
     }
 
     public String getCompControlField2() {
-        return compControlField2;
+        return compControlField2 == null ? "" : compControlField2;
     }
 
     public void setCompControlField2(String compControlField2) {
@@ -55,7 +55,7 @@ public class MarcCompVector {
     }
 
     public String getCompLibraryId1() {
-        return compLibraryId1;
+        return compLibraryId1 == null ? "" : compLibraryId1;
     }
 
     public void setCompLibraryId1(String compLibraryId1) {
@@ -63,7 +63,7 @@ public class MarcCompVector {
     }
 
     public String getCompLibraryId2() {
-        return compLibraryId2;
+        return compLibraryId2 == null ? "" : compLibraryId2;
     }
 
     public void setCompLibraryId2(String compLibraryId2) {

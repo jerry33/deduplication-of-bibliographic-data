@@ -56,6 +56,10 @@ public class MarcFieldsFinder {
         return StringUtils.standardizeString(getValueBySubfieldOfDataField(r, "245", 'p'));
     }
 
+    public static String find915(final Record r) {
+        return StringUtils.standardizeString(getValueBySubfieldOfDataField(r, "915", 'c'));
+    }
+
     public static String findYearOfAuthor(final Record r) {
         final String year = StringUtils.removeNonNumericCharacters(getValueBySubfieldOfDataField(r, "100", 'd'));
         if (year.length() >= 4) {

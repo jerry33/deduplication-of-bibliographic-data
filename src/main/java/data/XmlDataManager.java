@@ -9,6 +9,7 @@ import org.marc4j.marc.Record;
 import utils.FileUtils;
 import utils.MarcFieldsFinder;
 import utils.MarcUtils;
+import utils.StringUtils;
 
 import javax.servlet.ServletContext;
 import java.io.InputStream;
@@ -32,6 +33,9 @@ public class XmlDataManager {
         final List<MarcRecord> marcRecords = new ArrayList<>();
 
         for (final Record r : records) {
+            if (StringUtils.isValid(MarcFieldsFinder.find915(r))) {
+                continue;
+            }
             final MarcRecord marcRecord = new MarcRecord();
             final String charAt6 = String.valueOf(r.getLeader().marshal().charAt(6));
             final String charAt7 = String.valueOf(r.getLeader().marshal().charAt(7));
@@ -54,6 +58,7 @@ public class XmlDataManager {
             marcRecord.generateBlockingKey();
 
             marcRecords.add(marcRecord);
+            System.out.println(marcRecord.getControlFieldId() + " (" + marcRecord.getLibraryId() + ")");
         }
         return marcRecords;
     }
@@ -63,7 +68,6 @@ public class XmlDataManager {
         final List<Record> records = new ArrayList<>();
         while (reader.hasNext()) {
             final Record record = reader.next();
-            System.out.println(record.getControlNumber());
             records.add(record);
         }
         return records;
