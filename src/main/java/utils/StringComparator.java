@@ -54,9 +54,11 @@ public class StringComparator {
         return 0.5f;
     }
 
-    public static double compareYears(final String s1, final String s2) {
+    public static double compareYears(String s1, String s2) {
         if (StringUtils.isValid(s1) && StringUtils.isValid(s2)) {
             try {
+                s1 = s1.replace(".", "");
+                s2 = s2.replace(".", "");
                 final int year1 = Integer.parseInt(s1);
                 final int year2 = Integer.parseInt(s2);
                 final int diff = Math.abs(year1 - year2);

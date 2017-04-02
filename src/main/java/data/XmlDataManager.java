@@ -62,7 +62,9 @@ public class XmlDataManager {
         final MarcReader reader = new MarcXmlReader(FileUtils.getNewFileInputStream(filePath));
         final List<Record> records = new ArrayList<>();
         while (reader.hasNext()) {
-            records.add(reader.next());
+            final Record record = reader.next();
+            System.out.println(record.getControlNumber());
+            records.add(record);
         }
         return records;
     }
