@@ -191,7 +191,9 @@ public class MarcRecord implements Comparable<MarcRecord> {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof MarcRecord && controlFieldId.equals(((MarcRecord) obj).getControlFieldId());
+        return obj instanceof MarcRecord
+                && getControlFieldId().equals(((MarcRecord) obj).getControlFieldId())
+                && getLibraryId().equals(((MarcRecord) obj).getLibraryId());
     }
 
     @Override

@@ -46,6 +46,9 @@ public class MainController {
             if (marcRecordList.size() == 0) {
                 System.out.println(marcRecordList.get(0).getControlFieldId());
             } else if (marcRecordList.size() > 0) {
+                List<MarcRecord> distinctList = marcRecordList.stream().distinct().collect(Collectors.toList());
+                marcRecordList.clear();
+                marcRecordList.addAll(distinctList);
                 for (MarcRecord marcRecord : marcRecordList) {
                     System.out.print(marcRecord.getControlFieldId() + "(" + marcRecord.getLibraryId() + ", " + marcRecord.getBlockingKey() + ") --> ");
                 }
@@ -140,26 +143,54 @@ public class MainController {
         for (MarcCompVector marcCompVector : marcCompVectors) {
             if (!marcCompVector.isDuplicate()) {
                 if (!isControlFieldInUniqueList(marcCompVector.getCompControlField1(), uniqueList)) {
-                    uniqueList.add(new ArrayList<>(Collections.singleton(findMarcRecordByControlField(marcCompVector.getCompControlField1(), marcRecords))));
+                    final MarcRecord marcRecord = findMarcRecordByControlField(marcCompVector.getCompControlField1(), marcCompVector.getCompLibraryId1(), marcRecords);
+                    if (marcRecord != null) {
+                        uniqueList.add(new ArrayList<>(Collections.singleton(marcRecord)));
+                    }
                 }
                 if (!isControlFieldInUniqueList(marcCompVector.getCompControlField2(), uniqueList)) {
-                    uniqueList.add(new ArrayList<>(Collections.singleton(findMarcRecordByControlField(marcCompVector.getCompControlField2(), marcRecords))));
+                    final MarcRecord marcRecord = findMarcRecordByControlField(marcCompVector.getCompControlField2(), marcCompVector.getCompLibraryId2(), marcRecords);
+                    uniqueList.add(new ArrayList<>(Collections.singleton(marcRecord)));
                 }
             } else { // is duplicate
                 int controlField1PositionInList = getPositionOfDuplicateList(marcCompVector.getCompControlField1(), marcCompVector.getCompLibraryId1(), uniqueList);
                 int controlField2PositionInList = getPositionOfDuplicateList(marcCompVector.getCompControlField2(), marcCompVector.getCompLibraryId2(), uniqueList);
+
+                if (marcCompVector.getCompControlField1().equals("0194923")) {
+                    System.out.println("position of our lovely record: " + controlField1PositionInList);
+                    System.out.println("another position: " + controlField2PositionInList);
+                } else if (marcCompVector.getCompControlField2().equals("0194923")) {
+                    System.out.println("position of our lovely record: " + controlField2PositionInList);
+                    System.out.println("another position: " + controlField1PositionInList);
+                }
                 if (controlField1PositionInList != -1 && controlField2PositionInList != -1) { // they are both already added
+                    if (controlField1PositionInList != controlField2PositionInList) {
+                        final List<MarcRecord> newList = Stream.concat(uniqueList.get(controlField1PositionInList).stream(), uniqueList.get(controlField2PositionInList).stream()).collect(Collectors.toList());
+                        uniqueList.get(controlField1PositionInList).clear();
+                        uniqueList.get(controlField1PositionInList).addAll(newList);
+                        uniqueList.remove(controlField2PositionInList);
+                    }
                     continue;
                 }
                 if (controlField1PositionInList != -1) {
-                    uniqueList.get(controlField1PositionInList).add(findMarcRecordByControlField(marcCompVector.getCompControlField2(), marcRecords));
+                    final MarcRecord marcRecord = findMarcRecordByControlField(marcCompVector.getCompControlField2(), marcCompVector.getCompLibraryId1(), marcRecords);
+                    if (marcRecord != null) {
+                        uniqueList.get(controlField1PositionInList).add(marcRecord);
+                    }
                 } else if (controlField2PositionInList != -1) {
-                    uniqueList.get(controlField2PositionInList).add(findMarcRecordByControlField(marcCompVector.getCompControlField1(), marcRecords));
+                    final MarcRecord marcRecord = findMarcRecordByControlField(marcCompVector.getCompControlField1(), marcCompVector.getCompLibraryId2(), marcRecords);
+                    if (marcRecord != null) {
+                        uniqueList.get(controlField2PositionInList).add(marcRecord);
+                    }
                 } else {
                     final List<MarcRecord> newList = new ArrayList<>();
-                    newList.add(findMarcRecordByControlField(marcCompVector.getCompControlField1(), marcRecords));
-                    newList.add(findMarcRecordByControlField(marcCompVector.getCompControlField2(), marcRecords));
-                    uniqueList.add(newList);
+                    final MarcRecord marcRecord1 = findMarcRecordByControlField(marcCompVector.getCompControlField1(), marcCompVector.getCompLibraryId1(), marcRecords);
+                    final MarcRecord marcRecord2 = findMarcRecordByControlField(marcCompVector.getCompControlField2(), marcCompVector.getCompLibraryId2(), marcRecords);
+                    if (marcRecord1 != null && marcRecord2 != null) {
+                        newList.add(marcRecord1);
+                        newList.add(marcRecord2);
+                        uniqueList.add(newList);
+                    }
                 }
             }
         }
@@ -190,12 +221,13 @@ public class MainController {
         return -1;
     }
 
-    private MarcRecord findMarcRecordByControlField(final String controlField, final List<MarcRecord> marcRecords) {
+    private MarcRecord findMarcRecordByControlField(final String controlField, final String libraryId, final List<MarcRecord> marcRecords) {
         for (MarcRecord marcRecord : marcRecords) {
-            if (controlField.equals(marcRecord.getControlFieldId())) {
+            if (controlField.equals(marcRecord.getControlFieldId()) && marcRecord.getLibraryId().equals(libraryId)) {
                 return marcRecord;
             }
         }
+//        System.out.println("FINDING RECORD: " + controlField + "; libraryId: " + libraryId + " NULL :(");
         return null;
     }
 
