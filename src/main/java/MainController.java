@@ -38,30 +38,35 @@ public class MainController {
         final long start = System.nanoTime();
         System.out.println("start()");
         final List<MarcRecord> marcRecords1 = xmlDataManager.getAllMarcRecords(null, "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/Vy11to16BezC99a_crop.xml");
-        FileUtils.writeBeansToCsvFile(createBlockingCompVectorsFromRecords(marcRecords1), "Vy11to16BezC99a_crop_comp_vectors_unique.csv", MarcCompVector.class, sColumnNames);
-        final List<MarcCompVector> marcRecords1UniqueCompVectors = FileUtils.readCsv("Vy11to16BezC99a_crop_comp_vectors_unique.csv", MarcCompVector.class, sColumnNames);
-        final List<List<MarcRecord>> marcRecordsUniqueList1 = createUniqueMarcRecordsList(marcRecords1UniqueCompVectors, marcRecords1, null);
+        final List<MarcRecord> marcRecords2 = xmlDataManager.getAllMarcRecords(null, "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/Ujep11to16BezC99a_crop.xml");
+
+//        FileUtils.writeBeansToCsvFile(createBlockingCompVectorsFromRecords(marcRecords1), "Vy11to16BezC99a_crop_comp_vectors_unique.csv", MarcCompVector.class, sColumnNames);
+//        final List<MarcCompVector> marcRecords1UniqueCompVectors = FileUtils.readCsv("Vy11to16BezC99a_crop_comp_vectors_unique.csv", MarcCompVector.class, sColumnNames);
+//        final List<List<MarcRecord>> marcRecordsUniqueList1 = createUniqueMarcRecordsList(marcRecords1UniqueCompVectors, marcRecords1, null);
 
 //        masterLibraryId = marcRecords1.get(0).getLibraryId();
 //        for (MarcRecord marcRecord : marcRecords1) {
 //            marcRecord.setIsMasterDatabaseRecord(true);
 //            uniqueMarcRecordsHashMap.put(marcRecord, new ArrayList<>());
 //        }
+        final List<MarcRecord> mergedMarcRecords = Stream.concat(marcRecords1.stream(), marcRecords2.stream()).collect(Collectors.toList());
+        FileUtils.writeBeansToCsvFile(createBlockingCompVectorsFromRecords(mergedMarcRecords), "merged_marc_records_new.csv", MarcCompVector.class, sColumnNames);
+        final List<MarcCompVector> mergedCompVectors = FileUtils.readCsv("merged_marc_records_new.csv", MarcCompVector.class, sColumnNames);
+        final List<List<MarcRecord>> uniqueList = createUniqueMarcRecordsList(mergedCompVectors, mergedMarcRecords, null);
 
-        final List<MarcRecord> marcRecords2 = xmlDataManager.getAllMarcRecords(null, "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/Ujep11to16BezC99a_crop.xml");
-        FileUtils.writeBeansToCsvFile(createBlockingCompVectorsFromRecords(marcRecords2), "Ujep11to16BezC99a_crop_comp_vectors_unique.csv", MarcCompVector.class, sColumnNames);
-        final List<MarcCompVector> marcRecords2UniqueCompVectors = FileUtils.readCsv("Ujep11to16BezC99a_crop_comp_vectors_unique.csv", MarcCompVector.class, sColumnNames);
-        final List<List<MarcRecord>> marcRecordsUniqueList2 = createUniqueMarcRecordsList(marcRecords2UniqueCompVectors, marcRecords2, null);
-
-        final List<List<MarcRecord>> marcRecordsUniqueListMerged = Stream.concat(marcRecordsUniqueList1.stream(), marcRecordsUniqueList2.stream()).collect(Collectors.toList());
-
-        final List<MarcRecord> distinctMarcRecords1 = createUniqueMarcRecords(marcRecordsUniqueList1);
-        final List<MarcRecord> distinctMarcRecords2 = createUniqueMarcRecords(marcRecordsUniqueList2);
-        final List<MarcRecord> mergedMarcRecords = Stream.concat(distinctMarcRecords1.stream(), distinctMarcRecords2.stream()).collect(Collectors.toList());
-        final List<MarcCompVector> mergedCompVectors = createBlockingCompVectorsFromRecords(mergedMarcRecords);
-        FileUtils.writeBeansToCsvFile(mergedCompVectors, "merged_comp_vectors.csv", MarcCompVector.class, sColumnNames);
-        final List<MarcCompVector> mergedCompVectorsFromFile = FileUtils.readCsv("merged_comp_vectors.csv", MarcCompVector.class, sColumnNames);
-        final List<List<MarcRecord>> uniqueList = createUniqueMarcRecordsList(mergedCompVectorsFromFile, marcRecords1, marcRecordsUniqueListMerged);
+//        FileUtils.writeBeansToCsvFile(createBlockingCompVectorsFromRecords(marcRecords2), "Ujep11to16BezC99a_crop_comp_vectors_unique.csv", MarcCompVector.class, sColumnNames);
+//        final List<MarcCompVector> marcRecords2UniqueCompVectors = FileUtils.readCsv("Ujep11to16BezC99a_crop_comp_vectors_unique.csv", MarcCompVector.class, sColumnNames);
+//        final List<List<MarcRecord>> marcRecordsUniqueList2 = createUniqueMarcRecordsList(marcRecords2UniqueCompVectors, marcRecords2, null);
+//
+//        final List<List<MarcRecord>> marcRecordsUniqueListMerged = Stream.concat(marcRecordsUniqueList1.stream(), marcRecordsUniqueList2.stream()).collect(Collectors.toList());
+//
+//        final List<MarcRecord> distinctMarcRecords1 = createUniqueMarcRecords(marcRecordsUniqueList1);
+//        final List<MarcRecord> distinctMarcRecords2 = createUniqueMarcRecords(marcRecordsUniqueList2);
+//        final List<MarcRecord> mergedMarcRecords = Stream.concat(distinctMarcRecords1.stream(), distinctMarcRecords2.stream()).collect(Collectors.toList());
+//        final List<MarcCompVector> mergedCompVectors = createBlockingCompVectorsFromRecords(mergedMarcRecords);
+//        FileUtils.writeBeansToCsvFile(mergedCompVectors, "merged_comp_vectors.csv", MarcCompVector.class, sColumnNames);
+//        final List<MarcCompVector> mergedCompVectorsFromFile = FileUtils.readCsv("merged_comp_vectors.csv", MarcCompVector.class, sColumnNames);
+//        final List<List<MarcRecord>> uniqueList = createUniqueMarcRecordsList(mergedCompVectorsFromFile, marcRecords1, marcRecordsUniqueListMerged);
         System.out.println("uniqueList.size(): " + uniqueList.size());
         for (List<MarcRecord> marcRecordList : uniqueList) {
             if (marcRecordList.size() == 0) {
