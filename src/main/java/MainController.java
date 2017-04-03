@@ -23,7 +23,7 @@ public class MainController {
     static String[] sColumnNames;
 
     private RManager rManager = RManager.getInstance();
-    private Map<MarcRecord, List<MarcRecord>> uniqueMarcRecordsHashMap = new HashMap<>();
+    private Map<String, Integer> marcRecordsHashMap = new HashMap<>();
 
     static {
         System.loadLibrary("jri");
@@ -41,7 +41,6 @@ public class MainController {
 
 
         final List<List<MarcRecord>> uniqueList = createUniqueListFromTwoFilesSimpler(marcRecords1, marcRecords2);
-        System.out.println("uniqueList.size(): " + uniqueList.size());
         for (List<MarcRecord> marcRecordList : uniqueList) {
             if (marcRecordList.size() == 0) {
                 System.out.println(marcRecordList.get(0).getControlFieldId());
@@ -55,6 +54,7 @@ public class MainController {
             }
             System.out.println();
         }
+        System.out.println("uniqueList.size(): " + uniqueList.size());
 
 //        final List<MarcRecord> mergedMarcRecords = Stream.concat(marcRecords1.stream(), marcRecords2.stream()).collect(Collectors.toList());
 //        final List<MarcCompVector> mergedCompVectors = createBlockingCompVectorsFromRecords(mergedMarcRecords);
@@ -101,6 +101,9 @@ public class MainController {
     private List<List<MarcRecord>> createUniqueListFromTwoFilesSimpler(final List<MarcRecord> marcRecordList1, final List<MarcRecord> marcRecordList2) {
         System.out.println("Merging records...");
         final List<MarcRecord> mergedMarcRecords = Stream.concat(marcRecordList1.stream(), marcRecordList2.stream()).collect(Collectors.toList());
+        for (MarcRecord marcRecord : mergedMarcRecords) {
+            marcRecordsHashMap.put(marcRecord.getControlFieldId() + "-" + marcRecord.getLibraryId(), -1);
+        }
         System.out.println("Creating blocking vectors...");
         FileUtils.writeBeansToCsvFile(createBlockingCompVectorsFromRecords(mergedMarcRecords), "merged_marc_records_new.csv", MarcCompVector.class, sColumnNames);
 
@@ -114,27 +117,6 @@ public class MainController {
         return createUniqueMarcRecordsList(mergedCompVectors, mergedMarcRecords, null);
     }
 
-//    @SuppressWarnings("Duplicates")
-//    private List<List<MarcRecord>> createUniqueListFromTwoFilesHarder(final List<MarcRecord> marcRecordList1, final List<MarcRecord> marcRecordList2) {
-//        FileUtils.writeBeansToCsvFile(createBlockingCompVectorsFromRecords(marcRecordList1), "Vy11to16BezC99a_crop_comp_vectors_unique.csv", MarcCompVector.class, sColumnNames);
-//        final List<MarcCompVector> marcRecords1UniqueCompVectors = FileUtils.readCsv("Vy11to16BezC99a_crop_comp_vectors_unique.csv", MarcCompVector.class, sColumnNames);
-//        final List<List<MarcRecord>> marcRecordsUniqueList1 = createUniqueMarcRecordsList(marcRecords1UniqueCompVectors, marcRecordList1, null);
-//
-//        FileUtils.writeBeansToCsvFile(createBlockingCompVectorsFromRecords(marcRecordList2), "Ujep11to16BezC99a_crop_comp_vectors_unique.csv", MarcCompVector.class, sColumnNames);
-//        final List<MarcCompVector> marcRecords2UniqueCompVectors = FileUtils.readCsv("Ujep11to16BezC99a_crop_comp_vectors_unique.csv", MarcCompVector.class, sColumnNames);
-//        final List<List<MarcRecord>> marcRecordsUniqueList2 = createUniqueMarcRecordsList(marcRecords2UniqueCompVectors, marcRecordList2, null);
-//
-//        final List<List<MarcRecord>> marcRecordsUniqueListMerged = Stream.concat(marcRecordsUniqueList1.stream(), marcRecordsUniqueList2.stream()).collect(Collectors.toList());
-//
-//        final List<MarcRecord> distinctMarcRecords1 = createUniqueMarcRecords(marcRecordsUniqueList1);
-//        final List<MarcRecord> distinctMarcRecords2 = createUniqueMarcRecords(marcRecordsUniqueList2);
-//        final List<MarcRecord> mergedMarcRecords = Stream.concat(distinctMarcRecords1.stream(), distinctMarcRecords2.stream()).collect(Collectors.toList());
-//        final List<MarcCompVector> mergedCompVectors = createBlockingCompVectorsFromRecords(mergedMarcRecords);
-//        FileUtils.writeBeansToCsvFile(mergedCompVectors, "merged_comp_vectors.csv", MarcCompVector.class, sColumnNames);
-//        final List<MarcCompVector> mergedCompVectorsFromFile = FileUtils.readCsv("merged_comp_vectors.csv", MarcCompVector.class, sColumnNames);
-//        return createUniqueMarcRecordsList(mergedCompVectorsFromFile, mergedMarcRecords, marcRecordsUniqueListMerged);
-//    }
-
     private List<MarcRecord> createUniqueMarcRecords(final List<List<MarcRecord>> uniqueList) {
         final List<MarcRecord> marcRecordList = new ArrayList<>();
         for (List<MarcRecord> marcRecords : uniqueList) {
@@ -143,37 +125,61 @@ public class MainController {
         return marcRecordList;
     }
 
+    @SuppressWarnings("Duplicates")
     private List<List<MarcRecord>> createUniqueMarcRecordsList(final List<MarcCompVector> marcCompVectors, final List<MarcRecord> marcRecords, final List<List<MarcRecord>> existingUniqueList) {
         final List<List<MarcRecord>> uniqueList = existingUniqueList == null ? new ArrayList<>() : existingUniqueList;
         for (MarcCompVector marcCompVector : marcCompVectors) {
             if (!marcCompVector.isDuplicate()) {
-                if (!isControlFieldInUniqueList(marcCompVector.getCompControlField1(), uniqueList)) {
+                if (marcCompVector.getCompControlField1().equals("0178053")) {
+                    System.out.println("debug");
+                }
+                if (!isControlFieldInUniqueList(marcCompVector.getCompControlField1(), marcCompVector.getCompLibraryId1(), uniqueList)) {
                     final MarcRecord marcRecord = findMarcRecordByControlField(marcCompVector.getCompControlField1(), marcCompVector.getCompLibraryId1(), marcRecords);
                     if (marcRecord != null) {
                         uniqueList.add(new ArrayList<>(Collections.singleton(marcRecord)));
+                        if (marcRecordsHashMap.containsKey(marcRecord.getControlFieldId() + "-" + marcRecord.getLibraryId())) {
+                            marcRecordsHashMap.put(marcRecord.getControlFieldId() + "-" + marcRecord.getLibraryId(), uniqueList.size() - 1);
+                        }
                     }
                 }
-                if (!isControlFieldInUniqueList(marcCompVector.getCompControlField2(), uniqueList)) {
+                if (!isControlFieldInUniqueList(marcCompVector.getCompControlField2(), marcCompVector.getCompLibraryId2(), uniqueList)) {
                     final MarcRecord marcRecord = findMarcRecordByControlField(marcCompVector.getCompControlField2(), marcCompVector.getCompLibraryId2(), marcRecords);
-                    uniqueList.add(new ArrayList<>(Collections.singleton(marcRecord)));
+                    if (marcRecord != null) {
+                        uniqueList.add(new ArrayList<>(Collections.singleton(marcRecord)));
+                        if (marcRecordsHashMap.containsKey(marcRecord.getControlFieldId() + "-" + marcRecord.getLibraryId())) {
+                            marcRecordsHashMap.put(marcRecord.getControlFieldId() + "-" + marcRecord.getLibraryId(), uniqueList.size() - 1);
+                        }
+                    }
                 }
             } else { // is duplicate
                 int controlField1PositionInList = getPositionOfDuplicateList(marcCompVector.getCompControlField1(), marcCompVector.getCompLibraryId1(), uniqueList);
                 int controlField2PositionInList = getPositionOfDuplicateList(marcCompVector.getCompControlField2(), marcCompVector.getCompLibraryId2(), uniqueList);
-
-                if (marcCompVector.getCompControlField1().equals("0194923")) {
-                    System.out.println("position of our lovely record: " + controlField1PositionInList);
-                    System.out.println("another position: " + controlField2PositionInList);
-                } else if (marcCompVector.getCompControlField2().equals("0194923")) {
-                    System.out.println("position of our lovely record: " + controlField2PositionInList);
-                    System.out.println("another position: " + controlField1PositionInList);
-                }
                 if (controlField1PositionInList != -1 && controlField2PositionInList != -1) { // they are both already added
                     if (controlField1PositionInList != controlField2PositionInList) {
                         final List<MarcRecord> newList = Stream.concat(uniqueList.get(controlField1PositionInList).stream(), uniqueList.get(controlField2PositionInList).stream()).collect(Collectors.toList());
+                        for (MarcRecord marcRecord : uniqueList.get(controlField1PositionInList)) {
+                            if (marcRecord.getControlFieldId().equals("0178053")) {
+                                System.out.println("debug");
+                            }
+                        }
+
+                        for (MarcRecord marcRecord : uniqueList.get(controlField2PositionInList)) {
+                            if (marcRecord.getControlFieldId().equals("0178053")) {
+                                System.out.println("debug");
+                            }
+                        }
                         uniqueList.get(controlField1PositionInList).clear();
                         uniqueList.get(controlField1PositionInList).addAll(newList);
                         uniqueList.remove(controlField2PositionInList);
+                        for (Map.Entry<String, Integer> entry : marcRecordsHashMap.entrySet()) {
+                            if (entry.getValue() >= controlField2PositionInList) {
+                                entry.setValue(entry.getValue() - 1);
+                            }
+                        }
+                        for (MarcRecord marcRecord : newList) {
+                            final int position = controlField1PositionInList < controlField2PositionInList ? controlField1PositionInList : (controlField1PositionInList - 1);
+                            marcRecordsHashMap.put(marcRecord.getControlFieldId() + "-" + marcRecord.getLibraryId(), position);
+                        }
                     }
                     continue;
                 }
@@ -181,11 +187,13 @@ public class MainController {
                     final MarcRecord marcRecord = findMarcRecordByControlField(marcCompVector.getCompControlField2(), marcCompVector.getCompLibraryId1(), marcRecords);
                     if (marcRecord != null) {
                         uniqueList.get(controlField1PositionInList).add(marcRecord);
+                        marcRecordsHashMap.put(marcRecord.getControlFieldId() + "-" + marcRecord.getLibraryId(), controlField1PositionInList);
                     }
                 } else if (controlField2PositionInList != -1) {
                     final MarcRecord marcRecord = findMarcRecordByControlField(marcCompVector.getCompControlField1(), marcCompVector.getCompLibraryId2(), marcRecords);
                     if (marcRecord != null) {
                         uniqueList.get(controlField2PositionInList).add(marcRecord);
+                        marcRecordsHashMap.put(marcRecord.getControlFieldId() + "-" + marcRecord.getLibraryId(), controlField2PositionInList);
                     }
                 } else {
                     final List<MarcRecord> newList = new ArrayList<>();
@@ -195,6 +203,12 @@ public class MainController {
                         newList.add(marcRecord1);
                         newList.add(marcRecord2);
                         uniqueList.add(newList);
+                        if (marcRecordsHashMap.containsKey(marcRecord1.getControlFieldId() + "-" + marcRecord1.getLibraryId())) {
+                            marcRecordsHashMap.put(marcRecord1.getControlFieldId() + "-" + marcRecord1.getLibraryId(), uniqueList.size() - 1);
+                        }
+                        if (marcRecordsHashMap.containsKey(marcRecord2.getControlFieldId() + "-" + marcRecord2.getLibraryId())) {
+                            marcRecordsHashMap.put(marcRecord2.getControlFieldId() + "-" + marcRecord2.getLibraryId(), uniqueList.size() - 1);
+                        }
                     }
                 }
             }
@@ -202,26 +216,15 @@ public class MainController {
         return uniqueList;
     }
 
-    private boolean isControlFieldInUniqueList(final String controlField, final List<List<MarcRecord>> uniqueList) {
-        for (List<MarcRecord> list : uniqueList) {
-            for (MarcRecord marcRecord : list) {
-                if (StringUtils.isValid(controlField) && StringUtils.isValid(marcRecord.getControlFieldId()) && controlField.equals(marcRecord.getControlFieldId())) {
-                    return true;
-                }
-            }
-        }
-        return false;
+    private boolean isControlFieldInUniqueList(final String controlField, final String libraryId, final List<List<MarcRecord>> uniqueList) {
+        final String controlFieldWithLibraryId = controlField + "-" + libraryId;
+        return marcRecordsHashMap.get(controlFieldWithLibraryId) != -1;
     }
 
     private int getPositionOfDuplicateList(final String controlField, final String libraryId, final List<List<MarcRecord>> uniqueList) {
-        for (int i = 0; i < uniqueList.size(); i++) {
-            final List<MarcRecord> duplicateList = uniqueList.get(i);
-            for (int j = 0; j < duplicateList.size(); j++) {
-                final MarcRecord marcRecord = duplicateList.get(j);
-                if (marcRecord.getControlFieldId().equals(controlField) && marcRecord.getLibraryId().equals(libraryId)) {
-                    return i;
-                }
-            }
+        final String controlFieldWithLibraryId = controlField + "-" + libraryId;
+        if (marcRecordsHashMap.containsKey(controlFieldWithLibraryId)) {
+            return marcRecordsHashMap.get(controlFieldWithLibraryId);
         }
         return -1;
     }
@@ -232,7 +235,6 @@ public class MainController {
                 return marcRecord;
             }
         }
-//        System.out.println("FINDING RECORD: " + controlField + "; libraryId: " + libraryId + " NULL :(");
         return null;
     }
 

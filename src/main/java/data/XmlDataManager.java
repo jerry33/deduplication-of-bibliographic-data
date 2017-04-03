@@ -58,7 +58,6 @@ public class XmlDataManager {
             marcRecord.generateBlockingKey();
 
             marcRecords.add(marcRecord);
-            System.out.println(marcRecord.getControlFieldId() + " (" + marcRecord.getLibraryId() + ")");
         }
         return marcRecords;
     }
