@@ -33,7 +33,7 @@ public class XmlDataManager {
         final List<MarcRecord> marcRecords = new ArrayList<>();
 
         for (final Record r : records) {
-            if (StringUtils.isValid(MarcFieldsFinder.find915(r))) {
+            if (StringUtils.isValid(StringUtils.standardizeString(MarcFieldsFinder.find915(r)))) {
                 continue;
             }
             final MarcRecord marcRecord = new MarcRecord();
@@ -47,13 +47,22 @@ public class XmlDataManager {
             }
             marcRecord.setTypeOfMaterial(typeOfMaterial);
             marcRecord.setControlFieldId(r.getControlNumber());
-            marcRecord.setC99FieldId(MarcFieldsFinder.findC99FieldId(r));
-            marcRecord.setPersonalName(MarcFieldsFinder.findPersonalName(r));
-            marcRecord.setPublisherName(MarcFieldsFinder.findPublisherName(r));
-            marcRecord.setTitle(MarcFieldsFinder.findTitle(r));
-            marcRecord.setNameOfPart(MarcFieldsFinder.findNameOfPart(r));
+            marcRecord.setC99FieldId(StringUtils.standardizeString(MarcFieldsFinder.findC99FieldId(r)));
+            marcRecord.setPersonalName(StringUtils.standardizeString(MarcFieldsFinder.findPersonalName(r)));
+            marcRecord.setPublisherName(StringUtils.standardizeString(MarcFieldsFinder.findPublisherName(r)));
+            marcRecord.setTitle(StringUtils.standardizeString(MarcFieldsFinder.findTitle(r)));
+            marcRecord.setNameOfPart(StringUtils.standardizeString(MarcFieldsFinder.findNameOfPart(r)));
             marcRecord.setYearOfAuthor(MarcFieldsFinder.findYearOfAuthor(r));
             marcRecord.setYearOfPublication(MarcFieldsFinder.findYearOfPublication(r));
+
+            marcRecord.setC99FieldIdRaw(MarcFieldsFinder.findC99FieldId(r));
+            marcRecord.setPersonalNameRaw(MarcFieldsFinder.findPersonalName(r));
+            marcRecord.setPublisherNameRaw(MarcFieldsFinder.findPublisherName(r));
+            marcRecord.setTitleRaw(MarcFieldsFinder.findTitle(r));
+            marcRecord.setNameOfPartRaw(MarcFieldsFinder.findNameOfPart(r));
+            marcRecord.setYearOfAuthorRaw(MarcFieldsFinder.findYearOfAuthor(r));
+            marcRecord.setYearOfPublicationRaw(MarcFieldsFinder.findYearOfPublication(r));
+
             marcRecord.setInternationalStandardNumbers(MarcFieldsFinder.findInternationalStandardNumbers(r));
             marcRecord.generateBlockingKey();
 

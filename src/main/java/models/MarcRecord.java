@@ -21,6 +21,17 @@ public class MarcRecord implements Comparable<MarcRecord> {
     private String nameOfPart;
     private String yearOfAuthor;
     private String yearOfPublication;
+
+    private String typeOfMaterialRaw;
+    private String c99FieldIdRaw;
+    private String libraryIdRaw;
+    private String personalNameRaw;
+    private String publisherNameRaw;
+    private String titleRaw;
+    private String nameOfPartRaw;
+    private String yearOfAuthorRaw;
+    private String yearOfPublicationRaw;
+
     private List<String> internationalStandardNumbers;
     private String blockingKey;
     private boolean isMasterDatabaseRecord;
@@ -138,6 +149,78 @@ public class MarcRecord implements Comparable<MarcRecord> {
 
     public void setIsMasterDatabaseRecord(boolean isMasterDatabaseRecord) {
         this.isMasterDatabaseRecord = isMasterDatabaseRecord;
+    }
+
+    public String getTypeOfMaterialRaw() {
+        return typeOfMaterialRaw;
+    }
+
+    public void setTypeOfMaterialRaw(String typeOfMaterialRaw) {
+        this.typeOfMaterialRaw = typeOfMaterialRaw;
+    }
+
+    public String getC99FieldIdRaw() {
+        return c99FieldIdRaw;
+    }
+
+    public void setC99FieldIdRaw(String c99FieldIdRaw) {
+        this.c99FieldIdRaw = c99FieldIdRaw;
+    }
+
+    public String getLibraryIdRaw() {
+        return libraryIdRaw;
+    }
+
+    public void setLibraryIdRaw(String libraryIdRaw) {
+        this.libraryIdRaw = libraryIdRaw;
+    }
+
+    public String getPersonalNameRaw() {
+        return personalNameRaw;
+    }
+
+    public void setPersonalNameRaw(String personalNameRaw) {
+        this.personalNameRaw = personalNameRaw;
+    }
+
+    public String getPublisherNameRaw() {
+        return publisherNameRaw;
+    }
+
+    public void setPublisherNameRaw(String publisherNameRaw) {
+        this.publisherNameRaw = publisherNameRaw;
+    }
+
+    public String getTitleRaw() {
+        return titleRaw;
+    }
+
+    public void setTitleRaw(String titleRaw) {
+        this.titleRaw = titleRaw;
+    }
+
+    public String getNameOfPartRaw() {
+        return nameOfPartRaw;
+    }
+
+    public void setNameOfPartRaw(String nameOfPartRaw) {
+        this.nameOfPartRaw = nameOfPartRaw;
+    }
+
+    public String getYearOfAuthorRaw() {
+        return yearOfAuthorRaw;
+    }
+
+    public void setYearOfAuthorRaw(String yearOfAuthorRaw) {
+        this.yearOfAuthorRaw = yearOfAuthorRaw;
+    }
+
+    public String getYearOfPublicationRaw() {
+        return yearOfPublicationRaw;
+    }
+
+    public void setYearOfPublicationRaw(String yearOfPublicationRaw) {
+        this.yearOfPublicationRaw = yearOfPublicationRaw;
     }
 
     public void generateBlockingKey() {

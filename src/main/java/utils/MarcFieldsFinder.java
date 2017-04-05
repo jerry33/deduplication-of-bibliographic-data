@@ -15,25 +15,25 @@ public class MarcFieldsFinder {
     public static String findPersonalName(final Record r) {
         String personalName = getValueBySubfieldOfDataField(r, "100", 'a');
         if (StringUtils.isValid(personalName)) {
-            return StringUtils.standardizeString(personalName);
+            return personalName;
         }
         personalName = getValueBySubfieldOfDataField(r, "700", 'a');
         if (StringUtils.isValid(personalName)) {
-            return StringUtils.standardizeString(personalName);
+            return personalName;
         }
         personalName = getValueBySubfieldOfDataField(r, "264", 'b');
         if (StringUtils.isValid(personalName)) {
-            return StringUtils.standardizeString(personalName);
+            return personalName;
         }
         personalName = getValueBySubfieldOfDataField(r, "928", 'a');
         if (StringUtils.isValid(personalName)) {
-            return StringUtils.standardizeString(personalName);
+            return personalName;
         }
         return "";
     }
 
     public static String findPublisherName(final Record r) {
-        String publisherName = StringUtils.standardizeString(getValueBySubfieldOfDataField(r, "264", 'b'));
+        String publisherName = getValueBySubfieldOfDataField(r, "264", 'b');
         if (StringUtils.isValid(publisherName)) {
             return publisherName;
         }
@@ -45,19 +45,19 @@ public class MarcFieldsFinder {
     }
 
     public static String findC99FieldId(final Record r) {
-        return StringUtils.standardizeString(getValueBySubfieldOfDataField(r, "C99", 'a'));
+        return getValueBySubfieldOfDataField(r, "C99", 'a');
     }
 
     public static String findTitle(final Record r) {
-        return StringUtils.standardizeString(getValueBySubfieldOfDataField(r, "245", 'a'));
+        return getValueBySubfieldOfDataField(r, "245", 'a');
     }
 
     public static String findNameOfPart(final Record r) {
-        return StringUtils.standardizeString(getValueBySubfieldOfDataField(r, "245", 'p'));
+        return getValueBySubfieldOfDataField(r, "245", 'p');
     }
 
     public static String find915(final Record r) {
-        return StringUtils.standardizeString(getValueBySubfieldOfDataField(r, "915", 'c'));
+        return getValueBySubfieldOfDataField(r, "915", 'c');
     }
 
     public static String findYearOfAuthor(final Record r) {
@@ -100,7 +100,6 @@ public class MarcFieldsFinder {
         return numbers;
     }
 
-    @Nullable
     public static String getValueBySubfieldOfDataField(final Record record, final String field, final char subfield) {
         final DataField dataField = (DataField) record.getVariableField(field);
         if (dataField != null) {
@@ -108,7 +107,7 @@ public class MarcFieldsFinder {
                 return dataField.getSubfield(subfield).getData();
             }
         }
-        return null;
+        return "";
     }
 
 }

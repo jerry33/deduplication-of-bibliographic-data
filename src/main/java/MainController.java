@@ -69,10 +69,7 @@ public class MainController {
                         .getAllMarcRecords(null,
                                 "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/Ujep11to16BezC99a_modified.xml");
 
-                final List<List<MarcRecord>> uniqueList = createUniqueListFromTwoFilesSimpler(marcRecords1, marcRecords2);
-
-                ObservableList<List<MarcRecord>> observableList = FXCollections.observableList(uniqueList);
-                listViewMain.setItems(observableList);
+                observableListOfUniqueRecords.addAll(createUniqueListFromTwoFilesSimpler(marcRecords1, marcRecords2));
                 listViewMain.setOnMouseClicked(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent event) {
@@ -83,7 +80,7 @@ public class MainController {
 
                     }
                 });
-                for (List<MarcRecord> marcRecordList : uniqueList) {
+                for (List<MarcRecord> marcRecordList : observableListOfUniqueRecords) {
                     if (marcRecordList.size() == 0) {
                         System.out.println(marcRecordList.get(0).getControlFieldId());
                     } else if (marcRecordList.size() > 0) {
@@ -96,7 +93,7 @@ public class MainController {
                     }
                     System.out.println();
                 }
-                System.out.println("uniqueList.size(): " + uniqueList.size());
+                System.out.println("uniqueList.size(): " + observableListOfUniqueRecords.size());
                 final long end = System.nanoTime();
                 Printer.printTimeElapsed(start, end);
                 return null;
@@ -122,7 +119,13 @@ public class MainController {
                     protected void updateItem(List<MarcRecord> t, boolean bln) {
                         super.updateItem(t, bln);
                         if (t != null) {
-                            setText(t.get(0).getControlFieldId() + " - " + t.get(0).getLibraryId() + " - " + t.get(0).getTitle());
+//                            setText(t.get(0).getControlFieldId() + " - " + t.get(0).getLibraryId() + " - " + t.get(0).getTitle());
+                            setText(getFormattedMarcRecord(t.get(0)));
+                            if (t.size() > 1) {
+                                setStyle("-fx-control-inner-background: red");
+                            } else {
+                                setStyle(null);
+                            }
                         } else {
                             setText("");
                         }
@@ -142,7 +145,8 @@ public class MainController {
                         super.updateItem(item, empty);
                         listViewSub.refresh();
                         if (item != null) {
-                            setText(item.getControlFieldId() + " - " + item.getTitle() + "\n" + item.getBlockingKey());
+//                            setText(item.getControlFieldId() + " - " + item.getTitle() + "\n" + item.getBlockingKey());
+                            setText(getFormattedMarcRecord(item));
                         } else {
                             setText(""); // very important, so that the rest of ListView is cleaned out!
                         }
@@ -150,6 +154,14 @@ public class MainController {
                 };
             }
         });
+    }
+
+    private String getFormattedMarcRecord(final MarcRecord marcRecord) {
+        return "Názov diela: " + marcRecord.getTitleRaw() + "\n"
+                + "Autor: " + (StringUtils.isValid(marcRecord.getPersonalNameRaw()) ? marcRecord.getPersonalNameRaw() : marcRecord.getPublisherNameRaw()) + "\n"
+                + "Rok vydania: " + (StringUtils.isValid(marcRecord.getYearOfAuthorRaw()) ? marcRecord.getYearOfAuthorRaw() : marcRecord.getYearOfPublicationRaw()) + "\n"
+                + "Id knižničného katalógu: " + marcRecord.getLibraryId() + "\n"
+                + "Id bibliografického diela: " + marcRecord.getControlFieldId();
     }
 
     private List<List<MarcRecord>> createUniqueListFromTwoFilesSimpler(final List<MarcRecord> marcRecordList1, final List<MarcRecord> marcRecordList2) {
