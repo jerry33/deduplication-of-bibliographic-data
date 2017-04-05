@@ -1,5 +1,16 @@
 import data.XmlDataManager;
 import info.debatty.java.stringsimilarity.Levenshtein;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.event.EventHandler;
+import javafx.scene.Scene;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
+import javafx.util.Callback;
 import models.MarcCompVector;
 import models.MarcRecord;
 import org.marc4j.MarcReader;
@@ -22,8 +33,12 @@ public class MainController {
 
     static String[] sColumnNames;
 
+    public static final ObservableList<MarcRecord> listOfDuplicates =
+            FXCollections.observableArrayList();
+
     private RManager rManager = RManager.getInstance();
     private Map<String, Integer> marcRecordsHashMap = new HashMap<>();
+    final ListView<MarcRecord> listViewSub = new ListView<>(listOfDuplicates);
 
     static {
         System.loadLibrary("jri");
@@ -33,28 +48,92 @@ public class MainController {
 
     private XmlDataManager xmlDataManager = new XmlDataManager();
 
-    void start() {
+    public void start(Stage primaryStage) throws Exception {
         final long start = System.nanoTime();
         System.out.println("start()");
-        final List<MarcRecord> marcRecords1 = xmlDataManager.getAllMarcRecords(null, "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/Vy11to16BezC99a.xml");
-        final List<MarcRecord> marcRecords2 = xmlDataManager.getAllMarcRecords(null, "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/Ujep11to16BezC99a_modified.xml");
 
+        ListView<List<MarcRecord>> listView = new ListView<>();
+        listView.setCellFactory(new Callback<ListView<List<MarcRecord>>, ListCell<List<MarcRecord>>>(){
 
-        final List<List<MarcRecord>> uniqueList = createUniqueListFromTwoFilesSimpler(marcRecords1, marcRecords2);
-        for (List<MarcRecord> marcRecordList : uniqueList) {
-            if (marcRecordList.size() == 0) {
-                System.out.println(marcRecordList.get(0).getControlFieldId());
-            } else if (marcRecordList.size() > 0) {
-                List<MarcRecord> distinctList = marcRecordList.stream().distinct().collect(Collectors.toList());
-                marcRecordList.clear();
-                marcRecordList.addAll(distinctList);
-                for (MarcRecord marcRecord : marcRecordList) {
-                    System.out.print(marcRecord.getControlFieldId() + "(" + marcRecord.getLibraryId() + ", " + marcRecord.getBlockingKey() + ") --> ");
-                }
+            @Override
+            public ListCell<List<MarcRecord>> call(ListView<List<MarcRecord>> p) {
+                return new ListCell<List<MarcRecord>>(){
+                    @Override
+                    protected void updateItem(List<MarcRecord> t, boolean bln) {
+                        super.updateItem(t, bln);
+                        if (t != null) {
+                            setText(t.get(0).getControlFieldId() + " - " + t.get(0).getLibraryId() + " - " + t.get(0).getTitle());
+                        } else {
+                            setText("");
+                        }
+                    }
+                };
             }
-            System.out.println();
-        }
-        System.out.println("uniqueList.size(): " + uniqueList.size());
+        });
+
+        listViewSub.setCellFactory(new Callback<ListView<MarcRecord>, ListCell<MarcRecord>>() {
+            @Override
+            public ListCell<MarcRecord> call(ListView<MarcRecord> param) {
+                return new ListCell<MarcRecord>() {
+                    @Override
+                    protected void updateItem(MarcRecord item, boolean empty) {
+                        super.updateItem(item, empty);
+                        listViewSub.refresh();
+                        if (item != null) {
+                            setText(item.getControlFieldId() + " - " + item.getTitle() + "\n" + item.getBlockingKey());
+                        } else {
+                            setText(""); // very important, so that the rest of ListView is cleaned out!
+                        }
+                    }
+                };
+            }
+        });
+
+        BorderPane root = new BorderPane();
+        root.setLeft(listView);
+        root.setCenter(listViewSub);
+        primaryStage.setScene(new Scene(root, 800, 600));
+        primaryStage.show();
+
+        Task<Void> task = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                final List<MarcRecord> marcRecords1 = xmlDataManager.getAllMarcRecords(null, "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/Vy11to16BezC99a.xml");
+                final List<MarcRecord> marcRecords2 = xmlDataManager.getAllMarcRecords(null, "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/Ujep11to16BezC99a_modified.xml");
+                final List<List<MarcRecord>> uniqueList = createUniqueListFromTwoFilesSimpler(marcRecords1, marcRecords2);
+                System.out.println("uniqueList.size(): " + uniqueList.size());
+                ObservableList<List<MarcRecord>> observableList = FXCollections.observableList(uniqueList);
+                listView.setItems(observableList);
+                listView.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent event) {
+                        listOfDuplicates.clear();
+                        for (int i = 0; i < listView.getSelectionModel().getSelectedItem().size(); i++) {
+                            listOfDuplicates.add(listView.getSelectionModel().getSelectedItem().get(i));
+                        }
+
+                    }
+                });
+                for (List<MarcRecord> marcRecordList : uniqueList) {
+                    if (marcRecordList.size() == 0) {
+                        System.out.println(marcRecordList.get(0).getControlFieldId());
+                    } else if (marcRecordList.size() > 0) {
+                        List<MarcRecord> distinctList = marcRecordList.stream().distinct().collect(Collectors.toList());
+                        marcRecordList.clear();
+                        marcRecordList.addAll(distinctList);
+                        for (MarcRecord marcRecord : marcRecordList) {
+                            System.out.print(marcRecord.getControlFieldId() + "(" + marcRecord.getLibraryId() + ", " + marcRecord.getBlockingKey() + ") --> ");
+                        }
+                    }
+                    System.out.println();
+                }
+                System.out.println("uniqueList.size(): " + uniqueList.size());
+                final long end = System.nanoTime();
+                Printer.printTimeElapsed(start, end);
+                return null;
+            }
+        };
+        new Thread(task).start();
 
 //        final List<MarcRecord> mergedMarcRecords = Stream.concat(marcRecords1.stream(), marcRecords2.stream()).collect(Collectors.toList());
 //        final List<MarcCompVector> mergedCompVectors = createBlockingCompVectorsFromRecords(mergedMarcRecords);
@@ -94,8 +173,7 @@ public class MainController {
 //            System.out.println(marcCompVector.toString());
 //        }
 //        testR();
-        final long end = System.nanoTime();
-        Printer.printTimeElapsed(start, end);
+
     }
 
     private List<List<MarcRecord>> createUniqueListFromTwoFilesSimpler(final List<MarcRecord> marcRecordList1, final List<MarcRecord> marcRecordList2) {
@@ -395,6 +473,7 @@ public class MainController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
 }
