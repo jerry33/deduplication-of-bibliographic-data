@@ -2,16 +2,24 @@ package utils;
 
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
+import data.XmlDataManager;
 import models.IdCompVector;
 import models.MarcCompVector;
 import models.MarcRecord;
 import org.marc4j.MarcReader;
 import org.marc4j.MarcXmlReader;
+import org.marc4j.MarcXmlWriter;
 import org.marc4j.marc.DataField;
 import org.marc4j.marc.Record;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by jerry on 3/25/17.
@@ -143,6 +151,43 @@ public final class MarcUtils {
             }
         }
         return identifiers;
+    }
+
+    @SuppressWarnings("Duplicates")
+    public static void writeDuplicateRecordsToFile(final String sourceFilePath, final XmlDataManager xmlDataManager) {
+        final MarcReader reader = new MarcXmlReader(FileUtils.getNewFileInputStream(FileUtils.FILE_PATH_WITH_C99_DEDUP));
+        final File file = new File(FileUtils.FILE_PATH_DUPLICATED_ENTRIES);
+        final List<Record> records = new ArrayList<>();
+        while (reader.hasNext()) {
+            records.add(reader.next());
+        }
+        try {
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            final OutputStream outputStream = new FileOutputStream(FileUtils.FILE_PATH_DUPLICATED_ENTRIES);
+            final MarcXmlWriter writer = new MarcXmlWriter(outputStream, true);
+            final Set<String> c99IdentifiersHashSet = new HashSet<>(xmlDataManager.getDuplicateIdentifiers(sourceFilePath));
+            int numberOfDuplicateRecords = 0;
+            for (final Record record : records) {
+                if (((DataField) record.getVariableField("C99")).getSubfield('a') != null) {
+                    final String c99DataField1 = ((DataField) record.getVariableField("C99")).getSubfield('a').getData();
+                    if (StringUtils.isValid(c99DataField1) && c99IdentifiersHashSet.contains(c99DataField1)) {
+                        writer.write(record);
+                        System.out.println("DUPLICATE == " + c99DataField1);
+                        numberOfDuplicateRecords++;
+                    }
+                }
+            }
+            System.out.println("number of duplicated records == " + numberOfDuplicateRecords);
+
+            writer.close();
+            outputStream.flush();
+            outputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
 }
