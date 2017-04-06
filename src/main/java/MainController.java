@@ -31,7 +31,7 @@ import java.util.stream.Stream;
  */
 public class MainController {
 
-    static String[] sColumnNames;
+    private static String[] sColumnNames;
 
     private static final ObservableList<MarcRecord> observableListOfDuplicates = FXCollections.observableArrayList();
     private static final ObservableList<List<MarcRecord>> observableListOfUniqueRecords = FXCollections.observableArrayList();
@@ -63,12 +63,11 @@ public class MainController {
                 final List<MarcRecord> marcRecords1
                         = xmlDataManager
                         .getAllMarcRecords(null,
-                                "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/Vy11to16BezC99a.xml");
+                                "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/Vy11to16BezC99a_crop.xml");
                 final List<MarcRecord> marcRecords2
                         = xmlDataManager
                         .getAllMarcRecords(null,
-                                "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/Ujep11to16BezC99a_modified.xml");
-
+                                "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/Ujep11to16BezC99a_crop.xml");
                 observableListOfUniqueRecords.addAll(createUniqueListFromTwoFilesSimpler(marcRecords1, marcRecords2));
                 listViewMain.setOnMouseClicked(new EventHandler<MouseEvent>() {
                     @Override
@@ -80,20 +79,7 @@ public class MainController {
 
                     }
                 });
-                for (List<MarcRecord> marcRecordList : observableListOfUniqueRecords) {
-                    if (marcRecordList.size() == 0) {
-                        System.out.println(marcRecordList.get(0).getControlFieldId());
-                    } else if (marcRecordList.size() > 0) {
-                        List<MarcRecord> distinctList = marcRecordList.stream().distinct().collect(Collectors.toList());
-                        marcRecordList.clear();
-                        marcRecordList.addAll(distinctList);
-                        for (MarcRecord marcRecord : marcRecordList) {
-                            System.out.print(marcRecord.getControlFieldId() + "(" + marcRecord.getLibraryId() + ", " + marcRecord.getBlockingKey() + ") --> ");
-                        }
-                    }
-                    System.out.println();
-                }
-                System.out.println("uniqueList.size(): " + observableListOfUniqueRecords.size());
+                Printer.printUniqueList(observableListOfUniqueRecords);
                 final long end = System.nanoTime();
                 Printer.printTimeElapsed(start, end);
                 return null;
@@ -119,7 +105,6 @@ public class MainController {
                     protected void updateItem(List<MarcRecord> t, boolean bln) {
                         super.updateItem(t, bln);
                         if (t != null) {
-//                            setText(t.get(0).getControlFieldId() + " - " + t.get(0).getLibraryId() + " - " + t.get(0).getTitle());
                             setText(getFormattedMarcRecord(t.get(0)));
                             if (t.size() > 1) {
                                 setStyle("-fx-control-inner-background: red");
@@ -145,7 +130,6 @@ public class MainController {
                         super.updateItem(item, empty);
                         listViewSub.refresh();
                         if (item != null) {
-//                            setText(item.getControlFieldId() + " - " + item.getTitle() + "\n" + item.getBlockingKey());
                             setText(getFormattedMarcRecord(item));
                         } else {
                             setText(""); // very important, so that the rest of ListView is cleaned out!
@@ -164,6 +148,26 @@ public class MainController {
                 + "Id bibliografického diela: " + marcRecord.getControlFieldId();
     }
 
+    @SuppressWarnings("Duplicates")
+    private List<List<MarcRecord>> createUniqueListFromOneFile(final List<MarcRecord> marcRecords) {
+        System.out.println("Merging records...");
+        for (MarcRecord marcRecord : marcRecords) {
+            marcRecordsHashMap.put(marcRecord.getControlFieldId() + "-" + marcRecord.getLibraryId(), -1);
+        }
+        System.out.println("Creating blocking vectors...");
+        FileUtils.writeBeansToCsvFile(createBlockingCompVectorsFromRecords(marcRecords), "merged_marc_records_new.csv", MarcCompVector.class, sColumnNames);
+
+//        System.out.println("Training data...");
+//        rManager.trainDataFromFile("/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/comp_vectors_all_train.csv");
+//        rManager.classifyData("/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/merged_marc_records_new.csv");
+
+        System.out.println("Loading blocking vectors...");
+        final List<MarcCompVector> mergedCompVectors = FileUtils.readCsv("merged_marc_records_new.csv", MarcCompVector.class, sColumnNames);
+        System.out.println("Creating unique list...");
+        return createUniqueMarcRecordsList(mergedCompVectors, marcRecords, null);
+    }
+
+    @SuppressWarnings("Duplicates")
     private List<List<MarcRecord>> createUniqueListFromTwoFilesSimpler(final List<MarcRecord> marcRecordList1, final List<MarcRecord> marcRecordList2) {
         System.out.println("Merging records...");
         final List<MarcRecord> mergedMarcRecords = Stream.concat(marcRecordList1.stream(), marcRecordList2.stream()).collect(Collectors.toList());
@@ -174,8 +178,8 @@ public class MainController {
         FileUtils.writeBeansToCsvFile(createBlockingCompVectorsFromRecords(mergedMarcRecords), "merged_marc_records_new.csv", MarcCompVector.class, sColumnNames);
 
         System.out.println("Training data...");
-        rManager.trainDataFromFile("/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/comp_vectors_all_train.csv");
-        rManager.classifyData("/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/merged_marc_records_new.csv");
+        rManager.trainDataFromFile("/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/comp_vectors_all_train2.csv", 0, 6, 7, 14);
+        rManager.classifyData("/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/merged_marc_records_new.csv", 0, 6, 7, 13);
 
         System.out.println("Loading blocking vectors...");
         final List<MarcCompVector> mergedCompVectors = FileUtils.readCsv("merged_marc_records_new.csv", MarcCompVector.class, sColumnNames);
@@ -196,9 +200,6 @@ public class MainController {
         final List<List<MarcRecord>> uniqueList = existingUniqueList == null ? new ArrayList<>() : existingUniqueList;
         for (MarcCompVector marcCompVector : marcCompVectors) {
             if (!marcCompVector.isDuplicate()) {
-                if (marcCompVector.getCompControlField1().equals("0178053")) {
-                    System.out.println("debug");
-                }
                 if (!isControlFieldInUniqueList(marcCompVector.getCompControlField1(), marcCompVector.getCompLibraryId1(), uniqueList)) {
                     final MarcRecord marcRecord = findMarcRecordByControlField(marcCompVector.getCompControlField1(), marcCompVector.getCompLibraryId1(), marcRecords);
                     if (marcRecord != null) {
@@ -384,6 +385,7 @@ public class MainController {
 //                        System.out.println("numberOfComparisons: " + numberOfComparisons);
                         final MarcCompVector marcCompVector = MarcUtils.createCompVector(record1, record2);
                         if (record1.getC99FieldId().equals(record2.getC99FieldId())) {
+                            System.out.println("equals: " + record1.getC99FieldId() + "-" + record1.getLibraryId() + "; and " + record2.getC99FieldId() + "-" + record2.getLibraryId());
                             vectorsDuplicated.add(marcCompVector);
                         } else {
                             vectorsNonDuplicated.add(marcCompVector);
@@ -392,6 +394,33 @@ public class MainController {
                 }
             }
 
+        }
+        marcCompVectors.addAll(vectorsDuplicated);
+        marcCompVectors.addAll(vectorsNonDuplicated);
+        return marcCompVectors;
+    }
+
+    @SuppressWarnings("Duplicates")
+    private List<MarcCompVector> createAllCompVectorsFromRecords(final List<MarcRecord> marcRecords) {
+        final List<MarcCompVector> marcCompVectors = new ArrayList<>();
+        final List<MarcCompVector> vectorsDuplicated = new ArrayList<>();
+        final List<MarcCompVector> vectorsNonDuplicated = new ArrayList<>();
+        for (int i = 0; i < marcRecords.size(); i++) {
+            for (int j = i + 1; j < marcRecords.size(); j++) {
+                final MarcRecord record1 = marcRecords.get(i);
+                final MarcRecord record2 = marcRecords.get(j);
+                final boolean typesOfMaterialMatch = record1.getTypeOfMaterial().equals(record2.getTypeOfMaterial());
+                if (typesOfMaterialMatch) {
+                    final MarcCompVector marcCompVector = MarcUtils.createCompVector(record1, record2);
+                    if (record1.getC99FieldId().equals(record2.getC99FieldId())) {
+                        System.out.println("equals: " + record1.getC99FieldId() + "-" + record1.getLibraryId() + "; and " + record2.getC99FieldId() + "-" + record2.getLibraryId());
+                        vectorsDuplicated.add(marcCompVector);
+                    } else {
+                        System.out.println("NOT equals: " + record1.getC99FieldId() + "-" + record1.getLibraryId() + "; and " + record2.getC99FieldId() + "-" + record2.getLibraryId());
+                        vectorsNonDuplicated.add(marcCompVector);
+                    }
+                }
+            }
         }
         marcCompVectors.addAll(vectorsDuplicated);
         marcCompVectors.addAll(vectorsNonDuplicated);

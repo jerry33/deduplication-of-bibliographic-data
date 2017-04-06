@@ -27,16 +27,18 @@ public class RManager {
         return INSTANCE;
     }
 
-    public void trainDataFromFile(final String filePath) {
+    public void trainDataFromFile(final String filePath, final int startOfIds, final int endOfIds,
+                                  final int startOfData, final int endOfData) {
         mRengine.eval("marc1_c99 <- read.csv('" + filePath + "')");
-        mRengine.eval("marc1_c99_ids <- cbind(marc1_c99[,0:4])");
-        mRengine.eval("marc1_c99_train <- cbind(marc1_c99[,5:12])");
+        mRengine.eval("marc1_c99_ids <- cbind(marc1_c99[," + startOfIds + ":" + endOfIds + "])");
+        mRengine.eval("marc1_c99_train <- cbind(marc1_c99[," + startOfData + ":" + endOfData + "])");
     }
 
-    public void classifyData(final String filePath) {
+    public void classifyData(final String filePath, final int startOfIds, final int endOfIds,
+                             final int startOfData, final int endOfData) {
         mRengine.eval("marc1_c99_test <- read.csv('" + filePath + "')");
-        mRengine.eval("marc1_c99_test_ids <- cbind(marc1_c99_test[,0:6])");
-        mRengine.eval("marc1_c99_test <- cbind(marc1_c99_test[,7:13])");
+        mRengine.eval("marc1_c99_test_ids <- cbind(marc1_c99_test[," + startOfIds + ":" + endOfIds + "])");
+        mRengine.eval("marc1_c99_test <- cbind(marc1_c99_test[," + startOfData + ":" + endOfData + "])");
         mRengine.eval("library(C50)");
         mRengine.eval("c5_c99 <- C5.0(marc1_c99_train[,-8], marc1_c99_train[,8])");
         mRengine.eval("p1_c99 <- predict(c5_c99, marc1_c99_test)");

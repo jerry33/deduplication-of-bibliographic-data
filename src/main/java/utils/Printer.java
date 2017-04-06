@@ -5,6 +5,7 @@ import models.MarcCompVector;
 import models.MarcRecord;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by jerry on 3/25/17.
@@ -55,6 +56,23 @@ public final class Printer {
         final long resultInMillis = result / 1000000;
         System.out.println("Time elapsed: " + resultInMillis + " ms");
         System.out.println("Nano: " + result + " ms");
+    }
+
+    public static void printUniqueList(List<List<MarcRecord>> uniqueList) {
+        for (List<MarcRecord> marcRecordList : uniqueList) {
+            if (marcRecordList.size() == 0) {
+                System.out.println(marcRecordList.get(0).getControlFieldId());
+            } else if (marcRecordList.size() > 0) {
+                List<MarcRecord> distinctList = marcRecordList.stream().distinct().collect(Collectors.toList());
+                marcRecordList.clear();
+                marcRecordList.addAll(distinctList);
+                for (MarcRecord marcRecord : marcRecordList) {
+                    System.out.print(marcRecord.getControlFieldId() + "(" + marcRecord.getLibraryId() + ", " + marcRecord.getBlockingKey() + ") --> ");
+                }
+            }
+            System.out.println();
+        }
+        System.out.println("uniqueList.size(): " + uniqueList.size());
     }
 
     public static void printBlockingKey(final MarcRecord marcRecord) {
