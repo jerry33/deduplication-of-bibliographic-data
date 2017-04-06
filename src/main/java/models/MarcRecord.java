@@ -35,6 +35,7 @@ public class MarcRecord implements Comparable<MarcRecord> {
     private List<String> internationalStandardNumbers;
     private String blockingKey;
     private boolean isMasterDatabaseRecord;
+    private boolean isInAnyBlock;
 
     public MarcRecord() {}
 
@@ -221,6 +222,14 @@ public class MarcRecord implements Comparable<MarcRecord> {
 
     public void setYearOfPublicationRaw(String yearOfPublicationRaw) {
         this.yearOfPublicationRaw = yearOfPublicationRaw;
+    }
+
+    public boolean isInAnyBlock() {
+        return isInAnyBlock;
+    }
+
+    public void setIsInAnyBlock(boolean isInAnyBlock) {
+        this.isInAnyBlock = isInAnyBlock;
     }
 
     public void generateBlockingKey() {

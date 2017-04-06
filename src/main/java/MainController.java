@@ -73,7 +73,7 @@ public class MainController {
                     @Override
                     public void handle(MouseEvent event) {
                         observableListOfDuplicates.clear();
-                        for (int i = 0; i < listViewMain.getSelectionModel().getSelectedItem().size(); i++) {
+                        for (int i = 1; i < listViewMain.getSelectionModel().getSelectedItem().size(); i++) {
                             observableListOfDuplicates.add(listViewMain.getSelectionModel().getSelectedItem().get(i));
                         }
 
@@ -97,6 +97,7 @@ public class MainController {
     }
 
     private void initMainListView() {
+        listViewMain.setPrefWidth(400);
         listViewMain.setCellFactory(new Callback<ListView<List<MarcRecord>>, ListCell<List<MarcRecord>>>(){
             @Override
             public ListCell<List<MarcRecord>> call(ListView<List<MarcRecord>> p) {
@@ -185,6 +186,18 @@ public class MainController {
         final List<MarcCompVector> mergedCompVectors = FileUtils.readCsv("merged_marc_records_new.csv", MarcCompVector.class, sColumnNames);
         System.out.println("Creating unique list...");
         return createUniqueMarcRecordsList(mergedCompVectors, mergedMarcRecords, null);
+    }
+
+    private void addAllRecordsWithoutBlock(final List<List<MarcRecord>> uniqueList, final List<MarcRecord> marcRecords) {
+        int counter = 0;
+        for (MarcRecord marcRecord : marcRecords) {
+            if (!marcRecord.isInAnyBlock()) {
+                counter++;
+                System.out.println(counter + ". not in block - " + marcRecord.getControlFieldId());
+                uniqueList.add(new ArrayList<>(Collections.singleton(marcRecord)));
+            }
+        }
+        System.out.println("marcRecords.size(): " + marcRecords.size());
     }
 
     private List<MarcRecord> createUniqueMarcRecords(final List<List<MarcRecord>> uniqueList) {
@@ -287,6 +300,7 @@ public class MainController {
                 }
             }
         }
+        addAllRecordsWithoutBlock(uniqueList, marcRecords);
         return uniqueList;
     }
 
@@ -344,9 +358,12 @@ public class MainController {
         final Levenshtein levenshtein = new Levenshtein();
         for (int i = 0; i < marcRecords.size() - 1; i++) {
             if (startOfBlock == i) {
+                marcRecords.get(i).setIsInAnyBlock(false);
                 blockingList.add(marcRecords.get(i));
             }
             if (levenshtein.distance(marcRecords.get(startOfBlock).getBlockingKey(), marcRecords.get(i + 1).getBlockingKey()) <= 3) { // jaroWinkler.similarity(marcRecords.get(startOfBlock).getBlockingKey(), marcRecords.get(i + 1).getBlockingKey()) >= 0.95
+                marcRecords.get(i).setIsInAnyBlock(true);
+                marcRecords.get(i + 1).setIsInAnyBlock(true);
                 blockingList.add(marcRecords.get(i + 1));
             } else {
                 startOfBlock = i + 1;
