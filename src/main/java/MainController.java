@@ -3,12 +3,18 @@ import info.debatty.java.stringsimilarity.Levenshtein;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import models.MarcCompVector;
@@ -41,6 +47,9 @@ public class MainController {
     private final ListView<MarcRecord> listViewSub = new ListView<>(observableListOfDuplicates);
     private final ListView<List<MarcRecord>> listViewMain = new ListView<>(observableListOfUniqueRecords);
 
+    private String filePathFirstFile, filePathSecondFile;
+    private Task<Void> deduplicationTask;
+
     static {
         System.loadLibrary("jri");
         sColumnNames = new String[]{"compC99id1", "compC99id2", "compControlField1", "compControlField2", "compLibraryId1", "compLibraryId2", "compPersonalName", "compPublisherName", "compTitle",
@@ -57,17 +66,17 @@ public class MainController {
         initSubListView();
         initGui(primaryStage);
 
-        final Task<Void> task = new Task<Void>() {
+        deduplicationTask = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
                 final List<MarcRecord> marcRecords1
                         = xmlDataManager
                         .getAllMarcRecords(null,
-                                "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/Vy11to16BezC99a_crop.xml");
+                                filePathFirstFile);
                 final List<MarcRecord> marcRecords2
                         = xmlDataManager
                         .getAllMarcRecords(null,
-                                "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/Ujep11to16BezC99a_crop.xml");
+                                filePathSecondFile);
                 observableListOfUniqueRecords.addAll(createUniqueListFromTwoFilesSimpler(marcRecords1, marcRecords2));
                 listViewMain.setOnMouseClicked(new EventHandler<MouseEvent>() {
                     @Override
@@ -85,19 +94,74 @@ public class MainController {
                 return null;
             }
         };
-        new Thread(task).start();
+//        new Thread(deduplicationTask).start();
     }
 
     private void initGui(final Stage primaryStage) {
         BorderPane root = new BorderPane();
-        root.setLeft(listViewMain);
-        root.setCenter(listViewSub);
+        VBox vbox = new VBox();
+        vbox.setPrefWidth(200);
+        vbox.setPadding(new Insets(10));
+        vbox.setSpacing(8);
+        final Button buttonFirstFile = new Button();
+        buttonFirstFile.setText("Načítať prvý súbor");
+        final Button buttonSecondFile = new Button();
+        buttonSecondFile.setText("Načítať druhý súbor");
+        final Text textFirstFilePath = new Text();
+        textFirstFilePath.setText("/path/to/file1.xml");
+        final Text textSecondFilePath = new Text();
+        textSecondFilePath.setText("/path/to/file2.xml");
+        buttonFirstFile.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle("Vyberte prvý súbor na deduplikáciu");
+                File file = fileChooser.showOpenDialog(primaryStage);
+                if (file != null) {
+                    textFirstFilePath.setText(file.getName());
+                    filePathFirstFile = file.getAbsolutePath();
+                }
+            }
+        });
+        buttonSecondFile.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle("Vyberte druhý súbor na deduplikáciu");
+                File file = fileChooser.showOpenDialog(primaryStage);
+                if (file != null) {
+                    textSecondFilePath.setText(file.getName());
+                    filePathSecondFile = file.getAbsolutePath();
+                }
+            }
+        });
+        vbox.getChildren().add(buttonFirstFile);
+        vbox.getChildren().add(textFirstFilePath);
+        vbox.getChildren().add(buttonSecondFile);
+        vbox.getChildren().add(textSecondFilePath);
+
+        final Button startDeduplicationButton = new Button();
+        startDeduplicationButton.setText("Spustiť deduplikáciu");
+        startDeduplicationButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if (StringUtils.isValid(filePathFirstFile) && StringUtils.isValid(filePathSecondFile) && deduplicationTask != null) {
+                    new Thread(deduplicationTask).start();
+                }
+            }
+        });
+
+        vbox.getChildren().add(startDeduplicationButton);
+
+        root.setLeft(vbox);
+        root.setCenter(listViewMain);
+        root.setRight(listViewSub);
         primaryStage.setScene(new Scene(root, 800, 600));
         primaryStage.show();
     }
 
     private void initMainListView() {
-        listViewMain.setPrefWidth(400);
+        listViewMain.setPrefWidth(300);
         listViewMain.setCellFactory(new Callback<ListView<List<MarcRecord>>, ListCell<List<MarcRecord>>>(){
             @Override
             public ListCell<List<MarcRecord>> call(ListView<List<MarcRecord>> p) {
@@ -122,6 +186,7 @@ public class MainController {
     }
 
     private void initSubListView() {
+        listViewSub.setPrefWidth(300);
         listViewSub.setCellFactory(new Callback<ListView<MarcRecord>, ListCell<MarcRecord>>() {
             @Override
             public ListCell<MarcRecord> call(ListView<MarcRecord> param) {
