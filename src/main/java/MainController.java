@@ -54,7 +54,7 @@ public class MainController {
 
     private XmlDataManager xmlDataManager = new XmlDataManager();
 
-    private void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) throws Exception {
         final long start = System.nanoTime();
         System.out.println("start(), please select files");
 
