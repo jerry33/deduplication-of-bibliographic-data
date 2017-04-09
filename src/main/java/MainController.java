@@ -10,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ToolBar;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -19,11 +20,6 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 import models.MarcCompVector;
 import models.MarcRecord;
-import org.marc4j.MarcReader;
-import org.marc4j.MarcXmlReader;
-import org.marc4j.MarcXmlWriter;
-import org.marc4j.marc.DataField;
-import org.marc4j.marc.Record;
 import r.RManager;
 import utils.*;
 
@@ -58,9 +54,9 @@ public class MainController {
 
     private XmlDataManager xmlDataManager = new XmlDataManager();
 
-    public void start(Stage primaryStage) throws Exception {
+    private void start(Stage primaryStage) throws Exception {
         final long start = System.nanoTime();
-        System.out.println("start()");
+        System.out.println("start(), please select files");
 
         initMainListView();
         initSubListView();
@@ -99,6 +95,7 @@ public class MainController {
 
     private void initGui(final Stage primaryStage) {
         BorderPane root = new BorderPane();
+
         VBox vbox = new VBox();
         vbox.setPrefWidth(200);
         vbox.setPadding(new Insets(10));
@@ -135,9 +132,7 @@ public class MainController {
                 }
             }
         });
-        vbox.getChildren().add(buttonFirstFile);
         vbox.getChildren().add(textFirstFilePath);
-        vbox.getChildren().add(buttonSecondFile);
         vbox.getChildren().add(textSecondFilePath);
 
         final Button startDeduplicationButton = new Button();
@@ -153,6 +148,8 @@ public class MainController {
 
         vbox.getChildren().add(startDeduplicationButton);
 
+        ToolBar toolBar = new ToolBar(buttonFirstFile, buttonSecondFile);
+        root.setTop(toolBar);
         root.setLeft(vbox);
         root.setCenter(listViewMain);
         root.setRight(listViewSub);
@@ -194,7 +191,6 @@ public class MainController {
                     @Override
                     protected void updateItem(MarcRecord item, boolean empty) {
                         super.updateItem(item, empty);
-                        listViewSub.refresh();
                         if (item != null) {
                             setText(getFormattedMarcRecord(item));
                         } else {
