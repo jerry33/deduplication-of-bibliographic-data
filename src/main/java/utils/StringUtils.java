@@ -39,6 +39,30 @@ public class StringUtils {
         return "";
     }
 
+    public static String standardizeYearOfAuthor(@Nullable String s) {
+        if (isValid(s)) {
+            final String year = StringUtils.removeNonNumericCharacters(s);
+            if (year.length() >= 4) {
+                return year.substring(0, 4);
+            }
+        }
+        return "";
+    }
+
+    public static String standardizeYearOfPublication(@Nullable String s) {
+        if (isValid(s)) {
+            String publisherYear = StringUtils.removeNonNumericCharacters(s);
+            if (publisherYear.length() >= 4) {
+                return publisherYear.substring(0, 4);
+            }
+            publisherYear = StringUtils.removeNonNumericCharacters(s);
+            if (publisherYear.length() >= 4) {
+                return publisherYear.substring(0, 4);
+            }
+        }
+        return "";
+    }
+
     public static String removeNonNumericCharacters(String s) {
         if (StringUtils.isValid(s)) {
             s = s.replaceAll("[^\\d.]", "");

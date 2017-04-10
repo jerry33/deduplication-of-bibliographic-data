@@ -40,6 +40,9 @@ public class StringComparator {
     }
 
     public static double compareInternationalStandardNumbers(final List<String> numbers1, final List<String> numbers2) {
+        if (numbers1 == null || numbers2 == null) {
+            return 0.5f;
+        }
         final List<Double> listOfNumbersComparisonValues = new ArrayList<>();
         final JaroWinkler jaroWinkler = new JaroWinkler();
         for (String s1 : numbers1) {

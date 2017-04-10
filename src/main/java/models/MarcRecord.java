@@ -11,6 +11,19 @@ import java.util.List;
  */
 public class MarcRecord implements Comparable<MarcRecord> {
 
+    public static final String COLUMN_TYPE_OF_MATERIAL = "type_of_material";
+    public static final String COLUMN_C99_FIELD_ID = "c99_field_id";
+    public static final String COLUMN_CONTROL_FIELD_ID = "control_field_id";
+    public static final String COLUMN_LIBRARY_ID = "library_id";
+    public static final String COLUMN_UNIQUE_ID = "unique_id";
+    public static final String COLUMN_BLOCKING_KEY = "blocking_key";
+    public static final String COLUMN_PERSONAL_NAME = "personal_name";
+    public static final String COLUMN_PUBLISHER_NAME = "publisher_name";
+    public static final String COLUMN_TITLE = "title";
+    public static final String COLUMN_NAME_OF_PART = "name_of_part";
+    public static final String COLUMN_YEAR_OF_AUTHOR = "year_of_author";
+    public static final String COLUMN_YEAR_OF_PUBLICATION = "year_of_publication";
+
     private String typeOfMaterial;
     private String c99FieldId;
     private String controlFieldId;
@@ -22,9 +35,7 @@ public class MarcRecord implements Comparable<MarcRecord> {
     private String yearOfAuthor;
     private String yearOfPublication;
 
-    private String typeOfMaterialRaw;
     private String c99FieldIdRaw;
-    private String libraryIdRaw;
     private String personalNameRaw;
     private String publisherNameRaw;
     private String titleRaw;
@@ -152,28 +163,12 @@ public class MarcRecord implements Comparable<MarcRecord> {
         this.isMasterDatabaseRecord = isMasterDatabaseRecord;
     }
 
-    public String getTypeOfMaterialRaw() {
-        return typeOfMaterialRaw;
-    }
-
-    public void setTypeOfMaterialRaw(String typeOfMaterialRaw) {
-        this.typeOfMaterialRaw = typeOfMaterialRaw;
-    }
-
     public String getC99FieldIdRaw() {
         return c99FieldIdRaw;
     }
 
     public void setC99FieldIdRaw(String c99FieldIdRaw) {
         this.c99FieldIdRaw = c99FieldIdRaw;
-    }
-
-    public String getLibraryIdRaw() {
-        return libraryIdRaw;
-    }
-
-    public void setLibraryIdRaw(String libraryIdRaw) {
-        this.libraryIdRaw = libraryIdRaw;
     }
 
     public String getPersonalNameRaw() {
