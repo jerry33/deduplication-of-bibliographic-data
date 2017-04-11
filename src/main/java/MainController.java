@@ -100,24 +100,7 @@ public class MainController {
             protected Void call() throws Exception {
                 observableListOfUniqueRecords.clear();
                 final DbDataManager dataManager = new DbDataManager();
-                final List<MarcRecord> marcRecords = dataManager.getAllMarcRecords(DbDataManager.DB_MASTER_RECORDS);
-                for (MarcRecord marcRecord : marcRecords) {
-                    System.out.println(marcRecord.getControlFieldId());
-                    final List<MarcRecord> duplicateRecords = dataManager.getMarcRecordsWhereEquals(DbDataManager.DB_DUPLICATE_RECORDS, "fk_master_id", marcRecord.getPrimaryKey());
-                    if (duplicateRecords != null) {
-                        System.out.println("has duplicates of size: " + duplicateRecords.size());
-                        for (MarcRecord duplicateRecord : duplicateRecords) {
-                            System.out.println(duplicateRecord.getControlFieldId());
-                        }
-                        final List<MarcRecord> masterWithDuplicatesList = new ArrayList<>();
-                        masterWithDuplicatesList.add(marcRecord);
-                        masterWithDuplicatesList.addAll(duplicateRecords);
-                        masterRecordsUniqueList.add(masterWithDuplicatesList);
-                    } else {
-                        masterRecordsUniqueList.add(new ArrayList<>(Collections.singleton(marcRecord)));
-                        System.out.println("no duplicates");
-                    }
-                }
+                initMasterRecordsUniqueList(dataManager);
                 observableListOfUniqueRecords.addAll(masterRecordsUniqueList);
                 listViewMain.setOnMouseClicked(new EventHandler<MouseEvent>() {
                     @Override
@@ -254,8 +237,9 @@ public class MainController {
                         }
                     }
 
-                    masterRecordsUniqueList.clear();
-                    masterRecordsUniqueList.addAll(mergedUniqueList);
+//                    masterRecordsUniqueList.clear();
+//                    masterRecordsUniqueList.addAll(mergedUniqueList);
+                    initMasterRecordsUniqueList(dataManager);
                     final ObservableList<List<MarcRecord>> observableList = FXCollections.observableList(masterRecordsUniqueList);
                     listViewMain.getSelectionModel().clearSelection();
                     System.out.println("set items");
@@ -321,6 +305,28 @@ public class MainController {
                 };
             }
         });
+    }
+
+    private void initMasterRecordsUniqueList(final DbDataManager dataManager) {
+        masterRecordsUniqueList.clear();
+        final List<MarcRecord> marcRecords = dataManager.getAllMarcRecords(DbDataManager.DB_MASTER_RECORDS);
+        for (MarcRecord marcRecord : marcRecords) {
+            System.out.println(marcRecord.getControlFieldId());
+            final List<MarcRecord> duplicateRecords = dataManager.getMarcRecordsWhereEquals(DbDataManager.DB_DUPLICATE_RECORDS, "fk_master_id", marcRecord.getPrimaryKey());
+            if (duplicateRecords != null) {
+                System.out.println("has duplicates of size: " + duplicateRecords.size());
+                for (MarcRecord duplicateRecord : duplicateRecords) {
+                    System.out.println(duplicateRecord.getControlFieldId());
+                }
+                final List<MarcRecord> masterWithDuplicatesList = new ArrayList<>();
+                masterWithDuplicatesList.add(marcRecord);
+                masterWithDuplicatesList.addAll(duplicateRecords);
+                masterRecordsUniqueList.add(masterWithDuplicatesList);
+            } else {
+                masterRecordsUniqueList.add(new ArrayList<>(Collections.singleton(marcRecord)));
+                System.out.println("no duplicates");
+            }
+        }
     }
 
     private MarcRecord findMasterRecord(final List<MarcRecord> marcRecordList) {
