@@ -1,3 +1,4 @@
+import data.DbDataManager;
 import data.XmlDataManager;
 import info.debatty.java.stringsimilarity.Levenshtein;
 import javafx.collections.FXCollections;
@@ -43,8 +44,10 @@ public class MainController {
     private final ListView<MarcRecord> listViewSub = new ListView<>(observableListOfDuplicates);
     private final ListView<List<MarcRecord>> listViewMain = new ListView<>(observableListOfUniqueRecords);
 
+    private List<List<MarcRecord>> masterRecordsUniqueList = new ArrayList<>();
+
     private String filePathFirstFile, filePathSecondFile;
-    private Task<Void> deduplicationTask;
+    private Task<Void> deduplicationTask, deduplicationDbTask;
 
     static {
         System.loadLibrary("jri");
@@ -90,7 +93,47 @@ public class MainController {
                 return null;
             }
         };
-//        new Thread(deduplicationTask).start();
+
+        deduplicationDbTask = new Task<Void>() {
+            @SuppressWarnings("Duplicates")
+            @Override
+            protected Void call() throws Exception {
+                observableListOfUniqueRecords.clear();
+                final DbDataManager dataManager = new DbDataManager();
+                final List<MarcRecord> marcRecords = dataManager.getAllMarcRecords(DbDataManager.DB_MASTER_RECORDS);
+                for (MarcRecord marcRecord : marcRecords) {
+                    System.out.println(marcRecord.getControlFieldId());
+                    final List<MarcRecord> duplicateRecords = dataManager.getMarcRecordsWhereEquals(DbDataManager.DB_DUPLICATE_RECORDS, "fk_master_id", marcRecord.getPrimaryKey());
+                    if (duplicateRecords != null) {
+                        System.out.println("has duplicates of size: " + duplicateRecords.size());
+                        for (MarcRecord duplicateRecord : duplicateRecords) {
+                            System.out.println(duplicateRecord.getControlFieldId());
+                        }
+                        final List<MarcRecord> masterWithDuplicatesList = new ArrayList<>();
+                        masterWithDuplicatesList.add(marcRecord);
+                        masterWithDuplicatesList.addAll(duplicateRecords);
+                        masterRecordsUniqueList.add(masterWithDuplicatesList);
+                    } else {
+                        masterRecordsUniqueList.add(new ArrayList<>(Collections.singleton(marcRecord)));
+                        System.out.println("no duplicates");
+                    }
+                }
+                observableListOfUniqueRecords.addAll(masterRecordsUniqueList);
+                listViewMain.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent event) {
+                        observableListOfDuplicates.clear();
+                        for (int i = 1; i < listViewMain.getSelectionModel().getSelectedItem().size(); i++) {
+                            observableListOfDuplicates.add(listViewMain.getSelectionModel().getSelectedItem().get(i));
+                        }
+
+                    }
+                });
+                Printer.printUniqueList(observableListOfUniqueRecords);
+                return null;
+            }
+        };
+
     }
 
     private void initGui(final Stage primaryStage) {
@@ -102,12 +145,19 @@ public class MainController {
         vbox.setSpacing(8);
         final Button buttonFirstFile = new Button();
         buttonFirstFile.setText("Načítať prvý súbor");
+
         final Button buttonSecondFile = new Button();
         buttonSecondFile.setText("Načítať druhý súbor");
+
+        final Button buttonLoadFromDb = new Button();
+        buttonLoadFromDb.setText("Načítať z databázy");
+
         final Text textFirstFilePath = new Text();
         textFirstFilePath.setText("/path/to/file1.xml");
+
         final Text textSecondFilePath = new Text();
         textSecondFilePath.setText("/path/to/file2.xml");
+
         buttonFirstFile.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -132,6 +182,12 @@ public class MainController {
                 }
             }
         });
+        buttonLoadFromDb.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                new Thread(deduplicationDbTask).start();
+            }
+        });
         vbox.getChildren().add(textFirstFilePath);
         vbox.getChildren().add(textSecondFilePath);
 
@@ -146,9 +202,18 @@ public class MainController {
             }
         });
 
-        vbox.getChildren().add(startDeduplicationButton);
+        final Button startDeduplicationDbButton = new Button();
+        startDeduplicationDbButton.setText("Spustiť deduplikáciu DB");
+        startDeduplicationDbButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+            }
+        });
 
-        ToolBar toolBar = new ToolBar(buttonFirstFile, buttonSecondFile);
+        vbox.getChildren().add(startDeduplicationButton);
+        vbox.getChildren().add(startDeduplicationDbButton);
+
+        ToolBar toolBar = new ToolBar(buttonFirstFile, buttonSecondFile, buttonLoadFromDb);
         root.setTop(toolBar);
         root.setLeft(vbox);
         root.setCenter(listViewMain);

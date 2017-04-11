@@ -13,7 +13,10 @@ import java.util.List;
  */
 public class DbDataManager {
 
-    public List<MarcRecord> getAllMarcRecords() {
+    public static final String DB_MASTER_RECORDS = "master_records";
+    public static final String DB_DUPLICATE_RECORDS = "duplicate_records";
+
+    public List<MarcRecord> getAllMarcRecords(final String tableName) {
         Connection conn;
         try {
             Class.forName("com.mysql.jdbc.Driver").newInstance();
@@ -24,13 +27,17 @@ public class DbDataManager {
         conn = getConnection();
 
         final List<MarcRecord> marcRecordsList = new ArrayList<>();
-        final String query = "SELECT * FROM master_records";
+        final String query = "SELECT * FROM " + tableName;
         try {
             if (conn != null) {
                 final Statement statement = conn.createStatement();
                 final ResultSet rs = statement.executeQuery(query);
                 while (rs.next()) {
                     final MarcRecord marcRecord = new MarcRecord();
+                    if (tableName.equals(DB_MASTER_RECORDS)) {
+                        marcRecord.setIsMasterDatabaseRecord(true);
+                    }
+                    marcRecord.setPrimaryKey(rs.getInt(MarcRecord.COLUMN_PRIMARY_KEY));
                     marcRecord.setTypeOfMaterial(rs.getString(MarcRecord.COLUMN_TYPE_OF_MATERIAL));
                     marcRecord.setC99FieldIdRaw(rs.getString(MarcRecord.COLUMN_C99_FIELD_ID));
                     marcRecord.setControlFieldId(rs.getString(MarcRecord.COLUMN_CONTROL_FIELD_ID));
@@ -67,7 +74,45 @@ public class DbDataManager {
         return marcRecordsList;
     }
 
-    public void insertAllMarcRecordsToDatabase(final List<MarcRecord> marcRecordsList) {
+    public List<MarcRecord> getMarcRecordsWhereEquals(final String tableName, final String columnName, final Object value) {
+        Connection conn;
+        try {
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        conn = getConnection();
+
+        final List<MarcRecord> marcRecordsList = new ArrayList<>();
+        final String query = "SELECT * FROM " + tableName + " WHERE " + columnName + " = " + value;
+        try {
+            if (conn != null) {
+                final Statement statement = conn.createStatement();
+                final ResultSet rs = statement.executeQuery(query);
+                if (!rs.isBeforeFirst()) {
+                    return null;
+                }
+                while (rs.next()) {
+                    final MarcRecord marcRecord = new MarcRecord();
+                    marcRecord.bindData(rs);
+                    marcRecordsList.add(marcRecord);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if (conn != null) {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return marcRecordsList;
+    }
+
+    public void insertAllMarcRecordsToDatabase(final List<MarcRecord> marcRecordsList, final String tableName) {
         Connection conn = null;
         try {
             Class.forName("com.mysql.jdbc.Driver").newInstance();
@@ -75,7 +120,7 @@ public class DbDataManager {
             ex.printStackTrace();
         }
         conn = getConnection();
-        String query = "INSERT INTO master_records (" + MarcRecord.COLUMN_TYPE_OF_MATERIAL
+        String query = "INSERT INTO " + tableName + " (" + MarcRecord.COLUMN_TYPE_OF_MATERIAL
                 + ", " + MarcRecord.COLUMN_C99_FIELD_ID
                 + ", " + MarcRecord.COLUMN_CONTROL_FIELD_ID
                 + ", " + MarcRecord.COLUMN_LIBRARY_ID
@@ -118,7 +163,7 @@ public class DbDataManager {
         }
     }
 
-    public void deleteAllRows() {
+    public void deleteAllRows(final String tableName) {
         Connection conn;
         try {
             Class.forName("com.mysql.jdbc.Driver").newInstance();
@@ -128,7 +173,7 @@ public class DbDataManager {
 
         conn = getConnection();
 
-        final String query = "DELETE FROM master_records";
+        final String query = "DELETE FROM " + tableName;
         try {
             final Statement statement = conn.createStatement();
             int deletedRows = statement.executeUpdate(query);

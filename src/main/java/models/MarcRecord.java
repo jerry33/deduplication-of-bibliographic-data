@@ -3,6 +3,8 @@ package models;
 import info.debatty.java.stringsimilarity.JaroWinkler;
 import utils.StringUtils;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 
@@ -11,6 +13,7 @@ import java.util.List;
  */
 public class MarcRecord implements Comparable<MarcRecord> {
 
+    public static final String COLUMN_PRIMARY_KEY = "id";
     public static final String COLUMN_TYPE_OF_MATERIAL = "type_of_material";
     public static final String COLUMN_C99_FIELD_ID = "c99_field_id";
     public static final String COLUMN_CONTROL_FIELD_ID = "control_field_id";
@@ -24,6 +27,7 @@ public class MarcRecord implements Comparable<MarcRecord> {
     public static final String COLUMN_YEAR_OF_AUTHOR = "year_of_author";
     public static final String COLUMN_YEAR_OF_PUBLICATION = "year_of_publication";
 
+    private int primaryKey;
     private String typeOfMaterial;
     private String c99FieldId;
     private String controlFieldId;
@@ -57,6 +61,14 @@ public class MarcRecord implements Comparable<MarcRecord> {
     public MarcRecord(String controlFieldId, String c99FieldId) {
         this.controlFieldId = controlFieldId;
         this.c99FieldId = c99FieldId;
+    }
+
+    public int getPrimaryKey() {
+        return primaryKey;
+    }
+
+    public void setPrimaryKey(int primaryKey) {
+        this.primaryKey = primaryKey;
     }
 
     public String getTypeOfMaterial() {
@@ -281,6 +293,33 @@ public class MarcRecord implements Comparable<MarcRecord> {
         return obj instanceof MarcRecord
                 && getControlFieldId().equals(((MarcRecord) obj).getControlFieldId())
                 && getLibraryId().equals(((MarcRecord) obj).getLibraryId());
+    }
+
+    public void bindData(final ResultSet rs) {
+        try {
+            setPrimaryKey(rs.getInt(MarcRecord.COLUMN_PRIMARY_KEY));
+            setTypeOfMaterial(rs.getString(MarcRecord.COLUMN_TYPE_OF_MATERIAL));
+            setC99FieldIdRaw(rs.getString(MarcRecord.COLUMN_C99_FIELD_ID));
+            setControlFieldId(rs.getString(MarcRecord.COLUMN_CONTROL_FIELD_ID));
+            setLibraryId(rs.getString(MarcRecord.COLUMN_LIBRARY_ID));
+            setPersonalNameRaw(rs.getString(MarcRecord.COLUMN_PERSONAL_NAME));
+            setPublisherNameRaw(rs.getString(MarcRecord.COLUMN_PUBLISHER_NAME));
+            setTitleRaw(rs.getString(MarcRecord.COLUMN_TITLE));
+            setNameOfPartRaw(rs.getString(MarcRecord.COLUMN_NAME_OF_PART));
+            setYearOfAuthorRaw(rs.getString(MarcRecord.COLUMN_YEAR_OF_AUTHOR));
+            setYearOfPublicationRaw(rs.getString(MarcRecord.COLUMN_YEAR_OF_PUBLICATION));
+            setBlockingKey(rs.getString(MarcRecord.COLUMN_BLOCKING_KEY));
+
+            setC99FieldId(StringUtils.standardizeString(getC99FieldIdRaw()));
+            setPersonalName(StringUtils.standardizeString(getPersonalNameRaw()));
+            setPublisherName(StringUtils.standardizeString(getPublisherNameRaw()));
+            setTitle(StringUtils.standardizeString(getTitleRaw()));
+            setNameOfPart(StringUtils.standardizeString(getNameOfPartRaw()));
+            setYearOfAuthor(StringUtils.standardizeYearOfAuthor(getYearOfAuthorRaw()));
+            setYearOfPublication(StringUtils.standardizeYearOfPublication(getYearOfPublicationRaw()));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
