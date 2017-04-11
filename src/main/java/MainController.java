@@ -149,6 +149,9 @@ public class MainController {
         final Button buttonSecondFile = new Button();
         buttonSecondFile.setText("Načítať druhý súbor");
 
+        final Button buttonSaveToDb = new Button();
+        buttonSaveToDb.setText("Uložiť súbor do databázy");
+
         final Button buttonLoadFromDb = new Button();
         buttonLoadFromDb.setText("Načítať z databázy");
 
@@ -188,6 +191,19 @@ public class MainController {
                 new Thread(deduplicationDbTask).start();
             }
         });
+        buttonSaveToDb.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle("Vyberte");
+                File file = fileChooser.showOpenDialog(primaryStage);
+                if (file != null) {
+                    new DbDataManager().insertAllMarcRecordsToDatabase(
+                            xmlDataManager.getAllMarcRecords(null, file.getAbsolutePath()),
+                            DbDataManager.DB_MASTER_RECORDS);
+                }
+            }
+        });
         vbox.getChildren().add(textFirstFilePath);
         vbox.getChildren().add(textSecondFilePath);
 
@@ -207,13 +223,51 @@ public class MainController {
         startDeduplicationDbButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                final DbDataManager dataManager = new DbDataManager();
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle("Vyberte súbor");
+                File file = fileChooser.showOpenDialog(primaryStage);
+                if (file != null) {
+                    final List<MarcRecord> marcRecordsFromDb = getListWithoutDuplicates(masterRecordsUniqueList);
+                    for (MarcRecord marcRecord : marcRecordsFromDb) {
+                        System.out.println(marcRecord.getControlFieldId() + "; primaryKey: " + marcRecord.getPrimaryKey());
+                    }
+                    final List<MarcRecord> marcRecordsFromFile = xmlDataManager.getAllMarcRecords(null, file.getAbsolutePath());
+                    final List<List<MarcRecord>> mergedUniqueList = createUniqueListFromTwoFilesSimpler(marcRecordsFromDb, marcRecordsFromFile);
+                    for (List<MarcRecord> marcRecordsList : mergedUniqueList) {
+                        if (marcRecordsList.size() > 1) {
+                            final MarcRecord masterRecord = findMasterRecord(marcRecordsList);
+                            for (MarcRecord marcRecord : marcRecordsList) {
+                                if (!marcRecord.isMasterDatabaseRecord()) { // marcRecord.equals(masterRecord) ?
+                                    if (masterRecord == null) {
+                                        // TODO: change Collections.singleton() to one element
+                                        dataManager.insertAllMarcRecordsToDatabase(new ArrayList<>(Collections.singleton(marcRecord)), DbDataManager.DB_MASTER_RECORDS);
+                                    } else {
+                                        dataManager.insertAllMarcRecordsToDatabaseWithPrimaryKey(new ArrayList<>(Collections.singleton(marcRecord)), masterRecord.getPrimaryKey());
+                                    }
+                                }
+                            }
+                        } else {
+                            if (!marcRecordsList.get(0).isMasterDatabaseRecord()) {
+                                dataManager.insertAllMarcRecordsToDatabase(new ArrayList<>(Collections.singleton(marcRecordsList.get(0))), DbDataManager.DB_MASTER_RECORDS);
+                            }
+                        }
+                    }
+
+                    masterRecordsUniqueList.clear();
+                    masterRecordsUniqueList.addAll(mergedUniqueList);
+                    System.out.println("set items");
+                    listViewMain.setItems(observableListOfUniqueRecords);
+
+
+                }
             }
         });
 
         vbox.getChildren().add(startDeduplicationButton);
         vbox.getChildren().add(startDeduplicationDbButton);
 
-        ToolBar toolBar = new ToolBar(buttonFirstFile, buttonSecondFile, buttonLoadFromDb);
+        ToolBar toolBar = new ToolBar(buttonFirstFile, buttonSecondFile, buttonLoadFromDb, buttonSaveToDb);
         root.setTop(toolBar);
         root.setLeft(vbox);
         root.setCenter(listViewMain);
@@ -267,12 +321,29 @@ public class MainController {
         });
     }
 
+    private MarcRecord findMasterRecord(final List<MarcRecord> marcRecordList) {
+        for (MarcRecord marcRecord : marcRecordList) {
+            if (marcRecord.isMasterDatabaseRecord()) {
+                return marcRecord;
+            }
+        }
+        return null;
+    }
+
     private String getFormattedMarcRecord(final MarcRecord marcRecord) {
         return "Názov diela: " + marcRecord.getTitleRaw() + "\n"
                 + "Autor: " + (StringUtils.isValid(marcRecord.getPersonalNameRaw()) ? marcRecord.getPersonalNameRaw() : marcRecord.getPublisherNameRaw()) + "\n"
                 + "Rok vydania: " + (StringUtils.isValid(marcRecord.getYearOfAuthorRaw()) ? marcRecord.getYearOfAuthorRaw() : marcRecord.getYearOfPublicationRaw()) + "\n"
                 + "Id knižničného katalógu: " + marcRecord.getLibraryId() + "\n"
                 + "Id bibliografického diela: " + marcRecord.getControlFieldId();
+    }
+
+    private List<MarcRecord> getListWithoutDuplicates(final List<List<MarcRecord>> uniqueList) {
+        final List<MarcRecord> listWithoutDuplicates = new ArrayList<>();
+        for (List<MarcRecord> list : uniqueList) {
+            listWithoutDuplicates.add(list.get(0));
+        }
+        return listWithoutDuplicates;
     }
 
     @SuppressWarnings("Duplicates")
@@ -319,7 +390,7 @@ public class MainController {
         for (MarcRecord marcRecord : marcRecords) {
             if (!marcRecord.isInAnyBlock()) {
                 counter++;
-                System.out.println(counter + ". not in block - " + marcRecord.getControlFieldId());
+//                System.out.println(counter + ". not in block - " + marcRecord.getControlFieldId());
                 uniqueList.add(new ArrayList<>(Collections.singleton(marcRecord)));
             }
         }

@@ -37,27 +37,7 @@ public class DbDataManager {
                     if (tableName.equals(DB_MASTER_RECORDS)) {
                         marcRecord.setIsMasterDatabaseRecord(true);
                     }
-                    marcRecord.setPrimaryKey(rs.getInt(MarcRecord.COLUMN_PRIMARY_KEY));
-                    marcRecord.setTypeOfMaterial(rs.getString(MarcRecord.COLUMN_TYPE_OF_MATERIAL));
-                    marcRecord.setC99FieldIdRaw(rs.getString(MarcRecord.COLUMN_C99_FIELD_ID));
-                    marcRecord.setControlFieldId(rs.getString(MarcRecord.COLUMN_CONTROL_FIELD_ID));
-                    marcRecord.setLibraryId(rs.getString(MarcRecord.COLUMN_LIBRARY_ID));
-                    marcRecord.setPersonalNameRaw(rs.getString(MarcRecord.COLUMN_PERSONAL_NAME));
-                    marcRecord.setPublisherNameRaw(rs.getString(MarcRecord.COLUMN_PUBLISHER_NAME));
-                    marcRecord.setTitleRaw(rs.getString(MarcRecord.COLUMN_TITLE));
-                    marcRecord.setNameOfPartRaw(rs.getString(MarcRecord.COLUMN_NAME_OF_PART));
-                    marcRecord.setYearOfAuthorRaw(rs.getString(MarcRecord.COLUMN_YEAR_OF_AUTHOR));
-                    marcRecord.setYearOfPublicationRaw(rs.getString(MarcRecord.COLUMN_YEAR_OF_PUBLICATION));
-                    marcRecord.setBlockingKey(rs.getString(MarcRecord.COLUMN_BLOCKING_KEY));
-
-                    marcRecord.setC99FieldId(StringUtils.standardizeString(marcRecord.getC99FieldIdRaw()));
-                    marcRecord.setPersonalName(StringUtils.standardizeString(marcRecord.getPersonalNameRaw()));
-                    marcRecord.setPublisherName(StringUtils.standardizeString(marcRecord.getPublisherNameRaw()));
-                    marcRecord.setTitle(StringUtils.standardizeString(marcRecord.getTitleRaw()));
-                    marcRecord.setNameOfPart(StringUtils.standardizeString(marcRecord.getNameOfPartRaw()));
-                    marcRecord.setYearOfAuthor(StringUtils.standardizeYearOfAuthor(marcRecord.getYearOfAuthorRaw()));
-                    marcRecord.setYearOfPublication(StringUtils.standardizeYearOfPublication(marcRecord.getYearOfPublicationRaw()));
-
+                    marcRecord.bindData(rs);
                     marcRecordsList.add(marcRecord);
                 }
             }
@@ -112,6 +92,7 @@ public class DbDataManager {
         return marcRecordsList;
     }
 
+    @SuppressWarnings("Duplicates")
     public void insertAllMarcRecordsToDatabase(final List<MarcRecord> marcRecordsList, final String tableName) {
         Connection conn = null;
         try {
@@ -149,6 +130,62 @@ public class DbDataManager {
                 preparedStatement.setString(10, marcRecord.getNameOfPartRaw());
                 preparedStatement.setString(11, marcRecord.getYearOfAuthorRaw());
                 preparedStatement.setString(12, marcRecord.getYearOfPublicationRaw());
+                preparedStatement.execute();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        if (conn != null) {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @SuppressWarnings("Duplicates")
+    public void insertAllMarcRecordsToDatabaseWithPrimaryKey(final List<MarcRecord> marcRecordsList, int primaryKey) {
+        Connection conn = null;
+        try {
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        conn = getConnection();
+        String query = "INSERT INTO duplicate_records ("
+                + "fk_master_id"
+                + ", " + MarcRecord.COLUMN_TYPE_OF_MATERIAL
+                + ", " + MarcRecord.COLUMN_C99_FIELD_ID
+                + ", " + MarcRecord.COLUMN_CONTROL_FIELD_ID
+                + ", " + MarcRecord.COLUMN_LIBRARY_ID
+                + ", " + MarcRecord.COLUMN_UNIQUE_ID
+                + ", " + MarcRecord.COLUMN_BLOCKING_KEY
+                + ", " + MarcRecord.COLUMN_PERSONAL_NAME
+                + ", " + MarcRecord.COLUMN_PUBLISHER_NAME
+                + ", " + MarcRecord.COLUMN_TITLE
+                + ", " + MarcRecord.COLUMN_NAME_OF_PART
+                + ", " + MarcRecord.COLUMN_YEAR_OF_AUTHOR
+                + ", " + MarcRecord.COLUMN_YEAR_OF_PUBLICATION + ")"
+                + " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        for (final MarcRecord marcRecord : marcRecordsList) {
+            PreparedStatement preparedStatement;
+            try {
+                System.out.println("primaryKey: " + primaryKey);
+                preparedStatement = conn.prepareStatement(query);
+                preparedStatement.setInt(1, primaryKey);
+                preparedStatement.setString(2, marcRecord.getTypeOfMaterial());
+                preparedStatement.setString(3, marcRecord.getC99FieldIdRaw());
+                preparedStatement.setString(4, marcRecord.getControlFieldId());
+                preparedStatement.setString(5, marcRecord.getLibraryId());
+                preparedStatement.setString(6, marcRecord.getControlFieldId() + "-" + marcRecord.getLibraryId());
+                preparedStatement.setString(7, marcRecord.getBlockingKey());
+                preparedStatement.setString(8, marcRecord.getPersonalNameRaw());
+                preparedStatement.setString(9, marcRecord.getPublisherNameRaw());
+                preparedStatement.setString(10, marcRecord.getTitleRaw());
+                preparedStatement.setString(11, marcRecord.getNameOfPartRaw());
+                preparedStatement.setString(12, marcRecord.getYearOfAuthorRaw());
+                preparedStatement.setString(13, marcRecord.getYearOfPublicationRaw());
                 preparedStatement.execute();
             } catch (SQLException e) {
                 e.printStackTrace();

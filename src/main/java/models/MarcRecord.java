@@ -298,6 +298,7 @@ public class MarcRecord implements Comparable<MarcRecord> {
     public void bindData(final ResultSet rs) {
         try {
             setPrimaryKey(rs.getInt(MarcRecord.COLUMN_PRIMARY_KEY));
+            System.out.println("primaryKey: " + getPrimaryKey());
             setTypeOfMaterial(rs.getString(MarcRecord.COLUMN_TYPE_OF_MATERIAL));
             setC99FieldIdRaw(rs.getString(MarcRecord.COLUMN_C99_FIELD_ID));
             setControlFieldId(rs.getString(MarcRecord.COLUMN_CONTROL_FIELD_ID));
