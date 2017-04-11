@@ -1,8 +1,6 @@
 package data;
 
 import models.MarcRecord;
-import utils.MarcFieldsFinder;
-import utils.StringUtils;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -12,6 +10,8 @@ import java.util.List;
  * Created by jerry on 4/10/17.
  */
 public class DbDataManager {
+
+    private static Connection CONNECTION;
 
     public static final String DB_MASTER_RECORDS = "master_records";
     public static final String DB_DUPLICATE_RECORDS = "duplicate_records";
@@ -44,13 +44,14 @@ public class DbDataManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        if (conn != null) {
-            try {
-                conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+//        if (conn != null) {
+//            try {
+//                conn.close();
+//            } catch (SQLException e) {
+//                e.printStackTrace();
+//            }
+//        }
+        System.out.println("number of records in DB: " + marcRecordsList.size());
         return marcRecordsList;
     }
 
@@ -82,13 +83,13 @@ public class DbDataManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        if (conn != null) {
-            try {
-                conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+//        if (conn != null) {
+//            try {
+//                conn.close();
+//            } catch (SQLException e) {
+//                e.printStackTrace();
+//            }
+//        }
         return marcRecordsList;
     }
 
@@ -135,13 +136,13 @@ public class DbDataManager {
                 e.printStackTrace();
             }
         }
-        if (conn != null) {
-            try {
-                conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+//        if (conn != null) {
+//            try {
+//                conn.close();
+//            } catch (SQLException e) {
+//                e.printStackTrace();
+//            }
+//        }
     }
 
     @SuppressWarnings("Duplicates")
@@ -171,7 +172,6 @@ public class DbDataManager {
         for (final MarcRecord marcRecord : marcRecordsList) {
             PreparedStatement preparedStatement;
             try {
-                System.out.println("primaryKey: " + primaryKey);
                 preparedStatement = conn.prepareStatement(query);
                 preparedStatement.setInt(1, primaryKey);
                 preparedStatement.setString(2, marcRecord.getTypeOfMaterial());
@@ -191,13 +191,13 @@ public class DbDataManager {
                 e.printStackTrace();
             }
         }
-        if (conn != null) {
-            try {
-                conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+//        if (conn != null) {
+//            try {
+//                conn.close();
+//            } catch (SQLException e) {
+//                e.printStackTrace();
+//            }
+//        }
     }
 
     public void deleteAllRows(final String tableName) {
@@ -224,18 +224,20 @@ public class DbDataManager {
         }
     }
 
-    private Connection getConnection() {
-        Connection conn = null;
-        try {
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/bibliographic_database?" +
-                    "user=root&password=root&characterEncoding=utf8");
-        } catch (SQLException ex) {
-            // handle any errors
-            System.out.println("SQLException: " + ex.getMessage());
-            System.out.println("SQLState: " + ex.getSQLState());
-            System.out.println("VendorError: " + ex.getErrorCode());
+    private static Connection getConnection() {
+//        Connection conn = null;
+        if (CONNECTION == null) {
+            try {
+                CONNECTION = DriverManager.getConnection("jdbc:mysql://localhost:3306/bibliographic_database?" +
+                        "user=root&password=root&characterEncoding=utf8");
+            } catch (SQLException ex) {
+                // handle any errors
+                System.out.println("SQLException: " + ex.getMessage());
+                System.out.println("SQLState: " + ex.getSQLState());
+                System.out.println("VendorError: " + ex.getErrorCode());
+            }
         }
-        return conn;
+        return CONNECTION;
     }
 
 }

@@ -212,10 +212,8 @@ public class MainController {
                 File file = fileChooser.showOpenDialog(primaryStage);
                 if (file != null) {
                     final List<MarcRecord> marcRecordsFromDb = getListWithoutDuplicates(masterRecordsUniqueList);
-                    for (MarcRecord marcRecord : marcRecordsFromDb) {
-                        System.out.println(marcRecord.getControlFieldId() + "; primaryKey: " + marcRecord.getPrimaryKey());
-                    }
                     final List<MarcRecord> marcRecordsFromFile = xmlDataManager.getAllMarcRecords(null, file.getAbsolutePath());
+                    System.out.println("marcRecordsFromDb.size: " + marcRecordsFromDb + "; marcRecordsFromFile.size: " + marcRecordsFromFile.size());
                     final List<List<MarcRecord>> mergedUniqueList = createUniqueListFromTwoFilesSimpler(marcRecordsFromDb, marcRecordsFromFile);
                     for (List<MarcRecord> marcRecordsList : mergedUniqueList) {
                         if (marcRecordsList.size() > 1) {
@@ -311,20 +309,14 @@ public class MainController {
         masterRecordsUniqueList.clear();
         final List<MarcRecord> marcRecords = dataManager.getAllMarcRecords(DbDataManager.DB_MASTER_RECORDS);
         for (MarcRecord marcRecord : marcRecords) {
-            System.out.println(marcRecord.getControlFieldId());
             final List<MarcRecord> duplicateRecords = dataManager.getMarcRecordsWhereEquals(DbDataManager.DB_DUPLICATE_RECORDS, "fk_master_id", marcRecord.getPrimaryKey());
             if (duplicateRecords != null) {
-                System.out.println("has duplicates of size: " + duplicateRecords.size());
-                for (MarcRecord duplicateRecord : duplicateRecords) {
-                    System.out.println(duplicateRecord.getControlFieldId());
-                }
                 final List<MarcRecord> masterWithDuplicatesList = new ArrayList<>();
                 masterWithDuplicatesList.add(marcRecord);
                 masterWithDuplicatesList.addAll(duplicateRecords);
                 masterRecordsUniqueList.add(masterWithDuplicatesList);
             } else {
                 masterRecordsUniqueList.add(new ArrayList<>(Collections.singleton(marcRecord)));
-                System.out.println("no duplicates");
             }
         }
     }
