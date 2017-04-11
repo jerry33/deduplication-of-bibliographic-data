@@ -256,8 +256,10 @@ public class MainController {
 
                     masterRecordsUniqueList.clear();
                     masterRecordsUniqueList.addAll(mergedUniqueList);
+                    final ObservableList<List<MarcRecord>> observableList = FXCollections.observableList(masterRecordsUniqueList);
+                    listViewMain.getSelectionModel().clearSelection();
                     System.out.println("set items");
-                    listViewMain.setItems(observableListOfUniqueRecords);
+                    listViewMain.setItems(observableList);
 
 
                 }
