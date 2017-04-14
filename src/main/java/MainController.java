@@ -19,6 +19,7 @@ import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import models.Classifier;
 import models.MarcCompVector;
 import models.MarcRecord;
 import r.RManager;
@@ -117,7 +118,7 @@ public class MainController {
             }
         };
 
-//        rManager.trainAndClassifyData2();
+//        rManager.trainAndClassifyData2(Classifier.C50);
 
     }
 
