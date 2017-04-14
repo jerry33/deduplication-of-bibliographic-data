@@ -47,6 +47,12 @@ public class RManager {
         mRengine.eval("write.csv(marc1_c99_test, '" + filePath + "', row.names = FALSE)");
     }
 
+    public void shuffleData() {
+        mRengine.eval("comp_vectors_not_shuffled <- read.csv(\"/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/comp_vectors_all_train2.csv\")");
+        mRengine.eval("comp_vectors_shuffled <- comp_vectors_not_shuffled[sample(nrow(comp_vectors_not_shuffled)),]");
+        mRengine.eval("write.csv(comp_vectors_shuffled, \"/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/comp_vectors_all_train2_shuffled.csv\", row.names = FALSE)");
+    }
+
     public REXP trainAndClassifyData() {
         mRexp = mRengine.eval("marc1_c99 <- read.csv(\"/Users/jerry/Desktop/idea/marc_comp_vectors3_with_c99.csv\")");
 //        x = rengine.eval("myData$compPersonalName");
