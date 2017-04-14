@@ -117,6 +117,8 @@ public class MainController {
             }
         };
 
+//        rManager.trainAndClassifyData2();
+
     }
 
     private void initGui(final Stage primaryStage) {

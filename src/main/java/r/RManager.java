@@ -1,5 +1,6 @@
 package r;
 
+import models.ConfusionMatrix;
 import org.rosuda.JRI.REXP;
 import org.rosuda.JRI.Rengine;
 
@@ -51,6 +52,24 @@ public class RManager {
         mRengine.eval("comp_vectors_not_shuffled <- read.csv(\"/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/comp_vectors_all_train2.csv\")");
         mRengine.eval("comp_vectors_shuffled <- comp_vectors_not_shuffled[sample(nrow(comp_vectors_not_shuffled)),]");
         mRengine.eval("write.csv(comp_vectors_shuffled, \"/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/comp_vectors_all_train2_shuffled.csv\", row.names = FALSE)");
+    }
+
+    public void trainAndClassifyData2() {
+        mRexp = mRengine.eval("marc1 <- read.csv(\"/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/comp_vectors_all_train2_shuffled.csv\")");
+        mRexp = mRengine.eval("marc1_c99_train <- marc1[1:61546,]");
+        mRexp = mRengine.eval("marc1_c99_test <- marc1[61547:71546,]");
+        mRexp = mRengine.eval("marc1_c99_train_ids <- cbind(marc1_c99_train[,0:6])");
+        mRexp = mRengine.eval("marc1_c99_train <- cbind(marc1_c99_train[,7:14])");
+        mRexp = mRengine.eval("marc1_c99_test_ids <- cbind(marc1_c99_test[,0:6])");
+        mRexp = mRengine.eval("marc1_c99_test <- cbind(marc1_c99_test[,7:14])");
+//        x = mRengine.eval("install.packages(\"C50\")");
+        mRexp = mRengine.eval("library(C50)");
+        mRexp = mRengine.eval("c5_c99 <- C5.0(marc1_c99_train[,-8], marc1_c99_train[,8])");
+        mRexp = mRengine.eval("p1_c99 <- predict(c5_c99, marc1_c99_test)");
+        mRexp = mRengine.eval("library(caret)");
+        mRexp = mRengine.eval("confusionMatrix(p1_c99, marc1_c99_test[,8], positive = levels(marc1_c99_test$compOverall)[2])");
+        final ConfusionMatrix confusionMatrix = ConfusionMatrix.createFromRexp(mRexp);
+        System.out.println(confusionMatrix);
     }
 
     public REXP trainAndClassifyData() {
