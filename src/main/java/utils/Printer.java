@@ -4,7 +4,7 @@ import com.sun.istack.internal.NotNull;
 import models.MarcCompVector;
 import models.MarcRecord;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -49,6 +49,29 @@ public final class Printer {
                 System.out.println();
             }
         }
+    }
+
+    public static void printOnlyDuplicates(final List<MarcRecord> marcRecords) {
+        final List<String> list = new ArrayList<>();
+        int counter = 0;
+        for (int i = 0; i < marcRecords.size(); i++) {
+            for (int j = i + 1; j < marcRecords.size(); j++) {
+                counter++;
+                final MarcRecord record1 = marcRecords.get(i);
+                final MarcRecord record2 = marcRecords.get(j);
+                if (record1.getC99FieldId().equals(record2.getC99FieldId())) {
+                    list.add(record1.getC99FieldId());
+                }
+            }
+        }
+//        Iterator<String> iterator = list.iterator();
+//        while (iterator.hasNext()) {
+//            System.out.println(iterator.next());
+//        }
+        System.out.println("number of given MARC records list: " + marcRecords.size());
+        System.out.println("number of comparisons: " + counter);
+        System.out.println("number of all duplicates: " + list.size());
+        System.out.println("number of distinct duplicates: " + list.stream().distinct().collect(Collectors.toList()).size());
     }
 
     public static void printTimeElapsed(final long start, final long end) {
