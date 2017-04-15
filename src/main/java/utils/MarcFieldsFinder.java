@@ -110,4 +110,9 @@ public class MarcFieldsFinder {
         return "";
     }
 
+    public static boolean isFieldInRecord(final Record record, final String field) {
+        final DataField dataField = (DataField) record.getVariableField(field);
+        return dataField != null;
+    }
+
 }

@@ -54,6 +54,7 @@ public final class Printer {
     public static void printOnlyDuplicates(final List<MarcRecord> marcRecords) {
         final List<String> list = new ArrayList<>();
         int counter = 0;
+        final long start = System.nanoTime();
         for (int i = 0; i < marcRecords.size(); i++) {
             for (int j = i + 1; j < marcRecords.size(); j++) {
                 counter++;
@@ -64,6 +65,8 @@ public final class Printer {
                 }
             }
         }
+        final long end = System.nanoTime();
+        Printer.printTimeElapsed(start, end);
 //        Iterator<String> iterator = list.iterator();
 //        while (iterator.hasNext()) {
 //            System.out.println(iterator.next());

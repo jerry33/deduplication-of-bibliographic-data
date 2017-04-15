@@ -33,7 +33,7 @@ public class XmlDataManager {
         final List<MarcRecord> marcRecords = new ArrayList<>();
 
         for (final Record r : records) {
-            if (StringUtils.isValid(StringUtils.standardizeString(MarcFieldsFinder.find915(r)))) {
+            if (MarcFieldsFinder.isFieldInRecord(r, "915")) {
                 continue;
             }
             final MarcRecord marcRecord = new MarcRecord();
