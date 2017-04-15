@@ -119,6 +119,8 @@ public class MainController {
         };
 
 //        rManager.trainAndClassifyData2(Classifier.C50);
+//        saveBlockingMarcCompVectorsToCsv("/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/all_records_with_c99.xml");
+//        Printer.printOnlyDuplicates(xmlDataManager.getAllMarcRecords(null, "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/all_records_with_c99.xml"));
 
     }
 
@@ -379,7 +381,7 @@ public class MainController {
         FileUtils.writeBeansToCsvFile(createBlockingCompVectorsFromRecords(mergedMarcRecords), "merged_marc_records_new.csv", MarcCompVector.class, sColumnNames);
 
         System.out.println("Training data...");
-        rManager.trainDataFromFile("/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/comp_vectors_all_train2.csv", 0, 6, 7, 14);
+        rManager.trainDataFromFile("/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/comp_vectors_all_train2_without915.csv", 0, 6, 7, 14);
         rManager.classifyData("/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/merged_marc_records_new.csv", 0, 6, 7, 13);
 
         System.out.println("Loading blocking vectors...");
@@ -602,7 +604,7 @@ public class MainController {
 //                        System.out.println("numberOfComparisons: " + numberOfComparisons);
                         final MarcCompVector marcCompVector = MarcUtils.createCompVector(record1, record2);
                         if (record1.getC99FieldId().equals(record2.getC99FieldId())) {
-                            System.out.println("equals: " + record1.getC99FieldId() + "-" + record1.getLibraryId() + "; and " + record2.getC99FieldId() + "-" + record2.getLibraryId());
+//                            System.out.println("equals: " + record1.getC99FieldId() + "-" + record1.getLibraryId() + "; and " + record2.getC99FieldId() + "-" + record2.getLibraryId());
                             vectorsDuplicated.add(marcCompVector);
                         } else {
                             vectorsNonDuplicated.add(marcCompVector);
