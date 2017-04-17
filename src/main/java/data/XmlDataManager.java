@@ -23,6 +23,15 @@ import java.util.stream.Collectors;
  */
 public class XmlDataManager {
 
+    private static XmlDataManager INSTANCE;
+
+    public static XmlDataManager getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new XmlDataManager();
+        }
+        return INSTANCE;
+    }
+
     public List<MarcRecord> getAllMarcRecords(final ServletContext servletContext, final String filePath) {
         List<Record> records;
         if (servletContext == null) {

@@ -1,6 +1,5 @@
 import data.DbDataManager;
 import data.XmlDataManager;
-import info.debatty.java.stringsimilarity.Levenshtein;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -19,9 +18,7 @@ import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-import models.Classifier;
-import models.MarcCompVector;
-import models.MarcRecord;
+import models.*;
 import r.RManager;
 import utils.*;
 
@@ -70,7 +67,7 @@ public class MainController {
         };
     }
 
-    private XmlDataManager xmlDataManager = new XmlDataManager();
+    private XmlDataManager xmlDataManager = XmlDataManager.getInstance();
 
     public void start(Stage primaryStage) throws Exception {
         final long start = System.nanoTime();
@@ -546,158 +543,20 @@ public class MainController {
         return null;
     }
 
-    @SuppressWarnings("Duplicates")
-    private void saveBlockingMarcCompVectorsToCsv(final String sourceFilePath) {
-        String newFileName = "";
-        if(sourceFilePath.contains(".")) {
-            newFileName = sourceFilePath.substring(0, sourceFilePath.lastIndexOf('.'));
-            newFileName = newFileName + "_blocking_comp_vectors.csv";
-        }
-        if (StringUtils.isValid(newFileName)) {
-            FileUtils.writeBeansToCsvFile(createBlockingCompVectorsFromFile(sourceFilePath),
-                    newFileName,
-                    MarcCompVector.class,
-                    sColumnNames);
-        }
-    }
-
-    @SuppressWarnings("Duplicates")
     private List<MarcCompVector> createBlockingCompVectorsFromFile(final String filePath) {
-        return createBlockingCompVectorsFromRecords(xmlDataManager.getAllMarcRecords(null, filePath));
+        return new BlockingCompVectors().createFromFile(filePath);
     }
 
-    @SuppressWarnings("Duplicates")
     private List<MarcCompVector> createBlockingCompVectorsFromRecords(final List<MarcRecord> marcRecords) {
-        Collections.sort(marcRecords);
-        Printer.printBlockingKeys(marcRecords);
-
-        final List<List<MarcRecord>> listOfBlockingLists = new ArrayList<>();
-        int startOfBlock = 0;
-        final List<MarcRecord> blockingList = new ArrayList<>();
-//        final JaroWinkler jaroWinkler = new JaroWinkler();
-        final Levenshtein levenshtein = new Levenshtein();
-        for (int i = 0; i < marcRecords.size() - 1; i++) {
-            if (startOfBlock == i) {
-                marcRecords.get(i).setIsInAnyBlock(false);
-                blockingList.add(marcRecords.get(i));
-            }
-            if (levenshtein.distance(marcRecords.get(startOfBlock).getBlockingKey(), marcRecords.get(i + 1).getBlockingKey()) <= 3) { // jaroWinkler.similarity(marcRecords.get(startOfBlock).getBlockingKey(), marcRecords.get(i + 1).getBlockingKey()) >= 0.95
-                marcRecords.get(i).setIsInAnyBlock(true);
-                marcRecords.get(i + 1).setIsInAnyBlock(true);
-                blockingList.add(marcRecords.get(i + 1));
-            } else {
-                startOfBlock = i + 1;
-                final List<MarcRecord> tempBlockingList = new ArrayList<>(blockingList);
-                listOfBlockingLists.add(tempBlockingList);
-                blockingList.clear();
-            }
-        }
-
-//        System.out.println("listOfBlockingLists.size(): " + listOfBlockingLists.size());
-//        final List<Integer> sizesOfBlockingLists = new ArrayList<>();
-//        for (List<MarcRecord> b : listOfBlockingLists) {
-//            sizesOfBlockingLists.add(b.size());
-//            System.out.println("blockingKey: " + b.get(0).getBlockingKey() + " ; size: " + b.size());
-//        }
-//        Collections.sort(sizesOfBlockingLists);
-//        for (Integer i : sizesOfBlockingLists) {
-//            System.out.println("size of blocking list: " + i);
-//        }
-
-//        listOfBlockingLists.removeIf(marcRecords1 -> marcRecords1.size() > 10);
-//        System.out.println("listOfBlockingLists.size() new: " + listOfBlockingLists.size());
-
-        int numberOfComparisons = 0;
-        final List<MarcCompVector> marcCompVectors = new ArrayList<>();
-        final List<MarcCompVector> vectorsDuplicated = new ArrayList<>();
-        final List<MarcCompVector> vectorsNonDuplicated = new ArrayList<>();
-        for (final List<MarcRecord> blockOfMarcRecords : listOfBlockingLists) {
-            for (int i = 0; i < blockOfMarcRecords.size(); i++) {
-                for (int j = i + 1; j < blockOfMarcRecords.size(); j++) {
-                    final MarcRecord record1 = blockOfMarcRecords.get(i);
-                    final MarcRecord record2 = blockOfMarcRecords.get(j);
-                    final boolean typesOfMaterialMatch = record1.getTypeOfMaterial().equals(record2.getTypeOfMaterial());
-                    if (typesOfMaterialMatch) {
-                        numberOfComparisons++;
-//                        System.out.println("numberOfComparisons: " + numberOfComparisons);
-                        final MarcCompVector marcCompVector = MarcUtils.createCompVector(record1, record2);
-                        if (record1.getC99FieldId().equals(record2.getC99FieldId())) {
-//                            System.out.println("equals: " + record1.getC99FieldId() + "-" + record1.getLibraryId() + "; and " + record2.getC99FieldId() + "-" + record2.getLibraryId());
-                            vectorsDuplicated.add(marcCompVector);
-                        } else {
-                            vectorsNonDuplicated.add(marcCompVector);
-                        }
-                    }
-                }
-            }
-
-        }
-        marcCompVectors.addAll(vectorsDuplicated);
-        marcCompVectors.addAll(vectorsNonDuplicated);
-        return marcCompVectors;
+        return new BlockingCompVectors().createFromMarcRecords(marcRecords);
     }
 
-    @SuppressWarnings("Duplicates")
+    private List<MarcCompVector> createAllCompVectorsFromFile(final String filePath) {
+        return new AllCompVectors().createFromFile(filePath);
+    }
+
     private List<MarcCompVector> createAllCompVectorsFromRecords(final List<MarcRecord> marcRecords) {
-        final List<MarcCompVector> marcCompVectors = new ArrayList<>();
-        final List<MarcCompVector> vectorsDuplicated = new ArrayList<>();
-        final List<MarcCompVector> vectorsNonDuplicated = new ArrayList<>();
-        for (int i = 0; i < marcRecords.size(); i++) {
-            for (int j = i + 1; j < marcRecords.size(); j++) {
-                final MarcRecord record1 = marcRecords.get(i);
-                final MarcRecord record2 = marcRecords.get(j);
-                final boolean typesOfMaterialMatch = record1.getTypeOfMaterial().equals(record2.getTypeOfMaterial());
-                if (typesOfMaterialMatch) {
-                    final MarcCompVector marcCompVector = MarcUtils.createCompVector(record1, record2);
-                    if (record1.getC99FieldId().equals(record2.getC99FieldId())) {
-                        System.out.println("equals: " + record1.getC99FieldId() + "-" + record1.getLibraryId() + "; and " + record2.getC99FieldId() + "-" + record2.getLibraryId());
-                        vectorsDuplicated.add(marcCompVector);
-                    } else {
-                        System.out.println("NOT equals: " + record1.getC99FieldId() + "-" + record1.getLibraryId() + "; and " + record2.getC99FieldId() + "-" + record2.getLibraryId());
-                        vectorsNonDuplicated.add(marcCompVector);
-                    }
-                }
-            }
-        }
-        marcCompVectors.addAll(vectorsDuplicated);
-        marcCompVectors.addAll(vectorsNonDuplicated);
-        return marcCompVectors;
-    }
-
-    @SuppressWarnings("Duplicates")
-    private void saveAllMarcCompVectorsToCsv(final String sourceFilePath) {
-        final List<MarcRecord> marcRecords = xmlDataManager.getAllMarcRecords(null, sourceFilePath);
-        final List<MarcCompVector> marcCompVectors = new ArrayList<>();
-        final List<MarcCompVector> vectorsDuplicated = new ArrayList<>();
-        final List<MarcCompVector> vectorsNonDuplicated = new ArrayList<>();
-        for (int i = 0; i < marcRecords.size(); i++) {
-            for (int j = i + 1; j < marcRecords.size(); j++) {
-                final MarcRecord record1 = marcRecords.get(i);
-                final MarcRecord record2 = marcRecords.get(j);
-                final boolean typesOfMaterialMatch = record1.getTypeOfMaterial().equals(record2.getTypeOfMaterial());
-                if (typesOfMaterialMatch) {
-                    final MarcCompVector marcCompVector = MarcUtils.createCompVector(record1, record2);
-                    if (record1.getC99FieldId().equals(record2.getC99FieldId())) {
-                        vectorsDuplicated.add(marcCompVector);
-                    } else {
-                        vectorsNonDuplicated.add(marcCompVector);
-                    }
-                }
-            }
-        }
-        marcCompVectors.addAll(vectorsDuplicated);
-        marcCompVectors.addAll(vectorsNonDuplicated);
-
-        String newFileName = "";
-        if(sourceFilePath.contains(".")) {
-            newFileName = sourceFilePath.substring(0, sourceFilePath.lastIndexOf('.'));
-            newFileName = newFileName + "_all_comp_vectors.csv";
-        }
-
-        FileUtils.writeBeansToCsvFile(marcCompVectors,
-                newFileName,
-                MarcCompVector.class,
-                sColumnNames);
+        return new AllCompVectors().createFromMarcRecords(marcRecords);
     }
 
 }

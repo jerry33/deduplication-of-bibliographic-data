@@ -7,6 +7,23 @@ import utils.StringUtils;
  */
 public class MarcCompVector {
 
+    public static final String[] COLUMNS = new String[] {
+            "compC99id1",
+            "compC99id2",
+            "compControlField1",
+            "compControlField2",
+            "compLibraryId1",
+            "compLibraryId2",
+            "compPersonalName",
+            "compPublisherName",
+            "compTitle",
+            "compNameOfPart",
+            "compYearOfAuthor",
+            "compYearOfPublication",
+            "compInternationalStandardNumber",
+            "compOverall"
+    };
+
     private String compControlField1; // TODO: maybe change name to controlField1, as it is not being compared
     private String compControlField2;
     private String compC99id1;
