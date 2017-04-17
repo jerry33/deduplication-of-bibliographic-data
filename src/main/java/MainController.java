@@ -1,5 +1,7 @@
 import data.DbDataManager;
 import data.XmlDataManager;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -7,10 +9,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.ToolBar;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -44,6 +43,8 @@ public class MainController {
 
     private String filePathFirstFile, filePathSecondFile;
     private Task<Void> deduplicationTask, deduplicationDbTask;
+
+    private Classifier selectedClassifier = Classifier.C50;
 
     static {
         System.loadLibrary("jri");
@@ -144,6 +145,28 @@ public class MainController {
 
         final Text textSecondFilePath = new Text();
         textSecondFilePath.setText("/path/to/file2.xml");
+
+        final ToggleGroup toggleGroup = new ToggleGroup();
+        final RadioButton radioButton1 = new RadioButton("C5.0");
+        radioButton1.setUserData(Classifier.C50);
+        radioButton1.setSelected(true);
+        radioButton1.setToggleGroup(toggleGroup);
+        final RadioButton radioButton2 = new RadioButton("Random Forest");
+        radioButton2.setToggleGroup(toggleGroup);
+        radioButton2.setUserData(Classifier.RANDOM_FOREST);
+        final RadioButton radioButton3 = new RadioButton("Naive Bayes");
+        radioButton3.setToggleGroup(toggleGroup);
+        radioButton3.setUserData(Classifier.NAIVE_BAYES);
+        final RadioButton radioButton4 = new RadioButton("SVM");
+        radioButton4.setToggleGroup(toggleGroup);
+        radioButton4.setUserData(Classifier.SVM);
+        toggleGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
+            @Override
+            public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) {
+                System.out.println("value: " + toggleGroup.getSelectedToggle().getUserData());
+                selectedClassifier = (Classifier) toggleGroup.getSelectedToggle().getUserData();
+            }
+        });
 
         buttonFirstFile.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -252,6 +275,10 @@ public class MainController {
 
         vbox.getChildren().add(startDeduplicationButton);
         vbox.getChildren().add(startDeduplicationDbButton);
+        vbox.getChildren().add(radioButton1);
+        vbox.getChildren().add(radioButton2);
+        vbox.getChildren().add(radioButton3);
+        vbox.getChildren().add(radioButton4);
 
         ToolBar toolBar = new ToolBar(buttonFirstFile, buttonSecondFile, buttonLoadFromDb, buttonSaveToDb, buttonDeleteDb);
         root.setTop(toolBar);
@@ -371,7 +398,7 @@ public class MainController {
 
         System.out.println("Training data...");
         rManager.trainDataFromFile("/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/comp_vectors_all_train2_without915.csv", 0, 6, 7, 14);
-        rManager.classifyData(Classifier.C50, "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/merged_marc_records_new.csv", 0, 6, 7, 13);
+        rManager.classifyData(selectedClassifier, "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/merged_marc_records_new.csv", 0, 6, 7, 13);
 
         System.out.println("Loading blocking vectors...");
         final List<MarcCompVector> mergedCompVectors = FileUtils.readCsv("merged_marc_records_new.csv", MarcCompVector.class, MarcCompVector.COLUMNS);
