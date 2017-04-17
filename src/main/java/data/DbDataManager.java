@@ -11,10 +11,18 @@ import java.util.List;
  */
 public class DbDataManager {
 
+    private static DbDataManager INSTANCE;
     private static Connection CONNECTION;
 
     public static final String DB_MASTER_RECORDS = "master_records";
     public static final String DB_DUPLICATE_RECORDS = "duplicate_records";
+
+    public static DbDataManager getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new DbDataManager();
+        }
+        return INSTANCE;
+    }
 
     public List<MarcRecord> getAllMarcRecords(final String tableName) {
         Connection conn;

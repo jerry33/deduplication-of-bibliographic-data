@@ -11,10 +11,10 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import models.*;
@@ -31,8 +31,8 @@ import java.util.stream.Stream;
  */
 public class MainController {
 
-    private static final ObservableList<MarcRecord> observableListOfDuplicates = FXCollections.observableArrayList();
-    private static final ObservableList<List<MarcRecord>> observableListOfUniqueRecords = FXCollections.observableArrayList();
+    private static ObservableList<MarcRecord> observableListOfDuplicates = FXCollections.observableArrayList();
+    private static ObservableList<List<MarcRecord>> observableListOfUniqueRecords = FXCollections.observableArrayList();
 
     private RManager rManager = RManager.getInstance();
     private Map<String, Integer> marcRecordsHashMap = new HashMap<>();
@@ -42,7 +42,7 @@ public class MainController {
     private List<List<MarcRecord>> masterRecordsUniqueList = new ArrayList<>();
 
     private String filePathFirstFile, filePathSecondFile;
-    private Task<Void> deduplicationTask, deduplicationDbTask;
+    private Task<Void> deduplicationTask;
 
     private Classifier selectedClassifier = Classifier.C50;
     
@@ -61,6 +61,7 @@ public class MainController {
         initMainListView();
         initSubListView();
         initGui(primaryStage);
+        loadRecordsFromDb();
 
         deduplicationTask = new Task<Void>() {
             @Override
@@ -91,29 +92,6 @@ public class MainController {
             }
         };
 
-        deduplicationDbTask = new Task<Void>() {
-            @SuppressWarnings("Duplicates")
-            @Override
-            protected Void call() throws Exception {
-                observableListOfUniqueRecords.clear();
-                final DbDataManager dataManager = new DbDataManager();
-                initMasterRecordsUniqueList(dataManager);
-                observableListOfUniqueRecords.addAll(masterRecordsUniqueList);
-                listViewMain.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent event) {
-                        observableListOfDuplicates.clear();
-                        for (int i = 1; i < listViewMain.getSelectionModel().getSelectedItem().size(); i++) {
-                            observableListOfDuplicates.add(listViewMain.getSelectionModel().getSelectedItem().get(i));
-                        }
-
-                    }
-                });
-                Printer.printUniqueList(observableListOfUniqueRecords);
-                return null;
-            }
-        };
-
 //        rManager.trainAndClassifyData2(Classifier.C50);
 //        saveBlockingMarcCompVectorsToCsv("/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/all_records_with_c99.xml");
 //        Printer.printOnlyDuplicates(xmlDataManager.getAllMarcRecords(null, "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/all_records_with_c99.xml"));
@@ -127,20 +105,6 @@ public class MainController {
         vBox.setPrefWidth(200);
         vBox.setPadding(new Insets(10));
         vBox.setSpacing(8);
-        final Button buttonFirstFile = new Button();
-        buttonFirstFile.setText("Načítať prvý súbor");
-
-        final Button buttonSecondFile = new Button();
-        buttonSecondFile.setText("Načítať druhý súbor");
-
-        final Button buttonSaveToDb = new Button();
-        buttonSaveToDb.setText("Uložiť súbor do databázy");
-
-        final Button buttonLoadFromDb = new Button();
-        buttonLoadFromDb.setText("Načítať z databázy");
-
-        final Button buttonDeleteDb = new Button();
-        buttonDeleteDb.setText("Vymazať záznamy z databázy");
 
         final Text textFirstFilePath = new Text();
         textFirstFilePath.setText("/path/to/file1.xml");
@@ -148,6 +112,8 @@ public class MainController {
         final Text textSecondFilePath = new Text();
         textSecondFilePath.setText("/path/to/file2.xml");
 
+        final Button buttonFirstFile = new Button();
+        buttonFirstFile.setText("Načítať prvý súbor");
         buttonFirstFile.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -158,6 +124,9 @@ public class MainController {
                 }
             }
         });
+
+        final Button buttonSecondFile = new Button();
+        buttonSecondFile.setText("Načítať druhý súbor");
         buttonSecondFile.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -168,12 +137,9 @@ public class MainController {
                 }
             }
         });
-        buttonLoadFromDb.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                new Thread(deduplicationDbTask).start();
-            }
-        });
+
+        final Button buttonSaveToDb = new Button();
+        buttonSaveToDb.setText("Uložiť súbor do databázy");
         buttonSaveToDb.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -182,16 +148,21 @@ public class MainController {
                     new DbDataManager().insertAllMarcRecordsToDatabase(
                             xmlDataManager.getAllMarcRecords(null, file.getAbsolutePath()),
                             DbDataManager.DB_MASTER_RECORDS);
+                    loadRecordsFromDb();
                 }
             }
         });
 
+        final Button buttonDeleteDb = new Button();
+        buttonDeleteDb.setText("Vymazať záznamy z databázy");
         buttonDeleteDb.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 new DbDataManager().truncateAllTables();
+                loadRecordsFromDb();
             }
         });
+
         vBox.getChildren().add(textFirstFilePath);
         vBox.getChildren().add(textSecondFilePath);
 
@@ -256,13 +227,31 @@ public class MainController {
 
         initRadioButtons();
 
-        ToolBar toolBar = new ToolBar(buttonFirstFile, buttonSecondFile, buttonLoadFromDb, buttonSaveToDb, buttonDeleteDb);
+        ToolBar toolBar = new ToolBar(buttonFirstFile, buttonSecondFile, buttonSaveToDb, buttonDeleteDb);
         root.setTop(toolBar);
         root.setLeft(vBox);
         root.setCenter(listViewMain);
         root.setRight(listViewSub);
         primaryStage.setScene(new Scene(root, 800, 600));
         primaryStage.show();
+    }
+
+    private void loadRecordsFromDb() {
+        observableListOfUniqueRecords = FXCollections.observableArrayList();
+        listViewMain.setItems(observableListOfUniqueRecords);
+        initMasterRecordsUniqueList(DbDataManager.getInstance());
+        observableListOfUniqueRecords.addAll(masterRecordsUniqueList);
+        listViewMain.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                observableListOfDuplicates.clear();
+                for (int i = 1; i < listViewMain.getSelectionModel().getSelectedItem().size(); i++) {
+                    observableListOfDuplicates.add(listViewMain.getSelectionModel().getSelectedItem().get(i));
+                }
+
+            }
+        });
+        Printer.printUniqueList(observableListOfUniqueRecords);
     }
 
     private void initMainListView() {
@@ -283,6 +272,7 @@ public class MainController {
                             }
                         } else {
                             setText("");
+                            setStyle(null);
                         }
                     }
                 };
