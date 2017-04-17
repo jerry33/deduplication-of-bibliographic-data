@@ -11,7 +11,6 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -42,7 +41,6 @@ public class MainController {
     private List<List<MarcRecord>> masterRecordsUniqueList = new ArrayList<>();
 
     private String filePathFirstFile, filePathSecondFile;
-    private Task<Void> deduplicationTask;
 
     private Classifier selectedClassifier = Classifier.C50;
     
@@ -62,35 +60,6 @@ public class MainController {
         initSubListView();
         initGui(primaryStage);
         loadRecordsFromDb();
-
-        deduplicationTask = new Task<Void>() {
-            @Override
-            protected Void call() throws Exception {
-                final List<MarcRecord> marcRecords1
-                        = xmlDataManager
-                        .getAllMarcRecords(null,
-                                filePathFirstFile);
-                final List<MarcRecord> marcRecords2
-                        = xmlDataManager
-                        .getAllMarcRecords(null,
-                                filePathSecondFile);
-                observableListOfUniqueRecords.addAll(createUniqueListFromTwoFilesSimpler(marcRecords1, marcRecords2));
-                listViewMain.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent event) {
-                        observableListOfDuplicates.clear();
-                        for (int i = 1; i < listViewMain.getSelectionModel().getSelectedItem().size(); i++) {
-                            observableListOfDuplicates.add(listViewMain.getSelectionModel().getSelectedItem().get(i));
-                        }
-
-                    }
-                });
-                Printer.printUniqueList(observableListOfUniqueRecords);
-                final long end = System.nanoTime();
-                Printer.printTimeElapsed(start, end);
-                return null;
-            }
-        };
 
 //        rManager.trainAndClassifyData2(Classifier.C50);
 //        saveBlockingMarcCompVectorsToCsv("/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/all_records_with_c99.xml");
@@ -139,13 +108,13 @@ public class MainController {
         });
 
         final Button buttonSaveToDb = new Button();
-        buttonSaveToDb.setText("Uložiť súbor do databázy");
+        buttonSaveToDb.setText("Pridať MARC XML súbor do databázy");
         buttonSaveToDb.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 final File file = FileUtils.openFileFromDialog(primaryStage);
                 if (file != null) {
-                    new DbDataManager().insertAllMarcRecordsToDatabase(
+                    DbDataManager.getInstance().insertAllMarcRecordsToDatabase(
                             xmlDataManager.getAllMarcRecords(null, file.getAbsolutePath()),
                             DbDataManager.DB_MASTER_RECORDS);
                     loadRecordsFromDb();
@@ -158,7 +127,7 @@ public class MainController {
         buttonDeleteDb.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                new DbDataManager().truncateAllTables();
+                DbDataManager.getInstance().truncateAllTables();
                 loadRecordsFromDb();
             }
         });
@@ -171,8 +140,33 @@ public class MainController {
         startDeduplicationButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                if (StringUtils.isValid(filePathFirstFile) && StringUtils.isValid(filePathSecondFile) && deduplicationTask != null) {
-                    new Thread(deduplicationTask).start();
+                if (StringUtils.isValid(filePathFirstFile) && StringUtils.isValid(filePathSecondFile)) {
+                    new Thread(new Task<Void>() {
+                        @Override
+                        protected Void call() throws Exception {
+                            final List<MarcRecord> marcRecords1
+                                    = xmlDataManager
+                                    .getAllMarcRecords(null,
+                                            filePathFirstFile);
+                            final List<MarcRecord> marcRecords2
+                                    = xmlDataManager
+                                    .getAllMarcRecords(null,
+                                            filePathSecondFile);
+                            observableListOfUniqueRecords.addAll(createUniqueListFromTwoFiles(marcRecords1, marcRecords2));
+                            listViewMain.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                                @Override
+                                public void handle(MouseEvent event) {
+                                    observableListOfDuplicates.clear();
+                                    for (int i = 1; i < listViewMain.getSelectionModel().getSelectedItem().size(); i++) {
+                                        observableListOfDuplicates.add(listViewMain.getSelectionModel().getSelectedItem().get(i));
+                                    }
+
+                                }
+                            });
+                            Printer.printUniqueList(observableListOfUniqueRecords);
+                            return null;
+                        }
+                    }).start();
                 }
             }
         });
@@ -187,8 +181,8 @@ public class MainController {
                 if (file != null) {
                     final List<MarcRecord> marcRecordsFromDb = getListWithoutDuplicates(masterRecordsUniqueList);
                     final List<MarcRecord> marcRecordsFromFile = xmlDataManager.getAllMarcRecords(null, file.getAbsolutePath());
-                    System.out.println("marcRecordsFromDb.size: " + marcRecordsFromDb + "; marcRecordsFromFile.size: " + marcRecordsFromFile.size());
-                    final List<List<MarcRecord>> mergedUniqueList = createUniqueListFromTwoFilesSimpler(marcRecordsFromDb, marcRecordsFromFile);
+                    System.out.println("marcRecordsFromDb.size: " + marcRecordsFromDb.size() + "; marcRecordsFromFile.size: " + marcRecordsFromFile.size());
+                    final List<List<MarcRecord>> mergedUniqueList = createUniqueListFromTwoFiles(marcRecordsFromDb, marcRecordsFromFile);
                     for (List<MarcRecord> marcRecordsList : mergedUniqueList) {
                         if (marcRecordsList.size() > 1) {
                             final MarcRecord masterRecord = findMasterRecord(marcRecordsList);
@@ -209,8 +203,6 @@ public class MainController {
                         }
                     }
 
-//                    masterRecordsUniqueList.clear();
-//                    masterRecordsUniqueList.addAll(mergedUniqueList);
                     initMasterRecordsUniqueList(dataManager);
                     final ObservableList<List<MarcRecord>> observableList = FXCollections.observableList(masterRecordsUniqueList);
                     listViewMain.getSelectionModel().clearSelection();
@@ -380,7 +372,7 @@ public class MainController {
     }
 
     @SuppressWarnings("Duplicates")
-    private List<List<MarcRecord>> createUniqueListFromTwoFilesSimpler(final List<MarcRecord> marcRecordList1, final List<MarcRecord> marcRecordList2) {
+    private List<List<MarcRecord>> createUniqueListFromTwoFiles(final List<MarcRecord> marcRecordList1, final List<MarcRecord> marcRecordList2) {
         System.out.println("Merging records...");
         final List<MarcRecord> mergedMarcRecords = Stream.concat(marcRecordList1.stream(), marcRecordList2.stream()).collect(Collectors.toList());
         for (MarcRecord marcRecord : mergedMarcRecords) {
