@@ -36,14 +36,14 @@ public class RManager {
         mRengine.eval("marc1_c99_train <- cbind(marc1_c99[," + startOfData + ":" + endOfData + "])");
     }
 
-    public void classifyData(final String filePath, final int startOfIds, final int endOfIds,
+    public void classifyData(final Classifier classifier, final String filePath, final int startOfIds, final int endOfIds,
                              final int startOfData, final int endOfData) {
         mRengine.eval("marc1_c99_test <- read.csv('" + filePath + "')");
         mRengine.eval("marc1_c99_test_ids <- cbind(marc1_c99_test[," + startOfIds + ":" + endOfIds + "])");
         mRengine.eval("marc1_c99_test <- cbind(marc1_c99_test[," + startOfData + ":" + endOfData + "])");
-        mRengine.eval("library(C50)");
-        mRengine.eval("c5_c99 <- C5.0(marc1_c99_train[,-8], marc1_c99_train[,8])");
-        mRengine.eval("p1_c99 <- predict(c5_c99, marc1_c99_test)");
+        mRexp = mRengine.eval("library(" + classifier.getLibraryName() + ")");
+        mRexp = mRengine.eval("classifier <- " + classifier.getClassifierName() + "(compOverall ~., data = marc1_c99_train)");
+        mRengine.eval("p1_c99 <- predict(classifier, marc1_c99_test)");
         mRengine.eval("marc1_c99_test <- cbind(marc1_c99_test_ids, marc1_c99_test)");
         mRengine.eval("marc1_c99_test <- cbind(marc1_c99_test, p1_c99)");
         mRengine.eval("write.csv(marc1_c99_test, '" + filePath + "', row.names = FALSE)");

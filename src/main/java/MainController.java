@@ -371,7 +371,7 @@ public class MainController {
 
         System.out.println("Training data...");
         rManager.trainDataFromFile("/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/comp_vectors_all_train2_without915.csv", 0, 6, 7, 14);
-        rManager.classifyData("/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/merged_marc_records_new.csv", 0, 6, 7, 13);
+        rManager.classifyData(Classifier.C50, "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/merged_marc_records_new.csv", 0, 6, 7, 13);
 
         System.out.println("Loading blocking vectors...");
         final List<MarcCompVector> mergedCompVectors = FileUtils.readCsv("merged_marc_records_new.csv", MarcCompVector.class, MarcCompVector.COLUMNS);
