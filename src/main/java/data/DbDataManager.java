@@ -224,6 +224,26 @@ public class DbDataManager {
         }
     }
 
+    public void truncateAllTables() {
+        Connection conn;
+        try {
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        conn = getConnection();
+        try {
+            final Statement statement = conn.createStatement();
+            statement.executeUpdate("SET FOREIGN_KEY_CHECKS = 0");
+            statement.executeUpdate("TRUNCATE master_records");
+            statement.executeUpdate("TRUNCATE duplicate_records");
+            statement.executeUpdate("SET FOREIGN_KEY_CHECKS = 1");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     private static Connection getConnection() {
 //        Connection conn = null;
         if (CONNECTION == null) {

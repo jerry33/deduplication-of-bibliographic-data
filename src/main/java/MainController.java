@@ -157,6 +157,9 @@ public class MainController {
         final Button buttonLoadFromDb = new Button();
         buttonLoadFromDb.setText("Načítať z databázy");
 
+        final Button buttonDeleteDb = new Button();
+        buttonDeleteDb.setText("Vymazať záznamy z databázy");
+
         final Text textFirstFilePath = new Text();
         textFirstFilePath.setText("/path/to/file1.xml");
 
@@ -198,6 +201,13 @@ public class MainController {
                             xmlDataManager.getAllMarcRecords(null, file.getAbsolutePath()),
                             DbDataManager.DB_MASTER_RECORDS);
                 }
+            }
+        });
+
+        buttonDeleteDb.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                new DbDataManager().truncateAllTables();
             }
         });
         vbox.getChildren().add(textFirstFilePath);
@@ -264,7 +274,7 @@ public class MainController {
         vbox.getChildren().add(startDeduplicationButton);
         vbox.getChildren().add(startDeduplicationDbButton);
 
-        ToolBar toolBar = new ToolBar(buttonFirstFile, buttonSecondFile, buttonLoadFromDb, buttonSaveToDb);
+        ToolBar toolBar = new ToolBar(buttonFirstFile, buttonSecondFile, buttonLoadFromDb, buttonSaveToDb, buttonDeleteDb);
         root.setTop(toolBar);
         root.setLeft(vbox);
         root.setCenter(listViewMain);
