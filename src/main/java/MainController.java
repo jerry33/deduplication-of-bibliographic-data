@@ -52,8 +52,22 @@ public class MainController {
 
     static {
         System.loadLibrary("jri");
-        sColumnNames = new String[]{"compC99id1", "compC99id2", "compControlField1", "compControlField2", "compLibraryId1", "compLibraryId2", "compPersonalName", "compPublisherName", "compTitle",
-                "compNameOfPart", "compYearOfAuthor", "compYearOfPublication", "compInternationalStandardNumber", "compOverall"};
+        sColumnNames = new String[] {
+                "compC99id1",
+                "compC99id2",
+                "compControlField1",
+                "compControlField2",
+                "compLibraryId1",
+                "compLibraryId2",
+                "compPersonalName",
+                "compPublisherName",
+                "compTitle",
+                "compNameOfPart",
+                "compYearOfAuthor",
+                "compYearOfPublication",
+                "compInternationalStandardNumber",
+                "compOverall"
+        };
     }
 
     private XmlDataManager xmlDataManager = new XmlDataManager();
@@ -152,9 +166,7 @@ public class MainController {
         buttonFirstFile.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle("Vyberte prvý súbor na deduplikáciu");
-                File file = fileChooser.showOpenDialog(primaryStage);
+                final File file = FileUtils.openFileFromDialog(primaryStage);
                 if (file != null) {
                     textFirstFilePath.setText(file.getName());
                     filePathFirstFile = file.getAbsolutePath();
@@ -164,9 +176,7 @@ public class MainController {
         buttonSecondFile.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle("Vyberte druhý súbor na deduplikáciu");
-                File file = fileChooser.showOpenDialog(primaryStage);
+                final File file = FileUtils.openFileFromDialog(primaryStage);
                 if (file != null) {
                     textSecondFilePath.setText(file.getName());
                     filePathSecondFile = file.getAbsolutePath();
@@ -182,9 +192,7 @@ public class MainController {
         buttonSaveToDb.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle("Vyberte");
-                File file = fileChooser.showOpenDialog(primaryStage);
+                final File file = FileUtils.openFileFromDialog(primaryStage);
                 if (file != null) {
                     new DbDataManager().insertAllMarcRecordsToDatabase(
                             xmlDataManager.getAllMarcRecords(null, file.getAbsolutePath()),

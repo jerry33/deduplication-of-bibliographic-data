@@ -7,6 +7,8 @@ import com.opencsv.bean.ColumnPositionMappingStrategy;
 import com.opencsv.bean.CsvToBean;
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -86,6 +88,12 @@ public class FileUtils {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static File openFileFromDialog(final Stage primaryStage) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Vyberte súbor");
+        return fileChooser.showOpenDialog(primaryStage);
     }
 
 }
