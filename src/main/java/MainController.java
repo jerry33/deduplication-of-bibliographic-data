@@ -464,7 +464,7 @@ public class MainController {
                     continue;
                 }
                 if (controlField1PositionInList != -1) {
-                    final MarcRecord marcRecord = findMarcRecordByControlField(marcCompVector.getCompControlField2(),
+                    final MarcRecord marcRecord = findMarcRecordByControlField(marcCompVector.getCompControlField1(),
                             marcCompVector.getCompLibraryId1(), marcRecords);
                     if (marcRecord != null) {
                         uniqueList.get(controlField1PositionInList).add(marcRecord);
@@ -472,7 +472,7 @@ public class MainController {
                                 + marcRecord.getLibraryId(),controlField1PositionInList);
                     }
                 } else if (controlField2PositionInList != -1) {
-                    final MarcRecord marcRecord = findMarcRecordByControlField(marcCompVector.getCompControlField1(),
+                    final MarcRecord marcRecord = findMarcRecordByControlField(marcCompVector.getCompControlField2(),
                             marcCompVector.getCompLibraryId2(), marcRecords);
                     if (marcRecord != null) {
                         uniqueList.get(controlField2PositionInList).add(marcRecord);
