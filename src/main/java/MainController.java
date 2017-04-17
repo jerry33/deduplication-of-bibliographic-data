@@ -32,8 +32,6 @@ import java.util.stream.Stream;
  */
 public class MainController {
 
-    private static String[] sColumnNames;
-
     private static final ObservableList<MarcRecord> observableListOfDuplicates = FXCollections.observableArrayList();
     private static final ObservableList<List<MarcRecord>> observableListOfUniqueRecords = FXCollections.observableArrayList();
 
@@ -49,22 +47,6 @@ public class MainController {
 
     static {
         System.loadLibrary("jri");
-        sColumnNames = new String[] {
-                "compC99id1",
-                "compC99id2",
-                "compControlField1",
-                "compControlField2",
-                "compLibraryId1",
-                "compLibraryId2",
-                "compPersonalName",
-                "compPublisherName",
-                "compTitle",
-                "compNameOfPart",
-                "compYearOfAuthor",
-                "compYearOfPublication",
-                "compInternationalStandardNumber",
-                "compOverall"
-        };
     }
 
     private XmlDataManager xmlDataManager = XmlDataManager.getInstance();
@@ -373,14 +355,14 @@ public class MainController {
             marcRecordsHashMap.put(marcRecord.getControlFieldId() + "-" + marcRecord.getLibraryId(), -1);
         }
         System.out.println("Creating blocking vectors...");
-        FileUtils.writeBeansToCsvFile(createBlockingCompVectorsFromRecords(marcRecords), "merged_marc_records_new.csv", MarcCompVector.class, sColumnNames);
+        FileUtils.writeBeansToCsvFile(createBlockingCompVectorsFromRecords(marcRecords), "merged_marc_records_new.csv", MarcCompVector.class, MarcCompVector.COLUMNS);
 
 //        System.out.println("Training data...");
 //        rManager.trainDataFromFile("/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/comp_vectors_all_train.csv");
 //        rManager.classifyData("/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/merged_marc_records_new.csv");
 
         System.out.println("Loading blocking vectors...");
-        final List<MarcCompVector> mergedCompVectors = FileUtils.readCsv("merged_marc_records_new.csv", MarcCompVector.class, sColumnNames);
+        final List<MarcCompVector> mergedCompVectors = FileUtils.readCsv("merged_marc_records_new.csv", MarcCompVector.class, MarcCompVector.COLUMNS);
         System.out.println("Creating unique list...");
         return createUniqueMarcRecordsList(mergedCompVectors, marcRecords, null);
     }
@@ -393,14 +375,14 @@ public class MainController {
             marcRecordsHashMap.put(marcRecord.getControlFieldId() + "-" + marcRecord.getLibraryId(), -1);
         }
         System.out.println("Creating blocking vectors...");
-        FileUtils.writeBeansToCsvFile(createBlockingCompVectorsFromRecords(mergedMarcRecords), "merged_marc_records_new.csv", MarcCompVector.class, sColumnNames);
+        FileUtils.writeBeansToCsvFile(createBlockingCompVectorsFromRecords(mergedMarcRecords), "merged_marc_records_new.csv", MarcCompVector.class, MarcCompVector.COLUMNS);
 
         System.out.println("Training data...");
         rManager.trainDataFromFile("/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/comp_vectors_all_train2_without915.csv", 0, 6, 7, 14);
         rManager.classifyData("/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/merged_marc_records_new.csv", 0, 6, 7, 13);
 
         System.out.println("Loading blocking vectors...");
-        final List<MarcCompVector> mergedCompVectors = FileUtils.readCsv("merged_marc_records_new.csv", MarcCompVector.class, sColumnNames);
+        final List<MarcCompVector> mergedCompVectors = FileUtils.readCsv("merged_marc_records_new.csv", MarcCompVector.class, MarcCompVector.COLUMNS);
         System.out.println("Creating unique list...");
         return createUniqueMarcRecordsList(mergedCompVectors, mergedMarcRecords, null);
     }
