@@ -272,7 +272,7 @@ public class MainController {
                     protected void updateItem(List<MarcRecord> t, boolean bln) {
                         super.updateItem(t, bln);
                         if (t != null) {
-                            setText(getFormattedMarcRecord(t.get(0)));
+                            setText(t.get(0).getFormatted());
                             if (t.size() > 1) {
                                 setStyle("-fx-control-inner-background: red");
                             } else {
@@ -297,7 +297,7 @@ public class MainController {
                     protected void updateItem(MarcRecord item, boolean empty) {
                         super.updateItem(item, empty);
                         if (item != null) {
-                            setText(getFormattedMarcRecord(item));
+                            setText(item.getFormatted());
                         } else {
                             setText(""); // very important, so that the rest of ListView is cleaned out!
                         }
@@ -330,14 +330,6 @@ public class MainController {
             }
         }
         return null;
-    }
-
-    private String getFormattedMarcRecord(final MarcRecord marcRecord) {
-        return "Názov diela: " + marcRecord.getTitleRaw() + "\n"
-                + "Autor: " + (StringUtils.isValid(marcRecord.getPersonalNameRaw()) ? marcRecord.getPersonalNameRaw() : marcRecord.getPublisherNameRaw()) + "\n"
-                + "Rok vydania: " + (StringUtils.isValid(marcRecord.getYearOfAuthorRaw()) ? marcRecord.getYearOfAuthorRaw() : marcRecord.getYearOfPublicationRaw()) + "\n"
-                + "Id knižničného katalógu: " + marcRecord.getLibraryId() + "\n"
-                + "Id bibliografického diela: " + marcRecord.getControlFieldId();
     }
 
     private List<MarcRecord> getListWithoutDuplicates(final List<List<MarcRecord>> uniqueList) {
