@@ -55,7 +55,7 @@ public class RManager {
         mRengine.eval("write.csv(comp_vectors_shuffled, \"/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/comp_vectors_all_train2_shuffled.csv\", row.names = FALSE)");
     }
 
-    public void trainAndClassifyData2(final Classifier classifier) {
+    public void trainAndClassifyDataWithC99(final Classifier classifier) {
         mRexp = mRengine.eval("marc1 <- read.csv(\"/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/comp_vectors_all_train2_shuffled.csv\")");
         mRexp = mRengine.eval("marc1_c99_train <- marc1[1:61546,]");
         mRexp = mRengine.eval("marc1_c99_test <- marc1[61547:71546,]");

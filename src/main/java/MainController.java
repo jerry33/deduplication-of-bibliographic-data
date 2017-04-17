@@ -45,6 +45,8 @@ public class MainController {
     private Task<Void> deduplicationTask, deduplicationDbTask;
 
     private Classifier selectedClassifier = Classifier.C50;
+    
+    private VBox vBox;
 
     static {
         System.loadLibrary("jri");
@@ -121,10 +123,10 @@ public class MainController {
     private void initGui(final Stage primaryStage) {
         BorderPane root = new BorderPane();
 
-        VBox vbox = new VBox();
-        vbox.setPrefWidth(200);
-        vbox.setPadding(new Insets(10));
-        vbox.setSpacing(8);
+        vBox = new VBox();
+        vBox.setPrefWidth(200);
+        vBox.setPadding(new Insets(10));
+        vBox.setSpacing(8);
         final Button buttonFirstFile = new Button();
         buttonFirstFile.setText("Načítať prvý súbor");
 
@@ -145,28 +147,6 @@ public class MainController {
 
         final Text textSecondFilePath = new Text();
         textSecondFilePath.setText("/path/to/file2.xml");
-
-        final ToggleGroup toggleGroup = new ToggleGroup();
-        final RadioButton radioButton1 = new RadioButton("C5.0");
-        radioButton1.setUserData(Classifier.C50);
-        radioButton1.setSelected(true);
-        radioButton1.setToggleGroup(toggleGroup);
-        final RadioButton radioButton2 = new RadioButton("Random Forest");
-        radioButton2.setToggleGroup(toggleGroup);
-        radioButton2.setUserData(Classifier.RANDOM_FOREST);
-        final RadioButton radioButton3 = new RadioButton("Naive Bayes");
-        radioButton3.setToggleGroup(toggleGroup);
-        radioButton3.setUserData(Classifier.NAIVE_BAYES);
-        final RadioButton radioButton4 = new RadioButton("SVM");
-        radioButton4.setToggleGroup(toggleGroup);
-        radioButton4.setUserData(Classifier.SVM);
-        toggleGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
-            @Override
-            public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) {
-                System.out.println("value: " + toggleGroup.getSelectedToggle().getUserData());
-                selectedClassifier = (Classifier) toggleGroup.getSelectedToggle().getUserData();
-            }
-        });
 
         buttonFirstFile.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -212,8 +192,8 @@ public class MainController {
                 new DbDataManager().truncateAllTables();
             }
         });
-        vbox.getChildren().add(textFirstFilePath);
-        vbox.getChildren().add(textSecondFilePath);
+        vBox.getChildren().add(textFirstFilePath);
+        vBox.getChildren().add(textSecondFilePath);
 
         final Button startDeduplicationButton = new Button();
         startDeduplicationButton.setText("Spustiť deduplikáciu");
@@ -232,9 +212,7 @@ public class MainController {
             @Override
             public void handle(ActionEvent event) {
                 final DbDataManager dataManager = new DbDataManager();
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle("Vyberte súbor");
-                File file = fileChooser.showOpenDialog(primaryStage);
+                final File file = FileUtils.openFileFromDialog(primaryStage);
                 if (file != null) {
                     final List<MarcRecord> marcRecordsFromDb = getListWithoutDuplicates(masterRecordsUniqueList);
                     final List<MarcRecord> marcRecordsFromFile = xmlDataManager.getAllMarcRecords(null, file.getAbsolutePath());
@@ -273,16 +251,14 @@ public class MainController {
             }
         });
 
-        vbox.getChildren().add(startDeduplicationButton);
-        vbox.getChildren().add(startDeduplicationDbButton);
-        vbox.getChildren().add(radioButton1);
-        vbox.getChildren().add(radioButton2);
-        vbox.getChildren().add(radioButton3);
-        vbox.getChildren().add(radioButton4);
+        vBox.getChildren().add(startDeduplicationButton);
+        vBox.getChildren().add(startDeduplicationDbButton);
+
+        initRadioButtons();
 
         ToolBar toolBar = new ToolBar(buttonFirstFile, buttonSecondFile, buttonLoadFromDb, buttonSaveToDb, buttonDeleteDb);
         root.setTop(toolBar);
-        root.setLeft(vbox);
+        root.setLeft(vBox);
         root.setCenter(listViewMain);
         root.setRight(listViewSub);
         primaryStage.setScene(new Scene(root, 800, 600));
@@ -332,6 +308,33 @@ public class MainController {
                 };
             }
         });
+    }
+
+    private void initRadioButtons() {
+        final ToggleGroup toggleGroup = new ToggleGroup();
+        final RadioButton radioButtonC50 = new RadioButton("C5.0");
+        radioButtonC50.setUserData(Classifier.C50);
+        radioButtonC50.setSelected(true);
+        radioButtonC50.setToggleGroup(toggleGroup);
+        final RadioButton radioButtonRandomForest = new RadioButton("Random Forest");
+        radioButtonRandomForest.setToggleGroup(toggleGroup);
+        radioButtonRandomForest.setUserData(Classifier.RANDOM_FOREST);
+        final RadioButton radioButtonNaiveBayes = new RadioButton("Naive Bayes");
+        radioButtonNaiveBayes.setToggleGroup(toggleGroup);
+        radioButtonNaiveBayes.setUserData(Classifier.NAIVE_BAYES);
+        final RadioButton radioButtonSvm = new RadioButton("SVM");
+        radioButtonSvm.setToggleGroup(toggleGroup);
+        radioButtonSvm.setUserData(Classifier.SVM);
+        toggleGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
+            @Override
+            public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) {
+                selectedClassifier = (Classifier) toggleGroup.getSelectedToggle().getUserData();
+            }
+        });
+        vBox.getChildren().add(radioButtonC50);
+        vBox.getChildren().add(radioButtonRandomForest);
+        vBox.getChildren().add(radioButtonNaiveBayes);
+        vBox.getChildren().add(radioButtonSvm);
     }
 
     private void initMasterRecordsUniqueList(final DbDataManager dataManager) {
