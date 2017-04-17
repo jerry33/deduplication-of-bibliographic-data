@@ -21,6 +21,7 @@ import javafx.util.Callback;
 import models.*;
 import r.RManager;
 import utils.*;
+import view.MainView;
 
 import java.io.*;
 import java.util.*;
@@ -37,13 +38,13 @@ public class MainController {
 
     private RManager rManager = RManager.getInstance();
     private Map<String, Integer> marcRecordsHashMap = new HashMap<>();
-    private final ListView<MarcRecord> listViewSub = new ListView<>(observableListOfDuplicates);
-    private final ListView<List<MarcRecord>> listViewMain = new ListView<>(observableListOfUniqueRecords);
 
     private List<List<MarcRecord>> masterRecordsUniqueList = new ArrayList<>();
 
     private String filePathFirstFile, filePathSecondFile;
     private Task<Void> deduplicationTask, deduplicationDbTask;
+
+    private MainView mainView;
 
     static {
         System.loadLibrary("jri");
@@ -51,13 +52,15 @@ public class MainController {
 
     private XmlDataManager xmlDataManager = XmlDataManager.getInstance();
 
-    public void start(Stage primaryStage) throws Exception {
+    public void start(final MainView view) throws Exception {
         final long start = System.nanoTime();
+        mainView = view;
+        mainView.getMainListView().setItems(observableListOfUniqueRecords);
+        mainView.getSubListView().setItems(observableListOfDuplicates);
+
         System.out.println("start(), please select files");
 
-        initMainListView();
-        initSubListView();
-        initGui(primaryStage);
+        initGui(mainView.getPrimaryStage());
 
         deduplicationTask = new Task<Void>() {
             @Override
@@ -71,12 +74,12 @@ public class MainController {
                         .getAllMarcRecords(null,
                                 filePathSecondFile);
                 observableListOfUniqueRecords.addAll(createUniqueListFromTwoFilesSimpler(marcRecords1, marcRecords2));
-                listViewMain.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                mainView.getMainListView().setOnMouseClicked(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent event) {
                         observableListOfDuplicates.clear();
-                        for (int i = 1; i < listViewMain.getSelectionModel().getSelectedItem().size(); i++) {
-                            observableListOfDuplicates.add(listViewMain.getSelectionModel().getSelectedItem().get(i));
+                        for (int i = 1; i < mainView.getMainListView().getSelectionModel().getSelectedItem().size(); i++) {
+                            observableListOfDuplicates.add(mainView.getMainListView().getSelectionModel().getSelectedItem().get(i));
                         }
 
                     }
@@ -96,12 +99,12 @@ public class MainController {
                 final DbDataManager dataManager = new DbDataManager();
                 initMasterRecordsUniqueList(dataManager);
                 observableListOfUniqueRecords.addAll(masterRecordsUniqueList);
-                listViewMain.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                mainView.getMainListView().setOnMouseClicked(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent event) {
                         observableListOfDuplicates.clear();
-                        for (int i = 1; i < listViewMain.getSelectionModel().getSelectedItem().size(); i++) {
-                            observableListOfDuplicates.add(listViewMain.getSelectionModel().getSelectedItem().get(i));
+                        for (int i = 1; i < mainView.getMainListView().getSelectionModel().getSelectedItem().size(); i++) {
+                            observableListOfDuplicates.add(mainView.getMainListView().getSelectionModel().getSelectedItem().get(i));
                         }
 
                     }
@@ -241,9 +244,9 @@ public class MainController {
 //                    masterRecordsUniqueList.addAll(mergedUniqueList);
                     initMasterRecordsUniqueList(dataManager);
                     final ObservableList<List<MarcRecord>> observableList = FXCollections.observableList(masterRecordsUniqueList);
-                    listViewMain.getSelectionModel().clearSelection();
+                    mainView.getMainListView().getSelectionModel().clearSelection();
                     System.out.println("set items");
-                    listViewMain.setItems(observableList);
+                    mainView.getMainListView().setItems(observableList);
 
 
                 }
@@ -256,55 +259,10 @@ public class MainController {
         ToolBar toolBar = new ToolBar(buttonFirstFile, buttonSecondFile, buttonLoadFromDb, buttonSaveToDb, buttonDeleteDb);
         root.setTop(toolBar);
         root.setLeft(vbox);
-        root.setCenter(listViewMain);
-        root.setRight(listViewSub);
+        root.setCenter(mainView.getMainListView());
+        root.setRight(mainView.getSubListView());
         primaryStage.setScene(new Scene(root, 800, 600));
         primaryStage.show();
-    }
-
-    private void initMainListView() {
-        listViewMain.setPrefWidth(300);
-        listViewMain.setCellFactory(new Callback<ListView<List<MarcRecord>>, ListCell<List<MarcRecord>>>(){
-            @Override
-            public ListCell<List<MarcRecord>> call(ListView<List<MarcRecord>> p) {
-                return new ListCell<List<MarcRecord>>(){
-                    @Override
-                    protected void updateItem(List<MarcRecord> t, boolean bln) {
-                        super.updateItem(t, bln);
-                        if (t != null) {
-                            setText(getFormattedMarcRecord(t.get(0)));
-                            if (t.size() > 1) {
-                                setStyle("-fx-control-inner-background: red");
-                            } else {
-                                setStyle(null);
-                            }
-                        } else {
-                            setText("");
-                        }
-                    }
-                };
-            }
-        });
-    }
-
-    private void initSubListView() {
-        listViewSub.setPrefWidth(300);
-        listViewSub.setCellFactory(new Callback<ListView<MarcRecord>, ListCell<MarcRecord>>() {
-            @Override
-            public ListCell<MarcRecord> call(ListView<MarcRecord> param) {
-                return new ListCell<MarcRecord>() {
-                    @Override
-                    protected void updateItem(MarcRecord item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item != null) {
-                            setText(getFormattedMarcRecord(item));
-                        } else {
-                            setText(""); // very important, so that the rest of ListView is cleaned out!
-                        }
-                    }
-                };
-            }
-        });
     }
 
     private void initMasterRecordsUniqueList(final DbDataManager dataManager) {
@@ -330,14 +288,6 @@ public class MainController {
             }
         }
         return null;
-    }
-
-    private String getFormattedMarcRecord(final MarcRecord marcRecord) {
-        return "Názov diela: " + marcRecord.getTitleRaw() + "\n"
-                + "Autor: " + (StringUtils.isValid(marcRecord.getPersonalNameRaw()) ? marcRecord.getPersonalNameRaw() : marcRecord.getPublisherNameRaw()) + "\n"
-                + "Rok vydania: " + (StringUtils.isValid(marcRecord.getYearOfAuthorRaw()) ? marcRecord.getYearOfAuthorRaw() : marcRecord.getYearOfPublicationRaw()) + "\n"
-                + "Id knižničného katalógu: " + marcRecord.getLibraryId() + "\n"
-                + "Id bibliografického diela: " + marcRecord.getControlFieldId();
     }
 
     private List<MarcRecord> getListWithoutDuplicates(final List<List<MarcRecord>> uniqueList) {
