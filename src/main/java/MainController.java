@@ -313,6 +313,7 @@ public class MainController {
                 selectedClassifier = (Classifier) toggleGroup.getSelectedToggle().getUserData();
             }
         });
+        vBox.getChildren().add(new Text("Vyberte klasifikátor:"));
         vBox.getChildren().add(radioButtonC50);
         vBox.getChildren().add(radioButtonRandomForest);
         vBox.getChildren().add(radioButtonNaiveBayes);
