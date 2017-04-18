@@ -41,7 +41,7 @@ public final class MarcUtils {
         marcCompVector.setCompYearOfAuthor(StringComparator.compareYears(record1.getYearOfAuthor(), record2.getYearOfAuthor()));
         marcCompVector.setCompYearOfPublication(StringComparator.compareYears(record1.getYearOfPublication(), record2.getYearOfPublication()));
         marcCompVector.setCompInternationalStandardNumber(StringComparator.compareInternationalStandardNumbers(record1.getInternationalStandardNumbers(), record2.getInternationalStandardNumbers()));
-        marcCompVector.setComp915(0.5f);
+        marcCompVector.setComp915(StringComparator.compare915(record1.getColumn915(), record2.getColumn915()));
         marcCompVector.setCompOverall(record1.getC99FieldId().equals(record2.getC99FieldId()));
         return marcCompVector;
     }

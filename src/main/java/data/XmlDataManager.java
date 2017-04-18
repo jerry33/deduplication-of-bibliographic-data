@@ -1,6 +1,5 @@
 package data;
 
-import com.sun.istack.internal.NotNull;
 import models.MarcRecord;
 import org.marc4j.MarcReader;
 import org.marc4j.MarcXmlReader;
@@ -63,6 +62,7 @@ public class XmlDataManager {
             marcRecord.setNameOfPart(StringUtils.standardizeString(MarcFieldsFinder.findNameOfPart(r)));
             marcRecord.setYearOfAuthor(MarcFieldsFinder.findYearOfAuthor(r));
             marcRecord.setYearOfPublication(MarcFieldsFinder.findYearOfPublication(r));
+            marcRecord.setColumn915(StringUtils.standardizeString(MarcFieldsFinder.find915(r)));
 
             marcRecord.setC99FieldIdRaw(MarcFieldsFinder.findC99FieldId(r));
             marcRecord.setPersonalNameRaw(MarcFieldsFinder.findPersonalName(r));
@@ -71,6 +71,7 @@ public class XmlDataManager {
             marcRecord.setNameOfPartRaw(MarcFieldsFinder.findNameOfPart(r));
             marcRecord.setYearOfAuthorRaw(MarcFieldsFinder.findYearOfAuthor(r));
             marcRecord.setYearOfPublicationRaw(MarcFieldsFinder.findYearOfPublication(r));
+            marcRecord.setColumn915Raw(MarcFieldsFinder.find915(r));
 
             marcRecord.setInternationalStandardNumbers(MarcFieldsFinder.findInternationalStandardNumbers(r));
             marcRecord.generateBlockingKey();

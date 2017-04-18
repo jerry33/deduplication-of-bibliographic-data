@@ -1,11 +1,9 @@
 package models;
 
-import info.debatty.java.stringsimilarity.JaroWinkler;
 import utils.StringUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -26,6 +24,7 @@ public class MarcRecord implements Comparable<MarcRecord> {
     public static final String COLUMN_NAME_OF_PART = "name_of_part";
     public static final String COLUMN_YEAR_OF_AUTHOR = "year_of_author";
     public static final String COLUMN_YEAR_OF_PUBLICATION = "year_of_publication";
+    public static final String COLUMN_915 = "915";
 
     private int primaryKey;
     private String typeOfMaterial;
@@ -38,6 +37,7 @@ public class MarcRecord implements Comparable<MarcRecord> {
     private String nameOfPart;
     private String yearOfAuthor;
     private String yearOfPublication;
+    private String column915;
 
     private String c99FieldIdRaw;
     private String personalNameRaw;
@@ -46,6 +46,7 @@ public class MarcRecord implements Comparable<MarcRecord> {
     private String nameOfPartRaw;
     private String yearOfAuthorRaw;
     private String yearOfPublicationRaw;
+    private String column915Raw;
 
     private List<String> internationalStandardNumbers;
     private String blockingKey;
@@ -157,6 +158,22 @@ public class MarcRecord implements Comparable<MarcRecord> {
 
     public void setInternationalStandardNumbers(final List<String> internationalStandardNumbers) {
         this.internationalStandardNumbers = internationalStandardNumbers;
+    }
+
+    public String getColumn915() {
+        return column915;
+    }
+
+    public void setColumn915(String column915) {
+        this.column915 = column915;
+    }
+
+    public String getColumn915Raw() {
+        return column915Raw;
+    }
+
+    public void setColumn915Raw(String column915raw) {
+        this.column915Raw = column915raw;
     }
 
     public String getBlockingKey() {

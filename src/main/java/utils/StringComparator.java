@@ -77,4 +77,11 @@ public class StringComparator {
         return 0.5f;
     }
 
+    public static double compare915(String s1, String s2) {
+        if (StringUtils.isValid(s1) && StringUtils.isValid(s2)) {
+            return new JaroWinkler().similarity(s1, s2);
+        }
+        return 0.5f;
+    }
+
 }
