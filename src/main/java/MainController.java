@@ -172,7 +172,7 @@ public class MainController {
         });
 
         final Button startDeduplicationDbButton = new Button();
-        startDeduplicationDbButton.setText("Spustiť deduplikáciu DB");
+        startDeduplicationDbButton.setText("Deduplikovať súbor");
         startDeduplicationDbButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -215,9 +215,10 @@ public class MainController {
         });
 
         vBox.getChildren().add(startDeduplicationButton);
-        vBox.getChildren().add(startDeduplicationDbButton);
 
         initRadioButtons();
+
+        vBox.getChildren().add(startDeduplicationDbButton);
 
         ToolBar toolBar = new ToolBar(buttonFirstFile, buttonSecondFile, buttonSaveToDb, buttonDeleteDb);
         root.setTop(toolBar);

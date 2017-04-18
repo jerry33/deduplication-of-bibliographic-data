@@ -7,21 +7,36 @@ import utils.StringUtils;
  */
 public class MarcCompVector {
 
+    public static final String COLUMN_COMP_C99_ID1 = "compC99id1";
+    public static final String COLUMN_COMP_C99_ID2 = "compC99id2";
+    public static final String COLUMN_COMP_CONTROL_FIELD1 = "compControlField1";
+    public static final String COLUMN_COMP_CONTROL_FIELD2 = "compControlField2";
+    public static final String COLUMN_COMP_LIBRARY_ID1 = "compLibraryId1";
+    public static final String COLUMN_COMP_LIBRARY_ID2 = "compLibraryId2";
+    public static final String COLUMN_COMP_PERSONAL_NAME = "compPersonalName";
+    public static final String COLUMN_COMP_PUBLISHER_NAME = "compPublisherName";
+    public static final String COLUMN_COMP_TITLE = "compTitle";
+    public static final String COLUMN_COMP_NAME_OF_PART = "compNameOfPart";
+    public static final String COLUMN_COMP_YEAR_OF_AUTHOR = "compYearOfAuthor";
+    public static final String COLUMN_COMP_YEAR_OF_PUBLICATION = "compYearOfPublication";
+    public static final String COLUMN_COMP_INTERNATIONAL_STANDARD_NUMBER = "compInternationalStandardNumber";
+    public static final String COLUMN_COMP_OVERALL = "compOverall";
+
     public static final String[] COLUMNS = new String[] {
-            "compC99id1",
-            "compC99id2",
-            "compControlField1",
-            "compControlField2",
-            "compLibraryId1",
-            "compLibraryId2",
-            "compPersonalName",
-            "compPublisherName",
-            "compTitle",
-            "compNameOfPart",
-            "compYearOfAuthor",
-            "compYearOfPublication",
-            "compInternationalStandardNumber",
-            "compOverall"
+            COLUMN_COMP_C99_ID1,
+            COLUMN_COMP_C99_ID2,
+            COLUMN_COMP_CONTROL_FIELD1,
+            COLUMN_COMP_CONTROL_FIELD2,
+            COLUMN_COMP_LIBRARY_ID1,
+            COLUMN_COMP_LIBRARY_ID2,
+            COLUMN_COMP_PERSONAL_NAME,
+            COLUMN_COMP_PUBLISHER_NAME,
+            COLUMN_COMP_TITLE,
+            COLUMN_COMP_NAME_OF_PART,
+            COLUMN_COMP_YEAR_OF_AUTHOR,
+            COLUMN_COMP_YEAR_OF_PUBLICATION,
+            COLUMN_COMP_INTERNATIONAL_STANDARD_NUMBER,
+            COLUMN_COMP_OVERALL
     };
 
     private String compControlField1; // TODO: maybe change name to controlField1, as it is not being compared
