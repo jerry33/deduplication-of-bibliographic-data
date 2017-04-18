@@ -62,7 +62,7 @@ public class MainController {
         loadRecordsFromDb();
 
 //        rManager.trainAndClassifyData2(Classifier.C50);
-//        saveBlockingMarcCompVectorsToCsv("/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/all_records_with_c99.xml");
+//        new BlockingCompVectors().saveToCsvFromMarcXMLFile("/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/all_records_with_c99.xml");
 //        Printer.printOnlyDuplicates(xmlDataManager.getAllMarcRecords(null, "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/all_records_with_c99.xml"));
 
     }
@@ -383,12 +383,25 @@ public class MainController {
         System.out.println("Creating blocking vectors...");
         FileUtils.writeBeansToCsvFile(createBlockingCompVectorsFromRecords(mergedMarcRecords), "merged_marc_records_new.csv", MarcCompVector.class, MarcCompVector.COLUMNS);
 
+        final int startOfIds = Arrays.asList(MarcCompVector.COLUMNS).indexOf(MarcCompVector.COLUMN_COMP_C99_ID1);
+        final int endOfIds = Arrays.asList(MarcCompVector.COLUMNS).indexOf(MarcCompVector.COLUMN_COMP_PERSONAL_NAME);
+        final int startOfData = Arrays.asList(MarcCompVector.COLUMNS).indexOf(MarcCompVector.COLUMN_COMP_PUBLISHER_NAME);
+        final int endOfData = MarcCompVector.COLUMNS.length;
+        System.out.println("startOfIds: " + startOfIds);
+        System.out.println("endOfIds: " + endOfIds);
+        System.out.println("startOfData: " + startOfData);
+        System.out.println("endOfData: " + endOfData);
         System.out.println("Training data...");
-        rManager.trainDataFromFile("/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/comp_vectors_all_train2_without915.csv", 0, 6, 7, 14);
-        rManager.classifyData(selectedClassifier, "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/merged_marc_records_new.csv", 0, 6, 7, 13);
+        rManager.trainDataFromFile("/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/all_records_with_c99_blocking_comp_vectors.csv", startOfIds, endOfIds, startOfData, endOfData);
+        rManager.classifyData(selectedClassifier, "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/merged_marc_records_new.csv", startOfIds, endOfIds, startOfData, endOfData-1);
 
         System.out.println("Loading blocking vectors...");
         final List<MarcCompVector> mergedCompVectors = FileUtils.readCsv("merged_marc_records_new.csv", MarcCompVector.class, MarcCompVector.COLUMNS);
+        for (MarcCompVector marcCompVector : mergedCompVectors) {
+            if (marcCompVector.getComp915() == 0.5f) { // TODO: add a custom condition when to denote 915 as not duplicate
+
+            }
+        }
         System.out.println("Creating unique list...");
         return createUniqueMarcRecordsList(mergedCompVectors, mergedMarcRecords, null);
     }

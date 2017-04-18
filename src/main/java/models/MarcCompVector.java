@@ -20,6 +20,7 @@ public class MarcCompVector {
     public static final String COLUMN_COMP_YEAR_OF_AUTHOR = "compYearOfAuthor";
     public static final String COLUMN_COMP_YEAR_OF_PUBLICATION = "compYearOfPublication";
     public static final String COLUMN_COMP_INTERNATIONAL_STANDARD_NUMBER = "compInternationalStandardNumber";
+    public static final String COLUMN_COMP_915 = "comp915";
     public static final String COLUMN_COMP_OVERALL = "compOverall";
 
     public static final String[] COLUMNS = new String[] {
@@ -36,6 +37,7 @@ public class MarcCompVector {
             COLUMN_COMP_YEAR_OF_AUTHOR,
             COLUMN_COMP_YEAR_OF_PUBLICATION,
             COLUMN_COMP_INTERNATIONAL_STANDARD_NUMBER,
+            COLUMN_COMP_915,
             COLUMN_COMP_OVERALL
     };
 
@@ -52,6 +54,7 @@ public class MarcCompVector {
     private double compYearOfPublication;
     private double compNameOfPart;
     private double compInternationalStandardNumber;
+    private double comp915;
     private boolean compOverall;
 
     public String getCompControlField1() {
@@ -156,6 +159,14 @@ public class MarcCompVector {
 
     public void setCompInternationalStandardNumber(double compInternationalStandardNumber) {
         this.compInternationalStandardNumber = compInternationalStandardNumber;
+    }
+
+    public double getComp915() {
+        return comp915;
+    }
+
+    public void setComp915(double comp915) {
+        this.comp915 = comp915;
     }
 
     public boolean isCompOverall() {

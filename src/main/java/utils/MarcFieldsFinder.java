@@ -57,7 +57,7 @@ public class MarcFieldsFinder {
     }
 
     public static String find915(final Record r) {
-        return getValueBySubfieldOfDataField(r, "915", 'c');
+        return getValueBySubfieldOfDataField(r, "915", 'b');
     }
 
     public static String findYearOfAuthor(final Record r) {

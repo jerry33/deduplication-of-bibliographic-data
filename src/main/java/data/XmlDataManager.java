@@ -42,9 +42,9 @@ public class XmlDataManager {
         final List<MarcRecord> marcRecords = new ArrayList<>();
 
         for (final Record r : records) {
-            if (MarcFieldsFinder.isFieldInRecord(r, "915")) {
-                continue;
-            }
+//            if (MarcFieldsFinder.isFieldInRecord(r, "915")) {
+//                continue;
+//            }
             final MarcRecord marcRecord = new MarcRecord();
             final String charAt6 = String.valueOf(r.getLeader().marshal().charAt(6));
             final String charAt7 = String.valueOf(r.getLeader().marshal().charAt(7));
