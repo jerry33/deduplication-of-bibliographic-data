@@ -121,8 +121,9 @@ public class DbDataManager {
                 + ", " + MarcRecord.COLUMN_TITLE
                 + ", " + MarcRecord.COLUMN_NAME_OF_PART
                 + ", " + MarcRecord.COLUMN_YEAR_OF_AUTHOR
-                + ", " + MarcRecord.COLUMN_YEAR_OF_PUBLICATION + ")"
-                + " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                + ", " + MarcRecord.COLUMN_YEAR_OF_PUBLICATION
+                + ", " + MarcRecord.COLUMN_915 + ")"
+                + " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         for (final MarcRecord marcRecord : marcRecordsList) {
             PreparedStatement preparedStatement;
             try {
@@ -139,6 +140,7 @@ public class DbDataManager {
                 preparedStatement.setString(10, marcRecord.getNameOfPartRaw());
                 preparedStatement.setString(11, marcRecord.getYearOfAuthorRaw());
                 preparedStatement.setString(12, marcRecord.getYearOfPublicationRaw());
+                preparedStatement.setString(13, marcRecord.getColumn915Raw());
                 preparedStatement.execute();
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -175,8 +177,9 @@ public class DbDataManager {
                 + ", " + MarcRecord.COLUMN_TITLE
                 + ", " + MarcRecord.COLUMN_NAME_OF_PART
                 + ", " + MarcRecord.COLUMN_YEAR_OF_AUTHOR
-                + ", " + MarcRecord.COLUMN_YEAR_OF_PUBLICATION + ")"
-                + " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                + ", " + MarcRecord.COLUMN_YEAR_OF_PUBLICATION
+                + ", " + MarcRecord.COLUMN_915 + ")"
+                + " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         for (final MarcRecord marcRecord : marcRecordsList) {
             PreparedStatement preparedStatement;
             try {
@@ -194,6 +197,7 @@ public class DbDataManager {
                 preparedStatement.setString(11, marcRecord.getNameOfPartRaw());
                 preparedStatement.setString(12, marcRecord.getYearOfAuthorRaw());
                 preparedStatement.setString(13, marcRecord.getYearOfPublicationRaw());
+                preparedStatement.setString(14, marcRecord.getColumn915Raw());
                 preparedStatement.execute();
             } catch (SQLException e) {
                 e.printStackTrace();

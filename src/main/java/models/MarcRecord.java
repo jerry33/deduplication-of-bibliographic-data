@@ -24,7 +24,7 @@ public class MarcRecord implements Comparable<MarcRecord> {
     public static final String COLUMN_NAME_OF_PART = "name_of_part";
     public static final String COLUMN_YEAR_OF_AUTHOR = "year_of_author";
     public static final String COLUMN_YEAR_OF_PUBLICATION = "year_of_publication";
-    public static final String COLUMN_915 = "915";
+    public static final String COLUMN_915 = "column_915";
 
     private int primaryKey;
     private String typeOfMaterial;
@@ -314,6 +314,7 @@ public class MarcRecord implements Comparable<MarcRecord> {
 
     public void bindData(final ResultSet rs) {
         try {
+            // raw data
             setPrimaryKey(rs.getInt(MarcRecord.COLUMN_PRIMARY_KEY));
             setTypeOfMaterial(rs.getString(MarcRecord.COLUMN_TYPE_OF_MATERIAL));
             setC99FieldIdRaw(rs.getString(MarcRecord.COLUMN_C99_FIELD_ID));
@@ -325,8 +326,10 @@ public class MarcRecord implements Comparable<MarcRecord> {
             setNameOfPartRaw(rs.getString(MarcRecord.COLUMN_NAME_OF_PART));
             setYearOfAuthorRaw(rs.getString(MarcRecord.COLUMN_YEAR_OF_AUTHOR));
             setYearOfPublicationRaw(rs.getString(MarcRecord.COLUMN_YEAR_OF_PUBLICATION));
+            setColumn915Raw(rs.getString(MarcRecord.COLUMN_915));
             setBlockingKey(rs.getString(MarcRecord.COLUMN_BLOCKING_KEY));
 
+            // standardized data
             setC99FieldId(StringUtils.standardizeString(getC99FieldIdRaw()));
             setPersonalName(StringUtils.standardizeString(getPersonalNameRaw()));
             setPublisherName(StringUtils.standardizeString(getPublisherNameRaw()));
@@ -334,6 +337,7 @@ public class MarcRecord implements Comparable<MarcRecord> {
             setNameOfPart(StringUtils.standardizeString(getNameOfPartRaw()));
             setYearOfAuthor(StringUtils.standardizeYearOfAuthor(getYearOfAuthorRaw()));
             setYearOfPublication(StringUtils.standardizeYearOfPublication(getYearOfPublicationRaw()));
+            setColumn915(StringUtils.standardizeString(getColumn915Raw()));
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -359,6 +363,7 @@ public class MarcRecord implements Comparable<MarcRecord> {
                 "nameOfPart: " + nameOfPart + "\n" +
                 "yearOfAuthor: " + yearOfAuthor + "\n" +
                 "yearOfPublication: " + yearOfPublication + "\n" +
+                "915: " + column915 + "\n" +
                 "internationalStandardNumbers: " + internationalStandardNumbers + "\n" +
                 "blockingKey: " + blockingKey;
     }

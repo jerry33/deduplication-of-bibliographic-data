@@ -79,7 +79,8 @@ public class StringComparator {
 
     public static double compare915(String s1, String s2) {
         if (StringUtils.isValid(s1) && StringUtils.isValid(s2)) {
-            return new JaroWinkler().similarity(s1, s2);
+            final double similarity = new JaroWinkler().similarity(s1, s2);
+            return similarity >= 0.9f ? similarity : 0.0f;
         }
         return 0.5f;
     }
