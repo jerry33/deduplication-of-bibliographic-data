@@ -37,7 +37,7 @@ public class MarcFieldsFinder {
         if (StringUtils.isValid(publisherName)) {
             return publisherName;
         }
-        publisherName = StringUtils.standardizeString(getValueBySubfieldOfDataField(r, "260", 'b'));
+        publisherName = getValueBySubfieldOfDataField(r, "260", 'b');
         if (StringUtils.isValid(publisherName)) {
             return publisherName;
         }
