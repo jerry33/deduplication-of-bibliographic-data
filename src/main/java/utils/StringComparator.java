@@ -39,23 +39,30 @@ public class StringComparator {
         return 0.5f;
     }
 
-    public static double compareInternationalStandardNumbers(final List<String> numbers1, final List<String> numbers2) {
-        if (numbers1 == null || numbers2 == null) {
-            return 0.5f;
-        }
-        final List<Double> listOfNumbersComparisonValues = new ArrayList<>();
-        final JaroWinkler jaroWinkler = new JaroWinkler();
-        for (String s1 : numbers1) {
-            for (String s2 : numbers2) {
-                listOfNumbersComparisonValues.add(jaroWinkler.similarity(s1, s2));
-            }
-        }
-        if (listOfNumbersComparisonValues.size() > 0) {
-            final double maxValue = Collections.max(listOfNumbersComparisonValues);
-            return maxValue > 0.95f ? maxValue : 0.0f; // setting threshold for ISBN and ISSN
+    public static double compareInternationalStandardNumbers(final String s1, final String s2) {
+        if (StringUtils.isValid(s1) && StringUtils.isValid(s2)) {
+            return s1.equals(s2) ? 1.0f : 0.0f;
         }
         return 0.5f;
     }
+
+//    public static double compareInternationalStandardNumbers(final List<String> numbers1, final List<String> numbers2) {
+//        if (numbers1 == null || numbers2 == null) {
+//            return 0.5f;
+//        }
+//        final List<Double> listOfNumbersComparisonValues = new ArrayList<>();
+//        final JaroWinkler jaroWinkler = new JaroWinkler();
+//        for (String s1 : numbers1) {
+//            for (String s2 : numbers2) {
+//                listOfNumbersComparisonValues.add(jaroWinkler.similarity(s1, s2));
+//            }
+//        }
+//        if (listOfNumbersComparisonValues.size() > 0) {
+//            final double maxValue = Collections.max(listOfNumbersComparisonValues);
+//            return maxValue > 0.95f ? maxValue : 0.0f; // setting threshold for ISBN and ISSN
+//        }
+//        return 0.5f;
+//    }
 
     public static double compareYears(String s1, String s2) {
         if (StringUtils.isValid(s1) && StringUtils.isValid(s2)) {

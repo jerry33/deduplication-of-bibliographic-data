@@ -61,7 +61,7 @@ public class MainController {
         initGui(primaryStage);
         loadRecordsFromDb();
 
-//        rManager.trainAndClassifyData2(Classifier.C50);
+//        rManager.trainAndClassifyDataWithC99(Classifier.C50);
 //        new BlockingCompVectors().saveToCsvFromMarcXMLFile("/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/all_records_with_c99.xml");
 //        Printer.printOnlyDuplicates(xmlDataManager.getAllMarcRecords(null, "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/all_records_with_c99.xml"));
 

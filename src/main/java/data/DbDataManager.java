@@ -122,8 +122,9 @@ public class DbDataManager {
                 + ", " + MarcRecord.COLUMN_NAME_OF_PART
                 + ", " + MarcRecord.COLUMN_YEAR_OF_AUTHOR
                 + ", " + MarcRecord.COLUMN_YEAR_OF_PUBLICATION
-                + ", " + MarcRecord.COLUMN_915 + ")"
-                + " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                + ", " + MarcRecord.COLUMN_915
+                + ", " + MarcRecord.COLUMN_INTERNATIONAL_STANDARD_NUMBER + ")"
+                + " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         for (final MarcRecord marcRecord : marcRecordsList) {
             PreparedStatement preparedStatement;
             try {
@@ -141,6 +142,7 @@ public class DbDataManager {
                 preparedStatement.setString(11, marcRecord.getYearOfAuthorRaw());
                 preparedStatement.setString(12, marcRecord.getYearOfPublicationRaw());
                 preparedStatement.setString(13, marcRecord.getColumn915Raw());
+                preparedStatement.setString(14, marcRecord.getInternationalStandardNumberRaw());
                 preparedStatement.execute();
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -178,8 +180,9 @@ public class DbDataManager {
                 + ", " + MarcRecord.COLUMN_NAME_OF_PART
                 + ", " + MarcRecord.COLUMN_YEAR_OF_AUTHOR
                 + ", " + MarcRecord.COLUMN_YEAR_OF_PUBLICATION
-                + ", " + MarcRecord.COLUMN_915 + ")"
-                + " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                + ", " + MarcRecord.COLUMN_915
+                + ", " + MarcRecord.COLUMN_INTERNATIONAL_STANDARD_NUMBER + ")"
+                + " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         for (final MarcRecord marcRecord : marcRecordsList) {
             PreparedStatement preparedStatement;
             try {
@@ -198,6 +201,7 @@ public class DbDataManager {
                 preparedStatement.setString(12, marcRecord.getYearOfAuthorRaw());
                 preparedStatement.setString(13, marcRecord.getYearOfPublicationRaw());
                 preparedStatement.setString(14, marcRecord.getColumn915Raw());
+                preparedStatement.setString(15, marcRecord.getInternationalStandardNumberRaw());
                 preparedStatement.execute();
             } catch (SQLException e) {
                 e.printStackTrace();

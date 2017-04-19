@@ -71,6 +71,14 @@ public class StringUtils {
         return "";
     }
 
+    public static String removeNonNumericCharactersAndDots(String s) {
+        if (StringUtils.isValid(s)) {
+            s = s.replaceAll("[^\\d]", "");
+            return s.trim().replaceAll(" +", " ");
+        }
+        return "";
+    }
+
     public static boolean isValid(String s) {
         return s != null && s.length() > 0;
     }

@@ -80,24 +80,20 @@ public class MarcFieldsFinder {
         return "";
     }
 
-    public static List<String> findInternationalStandardNumbers(final Record r) {
-        final ArrayList<String> numbers = new ArrayList<>();
-        String isbn = StringUtils.removeNonNumericCharacters(getValueBySubfieldOfDataField(r, "020", 'a'));
+    public static String findInternationalStandardNumber(final Record r) {
+        final String isbn = getValueBySubfieldOfDataField(r, "020", 'a');
         if (StringUtils.isValid(isbn)) {
-            numbers.add(isbn);
-            return numbers;
+            return isbn;
         }
-
-        String issnA = StringUtils.removeNonNumericCharacters(getValueBySubfieldOfDataField(r, "022", 'a'));
-        String issnY = StringUtils.removeNonNumericCharacters(getValueBySubfieldOfDataField(r, "022", 'y'));
-
-        if (StringUtils.isValid(issnA)) {
-            numbers.add(issnA);
+        final String issn1 = getValueBySubfieldOfDataField(r, "022", 'a');
+        if (StringUtils.isValid(issn1)) {
+            return issn1;
         }
-        if (StringUtils.isValid(issnY)) {
-            numbers.add(issnY);
+        final String issn2 = getValueBySubfieldOfDataField(r, "022", 'y');
+        if (StringUtils.isValid(issn2)) {
+            return issn2;
         }
-        return numbers;
+        return "";
     }
 
     public static String getValueBySubfieldOfDataField(final Record record, final String field, final char subfield) {

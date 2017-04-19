@@ -24,6 +24,7 @@ public class MarcRecord implements Comparable<MarcRecord> {
     public static final String COLUMN_NAME_OF_PART = "name_of_part";
     public static final String COLUMN_YEAR_OF_AUTHOR = "year_of_author";
     public static final String COLUMN_YEAR_OF_PUBLICATION = "year_of_publication";
+    public static final String COLUMN_INTERNATIONAL_STANDARD_NUMBER = "international_standard_number";
     public static final String COLUMN_915 = "column_915";
 
     private int primaryKey;
@@ -38,6 +39,7 @@ public class MarcRecord implements Comparable<MarcRecord> {
     private String yearOfAuthor;
     private String yearOfPublication;
     private String column915;
+    private String internationalStandardNumber;
 
     private String c99FieldIdRaw;
     private String personalNameRaw;
@@ -47,8 +49,8 @@ public class MarcRecord implements Comparable<MarcRecord> {
     private String yearOfAuthorRaw;
     private String yearOfPublicationRaw;
     private String column915Raw;
+    private String internationalStandardNumberRaw;
 
-    private List<String> internationalStandardNumbers;
     private String blockingKey;
     private boolean isMasterDatabaseRecord;
     private boolean isInAnyBlock;
@@ -152,14 +154,6 @@ public class MarcRecord implements Comparable<MarcRecord> {
         this.yearOfPublication = yearOfPublication;
     }
 
-    public List<String> getInternationalStandardNumbers() {
-        return internationalStandardNumbers;
-    }
-
-    public void setInternationalStandardNumbers(final List<String> internationalStandardNumbers) {
-        this.internationalStandardNumbers = internationalStandardNumbers;
-    }
-
     public String getColumn915() {
         return column915;
     }
@@ -174,6 +168,22 @@ public class MarcRecord implements Comparable<MarcRecord> {
 
     public void setColumn915Raw(String column915raw) {
         this.column915Raw = column915raw;
+    }
+
+    public String getInternationalStandardNumber() {
+        return internationalStandardNumber;
+    }
+
+    public void setInternationalStandardNumber(String internationalStandardNumber) {
+        this.internationalStandardNumber = internationalStandardNumber;
+    }
+
+    public String getInternationalStandardNumberRaw() {
+        return internationalStandardNumberRaw;
+    }
+
+    public void setInternationalStandardNumberRaw(String internationalStandardNumberRaw) {
+        this.internationalStandardNumberRaw = internationalStandardNumberRaw;
     }
 
     public String getBlockingKey() {
@@ -327,6 +337,7 @@ public class MarcRecord implements Comparable<MarcRecord> {
             setYearOfAuthorRaw(rs.getString(MarcRecord.COLUMN_YEAR_OF_AUTHOR));
             setYearOfPublicationRaw(rs.getString(MarcRecord.COLUMN_YEAR_OF_PUBLICATION));
             setColumn915Raw(rs.getString(MarcRecord.COLUMN_915));
+            setInternationalStandardNumberRaw(rs.getString(MarcRecord.COLUMN_INTERNATIONAL_STANDARD_NUMBER));
             setBlockingKey(rs.getString(MarcRecord.COLUMN_BLOCKING_KEY));
 
             // standardized data
@@ -338,6 +349,7 @@ public class MarcRecord implements Comparable<MarcRecord> {
             setYearOfAuthor(StringUtils.standardizeYearOfAuthor(getYearOfAuthorRaw()));
             setYearOfPublication(StringUtils.standardizeYearOfPublication(getYearOfPublicationRaw()));
             setColumn915(StringUtils.standardizeString(getColumn915Raw()));
+            setInternationalStandardNumber(StringUtils.removeNonNumericCharactersAndDots(getInternationalStandardNumberRaw()));
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -364,7 +376,7 @@ public class MarcRecord implements Comparable<MarcRecord> {
                 "yearOfAuthor: " + yearOfAuthor + "\n" +
                 "yearOfPublication: " + yearOfPublication + "\n" +
                 "915: " + column915 + "\n" +
-                "internationalStandardNumbers: " + internationalStandardNumbers + "\n" +
+                "internationalStandardNumber: " + internationalStandardNumber + "\n" +
                 "blockingKey: " + blockingKey;
     }
 

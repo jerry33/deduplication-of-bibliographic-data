@@ -41,9 +41,9 @@ public class XmlDataManager {
         final List<MarcRecord> marcRecords = new ArrayList<>();
 
         for (final Record r : records) {
-//            if (MarcFieldsFinder.isFieldInRecord(r, "915")) {
-//                continue;
-//            }
+            if (MarcFieldsFinder.isFieldInRecord(r, "915")) {
+                continue;
+            }
             final MarcRecord marcRecord = new MarcRecord();
             final String charAt6 = String.valueOf(r.getLeader().marshal().charAt(6));
             final String charAt7 = String.valueOf(r.getLeader().marshal().charAt(7));
@@ -63,6 +63,7 @@ public class XmlDataManager {
             marcRecord.setYearOfAuthor(MarcFieldsFinder.findYearOfAuthor(r));
             marcRecord.setYearOfPublication(MarcFieldsFinder.findYearOfPublication(r));
             marcRecord.setColumn915(StringUtils.standardizeString(MarcFieldsFinder.find915(r)));
+            marcRecord.setInternationalStandardNumber(StringUtils.removeNonNumericCharactersAndDots(MarcFieldsFinder.findInternationalStandardNumber(r)));
 
             marcRecord.setC99FieldIdRaw(MarcFieldsFinder.findC99FieldId(r));
             marcRecord.setPersonalNameRaw(MarcFieldsFinder.findPersonalName(r));
@@ -72,8 +73,8 @@ public class XmlDataManager {
             marcRecord.setYearOfAuthorRaw(MarcFieldsFinder.findYearOfAuthor(r));
             marcRecord.setYearOfPublicationRaw(MarcFieldsFinder.findYearOfPublication(r));
             marcRecord.setColumn915Raw(MarcFieldsFinder.find915(r));
+            marcRecord.setInternationalStandardNumberRaw(MarcFieldsFinder.findInternationalStandardNumber(r));
 
-            marcRecord.setInternationalStandardNumbers(MarcFieldsFinder.findInternationalStandardNumbers(r));
             marcRecord.generateBlockingKey();
 
             marcRecords.add(marcRecord);
