@@ -70,9 +70,10 @@ public class RManager {
         final long start = System.nanoTime();
         mRexp = mRengine.eval("classifier <- " + classifier.getClassifierName() + "(compOverall ~., data = marc1_c99_train)");
         mRexp = mRengine.eval("p1_c99 <- predict(classifier, marc1_c99_test)");
+        final long end = System.nanoTime();
+
         mRexp = mRengine.eval("library(caret)");
         mRexp = mRengine.eval("confusionMatrix(p1_c99, marc1_c99_test$compOverall, positive = levels(marc1_c99_test$compOverall)[2])");
-        final long end = System.nanoTime();
         final ConfusionMatrix confusionMatrix = ConfusionMatrix.createFromRexp(mRexp);
         confusionMatrix.setTimeElapsed((end - start) / 1000000);
         System.out.println(confusionMatrix);
