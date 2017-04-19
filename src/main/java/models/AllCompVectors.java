@@ -30,16 +30,16 @@ public class AllCompVectors implements CompVectors {
                     final MarcCompVector marcCompVector = MarcUtils.createCompVector(record1, record2);
                     if (record1.getC99FieldId().equals(record2.getC99FieldId())) {
                         System.out.println("equals: " + record1.getC99FieldId() + "-" + record1.getLibraryId() + "; and " + record2.getC99FieldId() + "-" + record2.getLibraryId());
-                        vectorsDuplicated.add(marcCompVector);
+                        marcCompVectors.add(marcCompVector);
                     } else {
                         System.out.println("NOT equals: " + record1.getC99FieldId() + "-" + record1.getLibraryId() + "; and " + record2.getC99FieldId() + "-" + record2.getLibraryId());
-                        vectorsNonDuplicated.add(marcCompVector);
+                        marcCompVectors.add(marcCompVector);
                     }
                 }
             }
         }
-        marcCompVectors.addAll(vectorsDuplicated);
-        marcCompVectors.addAll(vectorsNonDuplicated);
+//        marcCompVectors.addAll(vectorsDuplicated);
+//        marcCompVectors.addAll(vectorsNonDuplicated);
         return marcCompVectors;
     }
 

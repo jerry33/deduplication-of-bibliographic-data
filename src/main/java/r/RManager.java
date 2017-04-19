@@ -55,21 +55,26 @@ public class RManager {
         mRengine.eval("write.csv(comp_vectors_shuffled, \"/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/comp_vectors_all_train2_shuffled.csv\", row.names = FALSE)");
     }
 
-    public void trainAndClassifyDataWithC99(final Classifier classifier) {
-        mRexp = mRengine.eval("marc1 <- read.csv(\"/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/comp_vectors_all_train2_shuffled.csv\")");
+    public void trainAndClassifyDataWithC99(final Classifier classifier, final int startOfIds, final int endOfIds,
+                                            final int startOfData, final int endOfData) {
+        mRexp = mRengine.eval("marc1 <- read.csv(\"/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/all_records_with_c99_blocking_comp_vectors.csv\")");
         mRexp = mRengine.eval("marc1_c99_train <- marc1[1:61546,]");
         mRexp = mRengine.eval("marc1_c99_test <- marc1[61547:71546,]");
-        mRexp = mRengine.eval("marc1_c99_train_ids <- cbind(marc1_c99_train[,0:6])");
-        mRexp = mRengine.eval("marc1_c99_train <- cbind(marc1_c99_train[,7:14])");
-        mRexp = mRengine.eval("marc1_c99_test_ids <- cbind(marc1_c99_test[,0:6])");
-        mRexp = mRengine.eval("marc1_c99_test <- cbind(marc1_c99_test[,7:14])");
+        mRexp = mRengine.eval("marc1_c99_train_ids <- cbind(marc1_c99_train[," + startOfIds + ":" + endOfIds + "])");
+        mRexp = mRengine.eval("marc1_c99_train <- cbind(marc1_c99_train[," + startOfData + ":" + endOfData + "])");
+        mRexp = mRengine.eval("marc1_c99_test_ids <- cbind(marc1_c99_test[," + startOfIds + ":" + endOfIds + "])");
+        mRexp = mRengine.eval("marc1_c99_test <- cbind(marc1_c99_test[," + startOfData + ":" + endOfData + "])");
 //        x = mRengine.eval("install.packages(\"C50\")");
         mRexp = mRengine.eval("library(" + classifier.getLibraryName() + ")");
+
+        final long start = System.nanoTime();
         mRexp = mRengine.eval("classifier <- " + classifier.getClassifierName() + "(compOverall ~., data = marc1_c99_train)");
         mRexp = mRengine.eval("p1_c99 <- predict(classifier, marc1_c99_test)");
         mRexp = mRengine.eval("library(caret)");
-        mRexp = mRengine.eval("confusionMatrix(p1_c99, marc1_c99_test[,8], positive = levels(marc1_c99_test$compOverall)[2])");
+        mRexp = mRengine.eval("confusionMatrix(p1_c99, marc1_c99_test$compOverall, positive = levels(marc1_c99_test$compOverall)[2])");
+        final long end = System.nanoTime();
         final ConfusionMatrix confusionMatrix = ConfusionMatrix.createFromRexp(mRexp);
+        confusionMatrix.setTimeElapsed((end - start) / 1000000);
         System.out.println(confusionMatrix);
     }
 

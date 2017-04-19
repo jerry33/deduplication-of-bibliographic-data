@@ -53,7 +53,6 @@ public class MainController {
     private XmlDataManager xmlDataManager = XmlDataManager.getInstance();
 
     public void start(Stage primaryStage) throws Exception {
-        final long start = System.nanoTime();
         System.out.println("start(), please select files");
 
         initMainListView();
@@ -61,7 +60,11 @@ public class MainController {
         initGui(primaryStage);
         loadRecordsFromDb();
 
-//        rManager.trainAndClassifyDataWithC99(Classifier.C50);
+//        final int startOfIds = Arrays.asList(MarcCompVector.COLUMNS).indexOf(MarcCompVector.COLUMN_COMP_C99_ID1);
+//        final int endOfIds = Arrays.asList(MarcCompVector.COLUMNS).indexOf(MarcCompVector.COLUMN_COMP_PERSONAL_NAME);
+//        final int startOfData = Arrays.asList(MarcCompVector.COLUMNS).indexOf(MarcCompVector.COLUMN_COMP_PUBLISHER_NAME);
+//        final int endOfData = MarcCompVector.COLUMNS.length;
+//        rManager.trainAndClassifyDataWithC99(Classifier.C50, startOfIds, endOfIds, startOfData, endOfData);
 //        new BlockingCompVectors().saveToCsvFromMarcXMLFile("/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/all_records_with_c99.xml");
 //        Printer.printOnlyDuplicates(xmlDataManager.getAllMarcRecords(null, "/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/all_records_with_c99.xml"));
 

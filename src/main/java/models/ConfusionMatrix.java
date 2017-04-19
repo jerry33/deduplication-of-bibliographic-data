@@ -11,6 +11,7 @@ public class ConfusionMatrix {
     private int trueNegative;
     private int falsePositive;
     private int falseNegative;
+    private long timeElapsed;
 
     public ConfusionMatrix(int truePositive, int trueNegative, int falsePositive, int falseNegative) {
         this.truePositive = truePositive;
@@ -58,6 +59,14 @@ public class ConfusionMatrix {
         this.falseNegative = falseNegative;
     }
 
+    public long getTimeElapsed() {
+        return timeElapsed;
+    }
+
+    public void setTimeElapsed(long timeElapsed) {
+        this.timeElapsed = timeElapsed;
+    }
+
     public double getSensitivity() {
         return (double)truePositive / ((double)truePositive + (double)falseNegative);
     }
@@ -89,6 +98,7 @@ public class ConfusionMatrix {
                 + "Sensitivity: " + getSensitivity() + "\n"
                 + "Precision: " + getPrecision() + "\n"
                 + "Recall: " +getRecall() + "\n"
-                + "Specificity: " + getSpecificity() + "\n";
+                + "Specificity: " + getSpecificity() + "\n"
+                + "Time elapsed (ms): " + getTimeElapsed() + "\n";
     }
 }
