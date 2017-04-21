@@ -44,6 +44,14 @@ public class MarcFieldsFinder {
         return "";
     }
 
+    public static String findEditionStatement(final Record r) {
+        String editionStatement = getValueBySubfieldOfDataField(r, "250", 'a');
+        if (StringUtils.isValid(editionStatement)) {
+            return editionStatement;
+        }
+        return "";
+    }
+
     public static String findC99FieldId(final Record r) {
         return getValueBySubfieldOfDataField(r, "C99", 'a');
     }

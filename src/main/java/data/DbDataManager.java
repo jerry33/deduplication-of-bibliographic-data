@@ -129,7 +129,7 @@ public class DbDataManager {
             PreparedStatement preparedStatement;
             try {
                 preparedStatement = conn.prepareStatement(query);
-                preparedStatement.setString(1, marcRecord.getTypeOfMaterial());
+                preparedStatement.setString(1, marcRecord.getTypeOfMaterial().toString());
                 preparedStatement.setString(2, marcRecord.getC99FieldIdRaw());
                 preparedStatement.setString(3, marcRecord.getControlFieldId());
                 preparedStatement.setString(4, marcRecord.getLibraryId());
@@ -188,7 +188,7 @@ public class DbDataManager {
             try {
                 preparedStatement = conn.prepareStatement(query);
                 preparedStatement.setInt(1, primaryKey);
-                preparedStatement.setString(2, marcRecord.getTypeOfMaterial());
+                preparedStatement.setString(2, marcRecord.getTypeOfMaterial().toString());
                 preparedStatement.setString(3, marcRecord.getC99FieldIdRaw());
                 preparedStatement.setString(4, marcRecord.getControlFieldId());
                 preparedStatement.setString(5, marcRecord.getLibraryId());

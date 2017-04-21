@@ -28,7 +28,7 @@ public class MarcRecord implements Comparable<MarcRecord> {
     public static final String COLUMN_915 = "column_915";
 
     private int primaryKey;
-    private String typeOfMaterial;
+    private TypeOfMaterial typeOfMaterial;
     private String c99FieldId;
     private String controlFieldId;
     private String libraryId;
@@ -74,11 +74,11 @@ public class MarcRecord implements Comparable<MarcRecord> {
         this.primaryKey = primaryKey;
     }
 
-    public String getTypeOfMaterial() {
+    public TypeOfMaterial getTypeOfMaterial() {
         return typeOfMaterial;
     }
 
-    public void setTypeOfMaterial(String typeOfMaterial) {
+    public void setTypeOfMaterial(TypeOfMaterial typeOfMaterial) {
         this.typeOfMaterial = typeOfMaterial;
     }
 
@@ -326,7 +326,7 @@ public class MarcRecord implements Comparable<MarcRecord> {
         try {
             // raw data
             setPrimaryKey(rs.getInt(MarcRecord.COLUMN_PRIMARY_KEY));
-            setTypeOfMaterial(rs.getString(MarcRecord.COLUMN_TYPE_OF_MATERIAL));
+            setTypeOfMaterial(new TypeOfMaterial(rs.getString(MarcRecord.COLUMN_TYPE_OF_MATERIAL)));
             setC99FieldIdRaw(rs.getString(MarcRecord.COLUMN_C99_FIELD_ID));
             setControlFieldId(rs.getString(MarcRecord.COLUMN_CONTROL_FIELD_ID));
             setLibraryId(rs.getString(MarcRecord.COLUMN_LIBRARY_ID));
@@ -357,8 +357,10 @@ public class MarcRecord implements Comparable<MarcRecord> {
 
     public String getFormatted() {
         return "Názov diela: " + getTitleRaw() + "\n"
-                + "Autor: " + (StringUtils.isValid(getPersonalNameRaw()) ? getPersonalNameRaw() : getPublisherNameRaw()) + "\n"
+                + "Autor / vydavateľ: " + (StringUtils.isValid(getPersonalNameRaw()) ? getPersonalNameRaw() : getPublisherNameRaw()) + "\n"
+                + "Typ záznamu: " + getTypeOfMaterial().getBibliographicLevel() + ", " + getTypeOfMaterial().getTypeOfRecord() + "\n"
                 + "Rok vydania: " + (StringUtils.isValid(getYearOfAuthorRaw()) ? getYearOfAuthorRaw() : getYearOfPublicationRaw()) + "\n"
+                + "ISBN / ISSN: " + getInternationalStandardNumberRaw() + "\n"
                 + "Id knižničného katalógu: " + getLibraryId() + "\n"
                 + "Id bibliografického diela: " + getControlFieldId();
     }

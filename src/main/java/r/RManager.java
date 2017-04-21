@@ -79,6 +79,32 @@ public class RManager {
         System.out.println(confusionMatrix);
     }
 
+//    public void trainAndClassifyDataWithC99(final Classifier classifier, final int startOfIds, final int endOfIds,
+//                                            final int startOfData, final int endOfData) {
+//        mRexp = mRengine.eval("marc1 <- read.csv(\"/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/all_records_with_c99_blocking_comp_vectors.csv\")");
+//        mRexp = mRengine.eval("dataset_size <- nrow(marc1)");
+//        mRexp = mRengine.eval("train_size <- round(dataset_size * 0.85)");
+//        mRexp = mRengine.eval("marc1_c99_train <- marc1[1:train_size,]");
+//        mRexp = mRengine.eval("marc1_c99_test <- marc1[(train_size+1):dataset_size,]");
+//        mRexp = mRengine.eval("marc1_c99_train_ids <- cbind(marc1_c99_train[," + startOfIds + ":" + endOfIds + "])");
+//        mRexp = mRengine.eval("marc1_c99_train <- cbind(marc1_c99_train[," + startOfData + ":" + endOfData + "])");
+//        mRexp = mRengine.eval("marc1_c99_test_ids <- cbind(marc1_c99_test[," + startOfIds + ":" + endOfIds + "])");
+//        mRexp = mRengine.eval("marc1_c99_test <- cbind(marc1_c99_test[," + startOfData + ":" + endOfData + "])");
+////        x = mRengine.eval("install.packages(\"C50\")");
+//        mRexp = mRengine.eval("library(" + classifier.getLibraryName() + ")");
+//
+//        final long start = System.nanoTime();
+//        mRexp = mRengine.eval("classifier <- " + classifier.getClassifierName() + "(compOverall ~., data = marc1_c99_train)");
+//        mRexp = mRengine.eval("p1_c99 <- predict(classifier, marc1_c99_test)");
+//        final long end = System.nanoTime();
+//
+//        mRexp = mRengine.eval("library(caret)");
+//        mRexp = mRengine.eval("confusionMatrix(p1_c99, marc1_c99_test$compOverall, positive = levels(marc1_c99_test$compOverall)[2])");
+//        final ConfusionMatrix confusionMatrix = ConfusionMatrix.createFromRexp(mRexp);
+//        confusionMatrix.setTimeElapsed((end - start) / 1000000);
+//        System.out.println(confusionMatrix);
+//    }
+
     public REXP trainAndClassifyData() {
         mRexp = mRengine.eval("marc1_c99 <- read.csv(\"/Users/jerry/Desktop/idea/marc_comp_vectors3_with_c99.csv\")");
 //        x = rengine.eval("myData$compPersonalName");

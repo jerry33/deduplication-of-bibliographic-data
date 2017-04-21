@@ -71,7 +71,7 @@ public class BlockingCompVectors implements CompVectors {
                 for (int j = i + 1; j < blockOfMarcRecords.size(); j++) {
                     final MarcRecord record1 = blockOfMarcRecords.get(i);
                     final MarcRecord record2 = blockOfMarcRecords.get(j);
-                    final boolean typesOfMaterialMatch = record1.getTypeOfMaterial().equals(record2.getTypeOfMaterial());
+                    final boolean typesOfMaterialMatch = record1.getTypeOfMaterial().toString().equals(record2.getTypeOfMaterial().toString());
                     if (typesOfMaterialMatch) {
                         numberOfComparisons++;
 //                        System.out.println("numberOfComparisons: " + numberOfComparisons);

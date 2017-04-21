@@ -166,7 +166,7 @@ public class MainController {
 
                                 }
                             });
-                            Printer.printUniqueList(observableListOfUniqueRecords);
+//                            Printer.printUniqueList(observableListOfUniqueRecords);
                             return null;
                         }
                     }).start();
@@ -247,7 +247,7 @@ public class MainController {
 
             }
         });
-        Printer.printUniqueList(observableListOfUniqueRecords);
+//        Printer.printUniqueList(observableListOfUniqueRecords);
     }
 
     private void initMainListView() {

@@ -1,6 +1,7 @@
 package data;
 
 import models.MarcRecord;
+import models.TypeOfMaterial;
 import org.marc4j.MarcReader;
 import org.marc4j.MarcXmlReader;
 import org.marc4j.marc.ControlField;
@@ -53,7 +54,8 @@ public class XmlDataManager {
                     marcRecord.setLibraryId(c.getData()); // set library id
                 }
             }
-            marcRecord.setTypeOfMaterial(typeOfMaterial);
+
+            marcRecord.setTypeOfMaterial(new TypeOfMaterial(typeOfMaterial));
             marcRecord.setControlFieldId(r.getControlNumber());
             marcRecord.setC99FieldId(StringUtils.standardizeString(MarcFieldsFinder.findC99FieldId(r)));
             marcRecord.setPersonalName(StringUtils.standardizeString(MarcFieldsFinder.findPersonalName(r)));
@@ -76,6 +78,10 @@ public class XmlDataManager {
             marcRecord.setInternationalStandardNumberRaw(MarcFieldsFinder.findInternationalStandardNumber(r));
 
             marcRecord.generateBlockingKey();
+
+//            if (StringUtils.isValid(MarcFieldsFinder.findEditionStatement(r))) { // we found 250$a
+//                System.out.println("typeOfMaterial with 250$a: " + marcRecord.getTypeOfMaterial() + "; " + marcRecord.getControlFieldId());
+//            }
 
             marcRecords.add(marcRecord);
         }

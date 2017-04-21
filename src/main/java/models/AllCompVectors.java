@@ -25,7 +25,7 @@ public class AllCompVectors implements CompVectors {
             for (int j = i + 1; j < marcRecords.size(); j++) {
                 final MarcRecord record1 = marcRecords.get(i);
                 final MarcRecord record2 = marcRecords.get(j);
-                final boolean typesOfMaterialMatch = record1.getTypeOfMaterial().equals(record2.getTypeOfMaterial());
+                final boolean typesOfMaterialMatch = record1.getTypeOfMaterial().toString().equals(record2.getTypeOfMaterial().toString());
                 if (typesOfMaterialMatch) {
                     final MarcCompVector marcCompVector = MarcUtils.createCompVector(record1, record2);
                     if (record1.getC99FieldId().equals(record2.getC99FieldId())) {
