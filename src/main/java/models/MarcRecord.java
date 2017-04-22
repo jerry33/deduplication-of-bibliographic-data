@@ -274,10 +274,10 @@ public class MarcRecord implements Comparable<MarcRecord> {
             authorAbbreviation = StringUtils.sortCharactersInString(StringUtils.getFirstCharactersFromEachWord(getPersonalName()));
             if (StringUtils.isValid(getTitle())) {
                 titleAbbreviation = StringUtils.sortCharactersInString(StringUtils.getFirstCharactersFromEachWord(getTitle()));
-                if (StringUtils.isValid(getYearOfAuthor())) {
-                    year = getYearOfAuthor();
-                } else if (StringUtils.isValid(getYearOfPublication())) {
+                if (StringUtils.isValid(getYearOfPublication())) {
                     year = getYearOfPublication();
+                } else if (StringUtils.isValid(getYearOfAuthor())) {
+                    year = getYearOfAuthor();
                 }
                 setBlockingKey(authorAbbreviation.concat("-").concat(titleAbbreviation).concat("-").concat(year));
             }
