@@ -29,12 +29,12 @@ public class TypeOfMaterial {
         throw new IllegalArgumentException("wrong MARC letter for type of record!");
     }
 
-    public String getTypeOfRecord() {
-        return this.typeOfRecord.toString();
+    public TypeOfRecord getTypeOfRecord() {
+        return this.typeOfRecord;
     }
 
-    public String getBibliographicLevel() {
-        return this.bibliographicLevel.toString();
+    public BibliographicLevel getBibliographicLevel() {
+        return this.bibliographicLevel;
     }
 
     @Override
@@ -51,50 +51,62 @@ public class TypeOfMaterial {
         throw new IllegalArgumentException("wrong MARC letter for bibliographic level!");
     }
 
-    private enum TypeOfRecord {
-        LANGUAGE_MATERIAL('a'),
-        NOTATED_MUSIC('c'),
-        MANUSCRIPT_NOTATED_MUSIC('d'),
-        CARTOGRAPHIC_MATERIAL('e'),
-        MANUSCRIPT_CARTOGRAPHIC_MATERIAL('f'),
-        PROJECTED_MEDIUM('g'),
-        NONMUSICAL_SOUND_RECORDING('i'),
-        MUSICAL_SOUND_RECORDING('j'),
-        TWO_DIMENSIONAL_NONPROJECTABLE_GRAPHIC('k'),
-        COMPUTER_FILE('m'),
-        KIT('o'),
-        MIXED_MATERIALS('p'),
-        THREE_DIMENSIONAL_ARTIFACT_OR_NATURALLY_OCCURRING_OBJECT('r'),
-        MANUSCRIPT_LANGUAGE_MATERIAL('t');
+    public enum TypeOfRecord {
+        LANGUAGE_MATERIAL('a', "Jazykový materiál"),
+        NOTATED_MUSIC('c', "Notovaná hudba"),
+        MANUSCRIPT_NOTATED_MUSIC('d', "Rukopisne notovaná hudba"),
+        CARTOGRAPHIC_MATERIAL('e', "Kartografický materiál"),
+        MANUSCRIPT_CARTOGRAPHIC_MATERIAL('f', "Rukopisný kartografický materiál"),
+        PROJECTED_MEDIUM('g', "Projektované médium"),
+        NONMUSICAL_SOUND_RECORDING('i', "Nehudobná zvuková nahrávka"),
+        MUSICAL_SOUND_RECORDING('j', "Hudobná zvuková nahrávka"),
+        TWO_DIMENSIONAL_NONPROJECTABLE_GRAPHIC('k', "Dvojdimenzionálna neprojektovateľná grafika"),
+        COMPUTER_FILE('m', "Počítačový súbor"),
+        KIT('o', "Set"),
+        MIXED_MATERIALS('p', "Zmiešané materiály"),
+        THREE_DIMENSIONAL_ARTIFACT_OR_NATURALLY_OCCURRING_OBJECT('r', "Trojdimenzionálny artefakt prirodzene vyskytujúceho sa objektu"),
+        MANUSCRIPT_LANGUAGE_MATERIAL('t', "Rukopisný jazykový materiál");
 
         private char code;
+        private String formattedTitle;
 
-        TypeOfRecord(final char code) {
+        TypeOfRecord(final char code, final String formattedTitle) {
             this.code = code;
+            this.formattedTitle = formattedTitle;
         }
 
         public char getCode() {
             return code;
+        }
+
+        public String getFormattedTitle() {
+            return formattedTitle;
         }
     }
 
-    private enum BibliographicLevel {
-        MONOGRAPHIC_COMPONENT_PART('a'),
-        SERIAL_COMPONENT_PART('b'),
-        COLLECTION('c'),
-        SUBUNIT('d'),
-        INTEGRATING_RESOURCE('i'),
-        MONOGRAPH_ITEM('m'),
-        SERIAL('s');
+    public enum BibliographicLevel {
+        MONOGRAPHIC_COMPONENT_PART('a', "Časť monografu"),
+        SERIAL_COMPONENT_PART('b', "Časť seriálu"),
+        COLLECTION('c', "Kolekcia"),
+        SUBUNIT('d', "Subjednotka"),
+        INTEGRATING_RESOURCE('i', "Integrovaný zdroj"),
+        MONOGRAPH_ITEM('m', "Monograf"),
+        SERIAL('s', "Seriál");
 
         private char code;
+        private String formattedTitle;
 
-        BibliographicLevel(final char code) {
+        BibliographicLevel(final char code, final String formattedTitle) {
             this.code = code;
+            this.formattedTitle = formattedTitle;
         }
 
         public char getCode() {
             return code;
+        }
+
+        public String getFormattedTitle() {
+            return formattedTitle;
         }
     }
 
