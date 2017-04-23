@@ -357,7 +357,8 @@ public class MarcRecord implements Comparable<MarcRecord> {
 
     public String getFormatted() {
         return "Názov diela: " + getTitleRaw() + "\n"
-                + "Autor / vydavateľ: " + (StringUtils.isValid(getPersonalNameRaw()) ? getPersonalNameRaw() : getPublisherNameRaw()) + "\n"
+                + "Autor: " + getPersonalNameRaw() + "\n"
+                + "Vydavateľ: " + getPublisherNameRaw() + "\n"
                 + "Typ záznamu: " + getTypeOfMaterial().getBibliographicLevel().getFormattedTitle() + ", " + getTypeOfMaterial().getTypeOfRecord().getFormattedTitle() + "\n"
                 + "Rok vydania: " + (StringUtils.isValid(getYearOfAuthorRaw()) ? getYearOfAuthorRaw() : getYearOfPublicationRaw()) + "\n"
                 + "ISBN / ISSN: " + getInternationalStandardNumberRaw() + "\n"
