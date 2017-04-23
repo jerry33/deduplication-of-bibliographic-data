@@ -90,7 +90,8 @@ public class ConfusionMatrix {
 
     @Override
     public String toString() {
-        return "True positive: " + truePositive + "\n"
+        return "Test dataset size: " + (truePositive + trueNegative + falsePositive + falseNegative) + "\n"
+                + "True positive: " + truePositive + "\n"
                 + "True negative: " + trueNegative + "\n"
                 + "False positive: " + falsePositive + "\n"
                 + "False negative: " + falseNegative + "\n"

@@ -58,8 +58,8 @@ public class RManager {
     public void trainAndClassifyDataWithC99(final Classifier classifier, final int startOfIds, final int endOfIds,
                                             final int startOfData, final int endOfData) {
         mRexp = mRengine.eval("marc1 <- read.csv(\"/Users/jerry/Desktop/git/deduplication-of-bibliographic-data/assets/prod/all_records_with_c99_blocking_comp_vectors.csv\")");
-        mRexp = mRengine.eval("marc1_c99_train <- marc1[1:61546,]");
-        mRexp = mRengine.eval("marc1_c99_test <- marc1[61547:71546,]");
+        mRexp = mRengine.eval("marc1_c99_train <- marc1[1:136432,]");
+        mRexp = mRengine.eval("marc1_c99_test <- marc1[136433:156432,]");
         mRexp = mRengine.eval("marc1_c99_train_ids <- cbind(marc1_c99_train[," + startOfIds + ":" + endOfIds + "])");
         mRexp = mRengine.eval("marc1_c99_train <- cbind(marc1_c99_train[," + startOfData + ":" + endOfData + "])");
         mRexp = mRengine.eval("marc1_c99_test_ids <- cbind(marc1_c99_test[," + startOfIds + ":" + endOfIds + "])");
