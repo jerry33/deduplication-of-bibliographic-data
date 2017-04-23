@@ -35,11 +35,13 @@ public class MarcFieldsFinder {
     public static String findPublisherName(final Record r) {
         String publisherName = getValueBySubfieldOfDataField(r, "264", 'b');
         if (StringUtils.isValid(publisherName)) {
-            return publisherName;
+            final String publisherPlace = getValueBySubfieldOfDataField(r, "264", 'a');
+            return StringUtils.isValid(publisherPlace) ? (publisherName + " " + publisherPlace) : publisherName;
         }
         publisherName = getValueBySubfieldOfDataField(r, "260", 'b');
         if (StringUtils.isValid(publisherName)) {
-            return publisherName;
+            final String publisherPlace = getValueBySubfieldOfDataField(r, "260", 'a');
+            return StringUtils.isValid(publisherPlace) ? (publisherName + " " + publisherPlace) : publisherName;
         }
         return "";
     }
