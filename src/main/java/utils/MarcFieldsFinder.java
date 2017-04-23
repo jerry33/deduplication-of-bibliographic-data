@@ -61,7 +61,15 @@ public class MarcFieldsFinder {
     }
 
     public static String findNameOfPart(final Record r) {
-        return getValueBySubfieldOfDataField(r, "245", 'p');
+        String nameOfPart = getValueBySubfieldOfDataField(r, "245", 'p');
+        if (StringUtils.isValid(nameOfPart)) {
+            return nameOfPart;
+        }
+        nameOfPart = getValueBySubfieldOfDataField(r, "245", 'n');
+        if (StringUtils.isValid(nameOfPart)) {
+            return nameOfPart;
+        }
+        return "";
     }
 
     public static String find915(final Record r) {
