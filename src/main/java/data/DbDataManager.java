@@ -216,6 +216,34 @@ public class DbDataManager {
 //        }
     }
 
+    public MarcRecord getLastAddedRecord() {
+        Connection conn;
+        try {
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        conn = getConnection();
+
+        final String query = "SELECT * FROM master_records ORDER BY id DESC LIMIT 1";
+        try {
+            if (conn != null) {
+                final Statement statement = conn.createStatement();
+                final ResultSet rs = statement.executeQuery(query);
+                if (rs.next()) {
+                    final MarcRecord marcRecord = new MarcRecord();
+                    marcRecord.setIsMasterDatabaseRecord(true);
+                    marcRecord.bindData(rs);
+                    return marcRecord;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public void deleteAllRows(final String tableName) {
         Connection conn;
         try {

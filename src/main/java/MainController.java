@@ -143,19 +143,44 @@ public class MainController {
         startDeduplicationButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                if (StringUtils.isValid(filePathFirstFile) && StringUtils.isValid(filePathSecondFile)) {
+                if (StringUtils.isValid(filePathFirstFile)) {
                     new Thread(new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
+                            System.out.println("call()");
                             final List<MarcRecord> marcRecords1
                                     = xmlDataManager
                                     .getAllMarcRecords(null,
                                             filePathFirstFile);
-                            final List<MarcRecord> marcRecords2
-                                    = xmlDataManager
-                                    .getAllMarcRecords(null,
-                                            filePathSecondFile);
-                            observableListOfUniqueRecords.addAll(createUniqueListFromTwoFiles(marcRecords1, marcRecords2));
+//                            final List<MarcRecord> marcRecords2
+//                                    = xmlDataManager
+//                                    .getAllMarcRecords(null,
+//                                            filePathSecondFile);
+                            System.out.println("data loaded, size: " + marcRecords1.size());
+                            final List<List<MarcRecord>> mergedUniqueList = createUniqueListFromOneFile(marcRecords1);
+                            for (List<MarcRecord> marcRecordsList : mergedUniqueList) {
+                                if (marcRecordsList.size() > 0) {
+                                    MarcRecord masterRecord = marcRecordsList.get(0);
+                                    masterRecord.setIsMasterDatabaseRecord(true);
+                                    DbDataManager.getInstance().insertAllMarcRecordsToDatabase(new ArrayList<>(Collections.singleton(masterRecord)), DbDataManager.DB_MASTER_RECORDS);
+                                    masterRecord = DbDataManager.getInstance().getLastAddedRecord();
+                                    if (marcRecordsList.size() > 1) {
+                                        for (int i = 1; i < marcRecordsList.size(); i++) {
+                                            final MarcRecord marcRecord = marcRecordsList.get(i);
+                                            marcRecord.setIsMasterDatabaseRecord(false);
+                                            DbDataManager.getInstance().insertAllMarcRecordsToDatabaseWithPrimaryKey(new ArrayList<>(Collections.singleton(marcRecord)), masterRecord.getPrimaryKey());
+                                        }
+                                    }
+                                }
+                            }
+
+                            System.out.println("mergedUniqueList.size(): " + mergedUniqueList.size());
+                            initMasterRecordsUniqueList(DbDataManager.getInstance());
+                            final ObservableList<List<MarcRecord>> observableList = FXCollections.observableList(masterRecordsUniqueList);
+                            listViewMain.getSelectionModel().clearSelection();
+                            System.out.println("set items");
+                            listViewMain.setItems(observableList);
+                            observableListOfUniqueRecords.addAll();
                             listViewMain.setOnMouseClicked(new EventHandler<MouseEvent>() {
                                 @Override
                                 public void handle(MouseEvent event) {
@@ -418,7 +443,7 @@ public class MainController {
                 uniqueList.add(new ArrayList<>(Collections.singleton(marcRecord)));
             }
         }
-        System.out.println("marcRecords.size(): " + marcRecords.size());
+        System.out.println("block: marcRecords.size(): " + marcRecords.size());
     }
 
     private List<MarcRecord> createUniqueMarcRecords(final List<List<MarcRecord>> uniqueList) {
@@ -431,6 +456,7 @@ public class MainController {
 
     @SuppressWarnings("Duplicates")
     private List<List<MarcRecord>> createUniqueMarcRecordsList(final List<MarcCompVector> marcCompVectors, final List<MarcRecord> marcRecords, final List<List<MarcRecord>> existingUniqueList) {
+        System.out.println("marcRecords.size(): " + marcRecords.size());
         final List<List<MarcRecord>> uniqueList = existingUniqueList == null ? new ArrayList<>() : existingUniqueList;
         for (MarcCompVector marcCompVector : marcCompVectors) {
             if (!marcCompVector.isDuplicate()) {
@@ -521,7 +547,15 @@ public class MainController {
                 }
             }
         }
+        System.out.println("marcRecordsHashMap.size(): " + marcRecordsHashMap.size());
         addAllRecordsWithoutBlock(uniqueList, marcRecords);
+        int counter = 0;
+        for (int i = 0; i < uniqueList.size(); i++) {
+            for (int j = 0; j < uniqueList.get(i).size(); j++) {
+                counter++;
+            }
+        }
+        System.out.println("number of all records in unique list: " + counter);
         return uniqueList;
     }
 
