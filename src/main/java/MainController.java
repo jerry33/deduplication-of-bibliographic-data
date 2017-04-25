@@ -40,7 +40,7 @@ public class MainController {
 
     private List<List<MarcRecord>> masterRecordsUniqueList = new ArrayList<>();
 
-    private String filePathFirstFile, filePathSecondFile;
+    private String filePathFirstFile;
 
     private Classifier selectedClassifier = Classifier.C50;
     
@@ -81,11 +81,8 @@ public class MainController {
         final Text textFirstFilePath = new Text();
         textFirstFilePath.setText("/path/to/file1.xml");
 
-        final Text textSecondFilePath = new Text();
-        textSecondFilePath.setText("/path/to/file2.xml");
-
         final Button buttonFirstFile = new Button();
-        buttonFirstFile.setText("Načítať prvý súbor");
+        buttonFirstFile.setText("Deduplikovať jeden súbor");
         buttonFirstFile.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -93,19 +90,6 @@ public class MainController {
                 if (file != null) {
                     textFirstFilePath.setText(file.getName());
                     filePathFirstFile = file.getAbsolutePath();
-                }
-            }
-        });
-
-        final Button buttonSecondFile = new Button();
-        buttonSecondFile.setText("Načítať druhý súbor");
-        buttonSecondFile.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                final File file = FileUtils.openFileFromDialog(primaryStage);
-                if (file != null) {
-                    textSecondFilePath.setText(file.getName());
-                    filePathSecondFile = file.getAbsolutePath();
                 }
             }
         });
@@ -136,7 +120,6 @@ public class MainController {
         });
 
         vBox.getChildren().add(textFirstFilePath);
-        vBox.getChildren().add(textSecondFilePath);
 
         final Button startDeduplicationButton = new Button();
         startDeduplicationButton.setText("Spustiť deduplikáciu");
@@ -152,10 +135,6 @@ public class MainController {
                                     = xmlDataManager
                                     .getAllMarcRecords(null,
                                             filePathFirstFile);
-//                            final List<MarcRecord> marcRecords2
-//                                    = xmlDataManager
-//                                    .getAllMarcRecords(null,
-//                                            filePathSecondFile);
                             System.out.println("data loaded, size: " + marcRecords1.size());
                             final List<List<MarcRecord>> mergedUniqueList = createUniqueListFromOneFile(marcRecords1);
                             for (List<MarcRecord> marcRecordsList : mergedUniqueList) {
@@ -248,7 +227,7 @@ public class MainController {
 
         vBox.getChildren().add(startDeduplicationDbButton);
 
-        ToolBar toolBar = new ToolBar(buttonFirstFile, buttonSecondFile, buttonSaveToDb, buttonDeleteDb);
+        ToolBar toolBar = new ToolBar(buttonFirstFile, buttonSaveToDb, buttonDeleteDb);
         root.setTop(toolBar);
         root.setLeft(vBox);
         root.setCenter(listViewMain);
