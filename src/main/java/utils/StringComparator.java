@@ -14,6 +14,8 @@ public class StringComparator {
     public static double comparePersonalName(final String s1, final String s2) {
         if (StringUtils.isValid(s1) && StringUtils.isValid(s2)) {
             return new JaroWinkler().similarity(s1, s2);
+        } else if (!StringUtils.isValid(s1) && !StringUtils.isValid(s2)) {
+            return 1.0f;
         }
         return 0.5f;
     }
@@ -21,6 +23,8 @@ public class StringComparator {
     public static double comparePublisher(final String s1, final String s2) {
         if (StringUtils.isValid(s1) && StringUtils.isValid(s2)) {
             return new JaroWinkler().similarity(s1, s2);
+        } else if (!StringUtils.isValid(s1) && !StringUtils.isValid(s2)) {
+            return 1.0f;
         }
         return 0.5f;
     }
@@ -28,6 +32,8 @@ public class StringComparator {
     public static double compareTitle(final String s1, final String s2) {
         if (StringUtils.isValid(s1) && StringUtils.isValid(s2)) {
             return new JaroWinkler().similarity(s1, s2);
+        } else if (!StringUtils.isValid(s1) && !StringUtils.isValid(s2)) {
+            return 1.0f;
         }
         return 0.5f;
     }
@@ -35,6 +41,8 @@ public class StringComparator {
     public static double compareNameOfPart(final String s1, final String s2) {
         if (StringUtils.isValid(s1) && StringUtils.isValid(s2)) {
             return new JaroWinkler().similarity(s1, s2);
+        } else if (!StringUtils.isValid(s1) && !StringUtils.isValid(s2)) {
+            return 1.0f;
         }
         return 0.5f;
     }
@@ -72,14 +80,16 @@ public class StringComparator {
                 final int year1 = Integer.parseInt(s1);
                 final int year2 = Integer.parseInt(s2);
                 final int diff = Math.abs(year1 - year2);
-                if (diff == 0) return 0.0f;
-                if (diff == 1) return 0.25f;
+                if (diff == 0) return 1.0f;
+                if (diff == 1) return 0.75f;
                 if (diff == 2) return 0.5f;
-                if (diff == 3) return 0.75f;
-                if (diff >= 4) return 1.0f;
+                if (diff == 3) return 0.25f;
+                if (diff >= 4) return 0.0f;
             } catch (NumberFormatException e) {
                 e.printStackTrace();
             }
+        } else if (!StringUtils.isValid(s1) && !StringUtils.isValid(s2)) {
+            return 1.0f;
         }
         return 0.5f;
     }
@@ -88,6 +98,8 @@ public class StringComparator {
         if (StringUtils.isValid(s1) && StringUtils.isValid(s2)) {
             final double similarity = new JaroWinkler().similarity(s1, s2);
             return similarity >= 0.9f ? similarity : 0.0f;
+        } else if (!StringUtils.isValid(s1) && !StringUtils.isValid(s2)) {
+            return 1.0f;
         }
         return 0.5f;
     }
