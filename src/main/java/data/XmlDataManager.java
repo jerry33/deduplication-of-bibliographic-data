@@ -49,12 +49,18 @@ public class XmlDataManager {
             final String charAt6 = String.valueOf(r.getLeader().marshal().charAt(6));
             final String charAt7 = String.valueOf(r.getLeader().marshal().charAt(7));
             final String typeOfMaterial = String.valueOf(charAt6.concat(charAt7));
+            boolean is008Found = false;
             for (ControlField c : r.getControlFields()) {
                 if (c.getTag().equals("003")) {
                     marcRecord.setLibraryId(c.getData()); // set library id
                 }
+                if (c.getTag().equals("008")) {
+                    is008Found = true;
+                }
             }
-
+            if (!is008Found) {
+                continue;
+            }
             marcRecord.setTypeOfMaterial(new TypeOfMaterial(typeOfMaterial));
             marcRecord.setControlFieldId(r.getControlNumber());
             marcRecord.setC99FieldId(StringUtils.standardizeString(MarcFieldsFinder.findC99FieldId(r)));
