@@ -84,7 +84,7 @@ public class ConfusionMatrix {
         return (double)truePositive / ((double)truePositive + (double)falsePositive);
     }
 
-    public double getRecall() {
+    public double getNegativePredictiveValue() {
         return (double)trueNegative / ((double)trueNegative + (double)falseNegative);
     }
 
@@ -98,7 +98,7 @@ public class ConfusionMatrix {
                 + "Accuracy: " + getAccuracy() + "\n"
                 + "Sensitivity: " + getSensitivity() + "\n"
                 + "Precision: " + getPrecision() + "\n"
-                + "Recall: " +getRecall() + "\n"
+                + "Negative predictive value: " + getNegativePredictiveValue() + "\n"
                 + "Specificity: " + getSpecificity() + "\n"
                 + "Time elapsed (ms): " + getTimeElapsed() + "\n";
     }
